@@ -1,0 +1,1 @@
+insert into room (room_number) values ('1')
