@@ -1,24 +1,47 @@
+package nicole.entity
+
 import java.time.LocalDate
+import java.util.UUID
+
+data class BookingId(
+    val id: UUID
+){
+    fun next(): BookingId = BookingId(UUID.randomUUID())
+}
+
+data class RoomNumber(
+    val number: Int
+)
 
 // TODO: JMolecules @ValueObject
-data class Booking(
+data class BookingForRoom(
     val startDate: LocalDate,
     val endDate: LocalDate,
+    val roomNumber: RoomNumber,
 ) {
-    public fun contains(date: LocalDate): Boolean =
+    fun contains(date: LocalDate): Boolean =
         (date == startDate || date.isAfter(startDate)) && date.isBefore(endDate)
 }
 
 // TODO: JMolecules @Aggregate
-data class Allotment(
+data class Bookings(
     val roomCount: Int,
     // blockedIntervals
-    val bookings: List<Booking>, // all bookings not checked out yet
+    val bookings: Map<RoomNumber, List<BookingForRoom>>, // all bookings not checked out yet
 ) {
+    fun invariantsAreSatisfied(): Boolean =
+        bookings.map {
+                (number, list) -> list.filter { booking -> booking.roomNumber != number }.isEmpty()
+        }.filter { isEmpty -> isEmpty == false }.isEmpty()
+
     fun bookingCount(date: LocalDate): Int =
-        bookings.count { existingBooking ->
-            existingBooking.contains(date)
+        bookings.values.fold(0) { acc, list ->
+            acc + list.count { existingBooking ->
+                existingBooking.contains(date)
+            }
         }
+
+
     fun roomCount(): Int = roomCount // - blocked intervals
 }
 
@@ -27,7 +50,7 @@ enum class BookingSuccess {
     FAILURE, // which dates are already fully booked?
 }
 
-fun bookRoom(bookingRequest: RequestBooking, allotment: Allotment): Pair<Allotment, BookingSuccess> =
+fun bookArbitraryRoom(bookingRequest: RequestBooking, allotment: Bookings): Pair<Bookings, BookingSuccess> =
     when (
         bookingRequest.toListOfDates()
             .map { allotment.bookingCount(it) }
@@ -38,7 +61,7 @@ fun bookRoom(bookingRequest: RequestBooking, allotment: Allotment): Pair<Allotme
         0 -> Pair(
             allotment.copy(
                 bookings = allotment.bookings.plus(
-                    Booking(
+                    BookingForRoom(
                         bookingRequest.startDate,
                         bookingRequest.endDate,
                     ),
@@ -49,6 +72,10 @@ fun bookRoom(bookingRequest: RequestBooking, allotment: Allotment): Pair<Allotme
 
         else -> Pair(allotment, BookingSuccess.FAILURE)
     }
+
+fun bookSpecificRoom(bookingRequest: RequestBooking, roomNumber: RoomNumber, allotment: Bookings): Pair<Bookings, BookingSuccess> =
+    Pair(allotment, BookingSuccess.FAILURE)
+
 
 // TODO: JMolecules @Command
 data class RequestBooking(
