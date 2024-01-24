@@ -131,7 +131,10 @@ class HotelServiceTest {
         service.bookRoom(startDate, endDate, "Fred");
 
         // THEN
-        assertThat(rooms);
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fred");
+        assertThat(foundIntervals).hasSize(1);
+        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
+        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
     }
 
     @Test
@@ -147,7 +150,8 @@ class HotelServiceTest {
         service.bookRoom(startDate, endDate, "Jack");
 
         // THEN
-        assertThat(rooms);
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jack");
+        assertThat(foundIntervals).hasSize(0);
     }
 
     @Test
@@ -162,7 +166,10 @@ class HotelServiceTest {
         service.bookRoom(startDate, endDate, "Jim");
 
         // THEN
-        assertThat(rooms);
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jim");
+        assertThat(foundIntervals).hasSize(1);
+        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
+        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
     }
 
 }
