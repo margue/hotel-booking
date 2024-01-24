@@ -1,6 +1,10 @@
 package persistence;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 public class BookingInterval {
 
@@ -11,4 +15,24 @@ public class BookingInterval {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public boolean contains(LocalDate date) {
+            return (date == startDate || date.isAfter(startDate)) && date.isBefore(endDate);
+    }
+
+    // method courtesy of Java 9 :)
+    private Stream<LocalDate> datesFromTo(LocalDate startInclusive, LocalDate endExclusive) {
+        long end = endExclusive.toEpochDay();
+        long start = startInclusive.toEpochDay();
+        if (end < start) {
+            throw new IllegalArgumentException(endExclusive + " < " + this);
+        }
+        return LongStream.range(start, end).mapToObj(LocalDate::ofEpochDay);
+    }
+
+
+    public List<LocalDate> dates(){
+        return datesFromTo(startDate, endDate).collect(Collectors.toList());
+    }
+
 }

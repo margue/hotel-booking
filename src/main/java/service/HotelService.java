@@ -1,5 +1,6 @@
 package service;
 
+import persistence.BookingInterval;
 import persistence.Room;
 import persistence.RoomRepository;
 
@@ -51,7 +52,7 @@ public class HotelService {
      */
     public Double requestRoom(LocalDate startDate, LocalDate endDate){
         for(Room room : rooms.getRooms().values()){
-            if(room.getBookings().size() == 0){
+            if(room.roomIsFree(new BookingInterval(startDate, endDate))){
                 return 100.0;
             }
         }

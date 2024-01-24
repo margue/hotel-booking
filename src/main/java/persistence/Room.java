@@ -1,5 +1,6 @@
 package persistence;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class Room {
@@ -12,11 +13,29 @@ public class Room {
         this.bookings = bookings;
     }
 
-    public String getRoomNumber(){
+    public String getRoomNumber() {
         return roomNumber;
     }
 
     public List<BookingInterval> getBookings() {
         return bookings;
+    }
+
+    private boolean dateIsFree(LocalDate date) {
+        for (BookingInterval booking : bookings) {
+            if (booking.contains(date)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean roomIsFree(BookingInterval interval) {
+        for (LocalDate date : interval.dates()) {
+            if (!dateIsFree(date)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
