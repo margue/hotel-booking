@@ -23,7 +23,7 @@ public class HotelService {
 
     USE CASES:
     + zimmerinformation erfragen (Verfügbarkeit, Preis)
-    - zimmer buchen
+    + zimmer buchen
     - zimmer zuweisen
     - einchecken
     - bezahlen
