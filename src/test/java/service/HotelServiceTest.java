@@ -1,6 +1,5 @@
 package service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import persistence.BookingInterval;
 import persistence.Room;
@@ -8,10 +7,9 @@ import persistence.RoomRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class HotelServiceTest {
 
@@ -23,6 +21,11 @@ class HotelServiceTest {
         return new HotelService(rooms);
     }
 
+    public RoomRepository setupRoomsWithOneRoomAndBookings(BookingInterval... bookingIntervals){
+        RoomRepository rooms = new RoomRepository();
+        rooms.save(new Room("1", new ArrayList<>(Arrays.asList(bookingIntervals))));
+        return rooms;
+    }
 
     @Test
     void requestRoom_roomAvailable() {
@@ -57,11 +60,8 @@ class HotelServiceTest {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
-        RoomRepository rooms = new RoomRepository();
-        List<BookingInterval> bookings = new ArrayList<>();
-        bookings.add(new BookingInterval(startDate, endDate));
-        rooms.save(new Room("1", bookings));
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
+                endDate)));
 
         // WHEN
         Double price = service.requestRoom(startDate, endDate);
@@ -75,11 +75,7 @@ class HotelServiceTest {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        RoomRepository rooms = new RoomRepository();
-        List<BookingInterval> bookings = new ArrayList<>();
-        bookings.add(new BookingInterval(startDate.plusDays(5), endDate.plusDays(7)));
-        rooms.save(new Room("1", bookings));
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate.plusDays(5), endDate.plusDays(7))));
 
         // WHEN
         Double price = service.requestRoom(startDate, endDate);
@@ -87,4 +83,66 @@ class HotelServiceTest {
         // THEN
         assertThat(price).isEqualTo(100.0);
     }
+
+    @Test
+    void bookRoom_roomAvailable() {
+        // GIVEN
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
+        HotelService service = new HotelService(rooms);
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+
+        // WHEN
+        service.bookRoom(startDate, endDate);
+
+        // THEN
+        assertThat(rooms);
+    }
+
+    @Test
+    void bookRoom_roomAvailableForMultipleNights() {
+        // GIVEN
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
+        HotelService service = new HotelService(rooms);
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+
+        // WHEN
+        service.bookRoom(startDate, endDate);
+
+        // THEN
+        assertThat(rooms);
+    }
+
+    @Test
+    void bookRoom_roomNotAvailable() {
+        // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
+                endDate));
+        HotelService service = new HotelService(rooms);
+
+        // WHEN
+        service.bookRoom(startDate, endDate);
+
+        // THEN
+        assertThat(rooms);
+    }
+
+    @Test
+    void bookRoom_roomAvailableAlthoughBookedOnDifferentDate() {
+        // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate.plusDays(5), endDate.plusDays(7)));
+        HotelService service = new HotelService(rooms);
+
+        // WHEN
+        service.bookRoom(startDate, endDate);
+
+        // THEN
+        assertThat(rooms);
+    }
+
 }

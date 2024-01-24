@@ -5,7 +5,6 @@ import persistence.Room;
 import persistence.RoomRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class HotelService {
 
@@ -21,7 +20,7 @@ public class HotelService {
     jede nacht kostet 100.0
 
     USE CASES:
-    - zimmerinformation erfragen (Verfügbarkeit, Preis)
+    + zimmerinformation erfragen (Verfügbarkeit, Preis)
     - zimmer buchen
     - zimmer zuweisen
     - einchecken
@@ -58,5 +57,16 @@ public class HotelService {
             }
         }
         return null;
+    }
+
+    public void bookRoom(LocalDate startDate, LocalDate endDate){
+        for(Room room : rooms.getRooms().values()){
+            BookingInterval bookingInterval = new BookingInterval(startDate, endDate);
+            if(room.roomIsFree(bookingInterval)){
+                room.getBookings().add(bookingInterval); // no validation (race condition?)
+                rooms.save(room); // not needed here, but generally required for persistence
+                return;
+            }
+        }
     }
 }
