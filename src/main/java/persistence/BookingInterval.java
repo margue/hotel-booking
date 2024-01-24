@@ -11,6 +11,7 @@ public class BookingInterval {
     private final LocalDate startDate;
     private final LocalDate endDate;
     private String customerName;
+    private boolean isCheckedIn = false;
 
     public BookingInterval(LocalDate startDate, LocalDate endDate) {
         this(startDate, endDate, null);
@@ -50,5 +51,13 @@ public class BookingInterval {
     }
     public String getCustomerName() {
         return customerName;
+    }
+
+    public boolean getIsCheckedIn() {
+        return isCheckedIn;
+    }
+
+    public void setIsCheckedIn(boolean isCheckedIn) {
+        this.isCheckedIn = isCheckedIn;
     }
 }

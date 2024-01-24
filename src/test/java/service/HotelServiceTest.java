@@ -173,4 +173,33 @@ class HotelServiceTest {
         assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
     }
 
+    @Test
+    void checkIn_roomWasBooked() {
+        // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
+                endDate, "Fritz"));
+        HotelService service = new HotelService(rooms);
+
+        // WHEN
+        service.checkIn("Fritz", startDate);
+
+        // THEN
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fritz");
+        assertThat(foundIntervals).hasSize(1);
+        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
+        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
+        assertThat(foundIntervals.get(0).getIsCheckedIn()).isTrue();
+    }
+
+    @Test
+    void checkIn_roomWasNotBooked() {
+        // GIVEN
+
+        // WHEN
+
+        // THEN
+    }
+
 }

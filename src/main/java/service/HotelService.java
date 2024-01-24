@@ -5,6 +5,8 @@ import persistence.Room;
 import persistence.RoomRepository;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class HotelService {
 
@@ -24,7 +26,7 @@ public class HotelService {
     USE CASES:
     + zimmerinformation erfragen (Verfügbarkeit, Preis)
     + zimmer buchen
-    - zimmer zuweisen
+    [- zimmer zuweisen]
     - einchecken
     - bezahlen
     - auschecken (inkl. rechnung)
@@ -74,5 +76,16 @@ public class HotelService {
             }
         }
         throw new IllegalStateException("No rooms available on the given date(s)");
+    }
+
+    public void checkIn(String customerName, LocalDate startDate){
+        List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
+        roomsForCustomer.forEach(room -> {
+                room.getBookings().stream()
+                        .filter(interval -> interval.getCustomerName().equals(customerName))
+                        .filter(interval -> interval.getStartDate().equals(startDate))
+                        .forEach(interval -> interval.setIsCheckedIn(true));
+                rooms.save(room);
+                });
     }
 }

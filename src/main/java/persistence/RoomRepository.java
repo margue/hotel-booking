@@ -18,6 +18,19 @@ public class RoomRepository {
         return rooms;
     }
 
+    public List<Room> findAllRoomsWithBookingIntervalsByCustomerName(String customerName) {
+        List<Room> rooms = new ArrayList<>();
+        for(Room room : this.rooms.values()){
+            for(BookingInterval interval : room.getBookings()){
+                if(Objects.equals(interval.getCustomerName(), customerName)){
+                    rooms.add(room);
+                }
+            }
+        }
+        return rooms;
+    }
+
+    // only for testing purposes
     public List<BookingInterval> findAllBookingIntervalsByCustomerName(String customerName) {
         List<BookingInterval> bookingIntervals = new ArrayList<>();
         for(Room room : rooms.values()){
