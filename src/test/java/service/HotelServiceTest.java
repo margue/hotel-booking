@@ -29,13 +29,27 @@ class HotelServiceTest {
         // GIVEN
         HotelService service = setupHotelService(1);
         LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
         Double price = service.requestRoom(startDate, endDate);
 
         // THEN
         assertThat(price).isEqualTo(100.0);
+    }
+
+    @Test
+    void requestRoom_roomAvailableForMultipleNights() {
+        // GIVEN
+        HotelService service = setupHotelService(1);
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+
+        // WHEN
+        Double price = service.requestRoom(startDate, endDate);
+
+        // THEN
+        assertThat(price).isEqualTo(200.0);
     }
 
     @Test
@@ -60,7 +74,7 @@ class HotelServiceTest {
     void requestRoom_roomAvailableAlthoughBookedOnDifferentDate() {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
         RoomRepository rooms = new RoomRepository();
         List<BookingInterval> bookings = new ArrayList<>();
         bookings.add(new BookingInterval(startDate.plusDays(5), endDate.plusDays(7)));
