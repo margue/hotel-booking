@@ -10,10 +10,16 @@ public class BookingInterval {
 
     private final LocalDate startDate;
     private final LocalDate endDate;
+    private String customerName;
 
     public BookingInterval(LocalDate startDate, LocalDate endDate) {
+        this(startDate, endDate, null);
+    }
+
+    public BookingInterval(LocalDate startDate, LocalDate endDate, String customerName) {
         this.startDate = startDate;
         this.endDate = endDate;
+        this.customerName = customerName;
     }
 
     public boolean contains(LocalDate date) {

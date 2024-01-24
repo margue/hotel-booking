@@ -1,5 +1,6 @@
 package service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import persistence.BookingInterval;
 import persistence.Room;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HotelServiceTest {
@@ -85,6 +87,19 @@ class HotelServiceTest {
     }
 
     @Test
+    void bookRoom_bookingRequiresCustomerName() {
+        HotelService service = setupHotelService(1);
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+
+        // WHEN
+        Throwable t = catchThrowable(() -> service.bookRoom(startDate, endDate, null));
+
+        // THEN
+        assertThat(t).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void bookRoom_roomAvailable() {
         // GIVEN
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
@@ -93,7 +108,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        service.bookRoom(startDate, endDate);
+        service.bookRoom(startDate, endDate, "Peter");
 
         // THEN
         assertThat(rooms);
@@ -108,7 +123,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 12);
 
         // WHEN
-        service.bookRoom(startDate, endDate);
+        service.bookRoom(startDate, endDate, "Fred");
 
         // THEN
         assertThat(rooms);
@@ -124,7 +139,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        service.bookRoom(startDate, endDate);
+        service.bookRoom(startDate, endDate, "Jack");
 
         // THEN
         assertThat(rooms);
@@ -139,7 +154,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        service.bookRoom(startDate, endDate);
+        service.bookRoom(startDate, endDate, "Jim");
 
         // THEN
         assertThat(rooms);

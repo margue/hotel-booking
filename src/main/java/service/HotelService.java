@@ -16,8 +16,10 @@ public class HotelService {
 
 
     /*
+    ASSUMPTIONS:
     alle zimmer sind gleich
     jede nacht kostet 100.0
+    ein Kunde ist eindeutig identifiziert durch einen einfachen String
 
     USE CASES:
     + zimmerinformation erfragen (Verfügbarkeit, Preis)
@@ -59,7 +61,10 @@ public class HotelService {
         return null;
     }
 
-    public void bookRoom(LocalDate startDate, LocalDate endDate){
+    public void bookRoom(LocalDate startDate, LocalDate endDate, String customerName){
+        if(customerName == null) {
+            throw new IllegalArgumentException("Customer name must not be null");
+        }
         for(Room room : rooms.getRooms().values()){
             BookingInterval bookingInterval = new BookingInterval(startDate, endDate);
             if(room.roomIsFree(bookingInterval)){
