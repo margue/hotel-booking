@@ -73,5 +73,6 @@ public class HotelService {
                 return;
             }
         }
+        throw new IllegalStateException("No rooms available on the given date(s)");
     }
 }

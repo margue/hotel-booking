@@ -147,11 +147,12 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        service.bookRoom(startDate, endDate, "Jack");
+        Throwable t = catchThrowable(() -> service.bookRoom(startDate, endDate, "Jack"));
 
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jack");
         assertThat(foundIntervals).hasSize(0);
+        assertThat(t).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
