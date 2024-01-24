@@ -1,6 +1,7 @@
 package service;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import persistence.BookingInterval;
 import persistence.Room;
@@ -9,6 +10,7 @@ import persistence.RoomRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -111,7 +113,10 @@ class HotelServiceTest {
         service.bookRoom(startDate, endDate, "Peter");
 
         // THEN
-        assertThat(rooms);
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Peter");
+        assertThat(foundIntervals).hasSize(1);
+        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
+        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
     }
 
     @Test

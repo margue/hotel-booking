@@ -41,4 +41,14 @@ public class BookingInterval {
         return datesFromTo(startDate, endDate).collect(Collectors.toList());
     }
 
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+    public String getCustomerName() {
+        return customerName;
+    }
 }
