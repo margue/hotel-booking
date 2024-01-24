@@ -27,7 +27,7 @@ public class HotelService {
     + zimmerinformation erfragen (Verfügbarkeit, Preis)
     + zimmer buchen
     [- zimmer zuweisen]
-    - einchecken
+    + einchecken
     - bezahlen
     - auschecken (inkl. rechnung)
 
@@ -51,25 +51,26 @@ public class HotelService {
 
     /**
      * Welcome to Hilberts Hotel!
+     *
      * @return price as double or null in case of no availability
      */
-    public Double requestRoom(LocalDate startDate, LocalDate endDate){
-        for(Room room : rooms.getRooms().values()){
+    public Double requestRoom(LocalDate startDate, LocalDate endDate) {
+        for (Room room : rooms.getRooms().values()) {
             BookingInterval bookingInterval = new BookingInterval(startDate, endDate);
-            if(room.roomIsFree(bookingInterval)){
+            if (room.roomIsFree(bookingInterval)) {
                 return 100.0 * bookingInterval.dates().size();
             }
         }
         return null;
     }
 
-    public void bookRoom(LocalDate startDate, LocalDate endDate, String customerName){
-        if(customerName == null) {
+    public void bookRoom(LocalDate startDate, LocalDate endDate, String customerName) {
+        if (customerName == null) {
             throw new IllegalArgumentException("Customer name must not be null");
         }
-        for(Room room : rooms.getRooms().values()){
+        for (Room room : rooms.getRooms().values()) {
             BookingInterval bookingInterval = new BookingInterval(startDate, endDate, customerName);
-            if(room.roomIsFree(bookingInterval)){
+            if (room.roomIsFree(bookingInterval)) {
                 room.getBookings().add(bookingInterval); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
                 return;
@@ -78,14 +79,17 @@ public class HotelService {
         throw new IllegalStateException("No rooms available on the given date(s)");
     }
 
-    public void checkIn(String customerName, LocalDate startDate){
+    public void checkIn(String customerName, LocalDate startDate) {
         List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
+        if (roomsForCustomer.size() == 0) {
+            throw new IllegalStateException("Customer cannot check in because they did not book a room");
+        }
         roomsForCustomer.forEach(room -> {
-                room.getBookings().stream()
-                        .filter(interval -> interval.getCustomerName().equals(customerName))
-                        .filter(interval -> interval.getStartDate().equals(startDate))
-                        .forEach(interval -> interval.setIsCheckedIn(true));
-                rooms.save(room);
-                });
+            room.getBookings().stream()
+                    .filter(interval -> interval.getCustomerName().equals(customerName))
+                    .filter(interval -> interval.getStartDate().equals(startDate))
+                    .forEach(interval -> interval.setIsCheckedIn(true));
+            rooms.save(room);
+        });
     }
 }

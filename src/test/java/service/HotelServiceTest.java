@@ -196,10 +196,17 @@ class HotelServiceTest {
     @Test
     void checkIn_roomWasNotBooked() {
         // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
+        HotelService service = new HotelService(rooms);
 
         // WHEN
+        Throwable t = catchThrowable(() -> service.checkIn("Fritz", startDate));
 
         // THEN
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fritz");
+        assertThat(foundIntervals).hasSize(0);
+        assertThat(t).isInstanceOf(IllegalStateException.class);
     }
 
 }
