@@ -28,12 +28,16 @@ public class HotelService {
     + zimmer buchen
     [- zimmer zuweisen]
     + einchecken
-    - bezahlen
-    - auschecken (inkl. rechnung)
+    - zahlung leisten (auch mehrfach)
+    - rechnung erstellen
+    - zahlung leisten (nur wenn bisherige zahlungen < summe invoice)
+    - auschecken (nur wenn zahlungen >= summe invoice)
 
-    - stornieren
-    - verlängern
-    - verkürzen
+    - stornieren (nur wenn nicht eingecheckt. rückbuchung?)
+    - verlängern (nur wenn nicht ausgecheckt und rechnung noch nicht erstellt)
+    - verkürzen (nur wenn nicht ausgecheckt und rechnung noch nicht erstellt, nur wenn Datum noch nicht erreicht)
+
+---
 
     - buchen "meines" Zimmers (Stammgast)
     - als Gruppe buchen
