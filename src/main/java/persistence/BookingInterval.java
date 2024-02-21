@@ -11,10 +11,9 @@ public class BookingInterval {
     private final LocalDate startDate;
     private final LocalDate endDate;
     private String customerName;
-
-    private boolean isInvoiced = false;
-    private boolean isCheckedIn = false;
-    private boolean isCheckedOut = false;
+    private boolean invoiced = false;
+    private boolean checkedIn = false;
+    private boolean checkedOut = false;
 
     public BookingInterval(LocalDate startDate, LocalDate endDate) {
         this(startDate, endDate, null);
@@ -56,15 +55,27 @@ public class BookingInterval {
         return customerName;
     }
 
-    public boolean getIsCheckedIn() {
-        return isCheckedIn;
+    public boolean isCheckedIn() {
+        return checkedIn;
     }
 
-    public void setIsCheckedIn(boolean isCheckedIn) {
-        this.isCheckedIn = isCheckedIn;
+    public void setCheckedIn(boolean checkedIn) {
+        this.checkedIn = checkedIn;
     }
 
     public void setInvoiced(boolean invoiced) {
-        isInvoiced = invoiced;
+        this.invoiced = invoiced;
+    }
+
+    public boolean isInvoiced() {
+        return invoiced;
+    }
+
+    public void setCheckedOut(boolean checkedOut) {
+        this.checkedOut = checkedOut;
+    }
+
+    public boolean isCheckedOut() {
+        return this.checkedOut;
     }
 }

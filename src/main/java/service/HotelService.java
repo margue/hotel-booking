@@ -7,6 +7,7 @@ import persistence.RoomRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class HotelService {
@@ -34,7 +35,7 @@ public class HotelService {
     + rechnung erstellen (Legacy: Zahlungsausgleich bei der Erstellung, Refactoring: Rg. unbezahlt, Ausgleich im
     Nachgang)
     + zahlung leisten (nur wenn bisherige zahlungen < summe invoice)
-    - auschecken (nur wenn zahlungen >= summe invoice)
+    + auschecken (nur wenn invoice erstellt wurde)
 
 ---
 
@@ -99,12 +100,31 @@ public class HotelService {
                     .filter(interval -> interval.getCustomerName().equals(customerName))
                     .filter(interval -> interval.getStartDate().equals(startDate))
                     .collect(Collectors.toList());
-            if(currentBookings.size() > 0){
-                currentBookings.forEach(interval -> interval.setIsCheckedIn(true));
+            if (currentBookings.size() > 0) {
+                currentBookings.forEach(interval -> interval.setCheckedIn(true));
                 bookedRoomNumbers.add(room.getRoomNumber());
                 rooms.save(room);
             }
         });
         return bookedRoomNumbers;
+    }
+
+    public void checkOut(String customerName, String roomNumber, LocalDate endDate) {
+        Room room = rooms.getRooms().get(roomNumber);
+        List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
+                .filter(interval -> Objects.equals(interval.getCustomerName(), customerName))
+                .filter(interval -> interval.getEndDate().equals(endDate)).collect(Collectors.toList());
+        if(bookingsToCheckOut.size() == 0){
+            throw new IllegalStateException("No booking to be checked out!");
+        }
+        if(bookingsToCheckOut.size() > 1){
+            throw new IllegalStateException("More than one booking found!");
+        }
+        BookingInterval booking = bookingsToCheckOut.get(0);
+        if(!booking.isInvoiced()){
+            throw new IllegalStateException("Checkout only possible for invoiced bookings.");
+        }
+        booking.setCheckedOut(true);
+        rooms.save(room);
     }
 }

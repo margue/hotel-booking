@@ -1,13 +1,16 @@
 package service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import persistence.BookingInterval;
+import persistence.PaymentRepository;
 import persistence.Room;
 import persistence.RoomRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -219,6 +222,61 @@ class HotelServiceTest {
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(0);
+    }
+
+    @Test
+    void checkOut_roomWasBooked_error() {
+        // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
+                endDate, "Fritz"));
+        HotelService service = new HotelService(rooms);
+
+        // WHEN
+        Throwable t = catchThrowable(() -> service.checkOut("Fritz", "1", endDate));
+
+        // THEN
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void checkOut_roomWasCheckedIn_error() {
+        // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
+                endDate, "Fritz"));
+        HotelService service = new HotelService(rooms);
+        service.checkIn("Fritz", startDate);
+
+        // WHEN
+        Throwable t = catchThrowable(() -> service.checkOut("Fritz", "1", endDate));
+
+        // THEN
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void checkOut_roomWasInvoiced() {
+        // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
+                endDate, "Fritz"));
+        HotelService service = new HotelService(rooms);
+        service.checkIn("Fritz", startDate);
+
+        PaymentRepository paymentRepository = new PaymentRepository();
+        PaymentService paymentService = new PaymentService(paymentRepository, rooms);
+        paymentService.payAmount("Fritz", 200.0);
+        paymentService.produceInvoice("Fritz", endDate, Collections.singletonList("1"));
+
+        // WHEN
+        service.checkOut("Fritz", "1", endDate);
+
+        // THEN
+        Assertions.assertThat(rooms.getRooms().get("1").getBookings().get(0).isCheckedOut()).isTrue();
     }
 
 }

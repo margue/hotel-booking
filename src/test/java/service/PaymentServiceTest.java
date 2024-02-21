@@ -335,7 +335,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1))
-                .extracting("isInvoiced").containsOnly(true);
+                .extracting("invoiced").containsOnly(true);
     }
 
     @Test
@@ -363,7 +363,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1))
-                .extracting("isInvoiced").containsOnly(true);
+                .extracting("invoiced").containsOnly(true);
     }
 
     @Test
@@ -392,7 +392,7 @@ class PaymentServiceTest {
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1).size()).isEqualTo(2);
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1))
-                .extracting("isInvoiced").containsExactly(true, false);
+                .extracting("invoiced").containsExactly(true, false);
     }
 
 }

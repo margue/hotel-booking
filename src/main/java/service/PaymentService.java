@@ -43,7 +43,7 @@ public class PaymentService {
             List<BookingInterval> applicableBookings = room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getCustomerName(), customerName))
                     .filter(booking -> !booking.getEndDate().isAfter(endDate))
-                    .filter(BookingInterval::getIsCheckedIn).collect(Collectors.toList());
+                    .filter(BookingInterval::isCheckedIn).collect(Collectors.toList());
             if(applicableBookings.size() > 0 ){
                 bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
             }
