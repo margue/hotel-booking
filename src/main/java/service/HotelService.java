@@ -5,6 +5,7 @@ import persistence.Room;
 import persistence.RoomRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,17 +84,23 @@ public class HotelService {
         throw new IllegalStateException("No rooms available on the given date(s)");
     }
 
-    public void checkIn(String customerName, LocalDate startDate) {
+    public List<String> checkIn(String customerName, LocalDate startDate) {
         List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
         if (roomsForCustomer.size() == 0) {
             throw new IllegalStateException("Customer cannot check in because they did not book a room");
         }
+        List<String> bookedRoomNumbers = new ArrayList<>();
         roomsForCustomer.forEach(room -> {
-            room.getBookings().stream()
+            List<BookingInterval> currentBookings = room.getBookings().stream()
                     .filter(interval -> interval.getCustomerName().equals(customerName))
                     .filter(interval -> interval.getStartDate().equals(startDate))
-                    .forEach(interval -> interval.setIsCheckedIn(true));
-            rooms.save(room);
+                    .collect(Collectors.toList());
+            if(currentBookings.size() > 0){
+                currentBookings.forEach(interval -> interval.setIsCheckedIn(true));
+                bookedRoomNumbers.add(room.getRoomNumber());
+                rooms.save(room);
+            }
         });
+        return bookedRoomNumbers;
     }
 }

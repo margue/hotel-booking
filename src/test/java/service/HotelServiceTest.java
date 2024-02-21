@@ -1,7 +1,5 @@
 package service;
 
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import persistence.BookingInterval;
 import persistence.Room;
@@ -12,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class HotelServiceTest {
 
@@ -183,14 +181,11 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        service.checkIn("Fritz", startDate);
+        List<String> checkedInRoomNumbers = service.checkIn("Fritz", startDate);
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fritz");
-        assertThat(foundIntervals).hasSize(1);
-        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
-        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
-        assertThat(foundIntervals.get(0).getIsCheckedIn()).isTrue();
+        assertThat(checkedInRoomNumbers.size()).isEqualTo(1);
+        assertThat(checkedInRoomNumbers.get(0)).isEqualTo("1");
     }
 
     @Test
@@ -207,6 +202,23 @@ class HotelServiceTest {
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fritz");
         assertThat(foundIntervals).hasSize(0);
         assertThat(t).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void checkIn_roomWasBookedOnDifferentDate() {
+        // GIVEN
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 12);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
+                endDate, "Fritz"));
+        HotelService service = new HotelService(rooms);
+        LocalDate checkInDate = startDate.plusDays(17);
+
+        // WHEN
+        List<String> checkedInRoomNumbers = service.checkIn("Fritz", checkInDate);
+
+        // THEN
+        assertThat(checkedInRoomNumbers.size()).isEqualTo(0);
     }
 
 }
