@@ -36,6 +36,8 @@ public class HotelService {
     + zahlung leisten (nur wenn bisherige zahlungen < summe invoice)
     - auschecken (nur wenn zahlungen >= summe invoice)
 
+---
+
     - stornieren (nur wenn nicht eingecheckt. rückbuchung?)
     - verlängern (nur wenn nicht ausgecheckt und rechnung noch nicht erstellt)
     - verkürzen (nur wenn nicht ausgecheckt und rechnung noch nicht erstellt, nur wenn Datum noch nicht erreicht)

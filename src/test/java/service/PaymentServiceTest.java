@@ -312,5 +312,88 @@ class PaymentServiceTest {
 
 
 
+    @Test
+    public void markBookingsAsInvoiced_oneBooking() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.checkIn(customer1, startDate);
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 100.0);
+
+        // WHEN
+        Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
+
+        // THEN
+        Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1))
+                .extracting("isInvoiced").containsOnly(true);
+    }
+
+    @Test
+    public void markBookingsAsInvoiced_twoBookingsInPast() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.bookRoom(startDate.minusDays(5), endDate.minusDays(5), customer1);
+        hotelService.checkIn(customer1, startDate);
+        hotelService.checkIn(customer1, startDate.minusDays(5));
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 200.0);
+
+        // WHEN
+        Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
+
+        // THEN
+        Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1))
+                .extracting("isInvoiced").containsOnly(true);
+    }
+
+    @Test
+    public void markBookingsAsInvoiced_twoBookingsOneInPast() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.bookRoom(startDate.plusDays(5), endDate.plusDays(5), customer1);
+        hotelService.checkIn(customer1, startDate);
+        hotelService.checkIn(customer1, startDate.plusDays(5));
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 100.0);
+
+        // WHEN
+        Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
+
+        // THEN
+        Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1).size()).isEqualTo(2);
+        Assertions.assertThat(roomRepository.findAllBookingIntervalsByCustomerName(customer1))
+                .extracting("isInvoiced").containsExactly(true, false);
+    }
+
 }
 

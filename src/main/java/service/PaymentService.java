@@ -80,6 +80,8 @@ public class PaymentService {
         }
         paymentRepository.save(customerName, payments);
 
+        roomRepository.markBookingsAsInvoiced(bookingsForRooms);
+
         return new Invoice(customerName, bookingsForRooms, totalAmount);
     }
 }
