@@ -30,12 +30,18 @@ public class PaymentService {
         paymentRepository.save(customerName, customerPayments);
     }
 
-    public Invoice produceInvoice(String customer, LocalDate endDate, List<String> roomNumbers) {
-        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByCustomerName(customer);
+    private double remainingCredit(String customerName){
+        return paymentRepository.load(customerName).stream()
+                .mapToDouble(payment -> payment.getPaidAmount() - payment.getUsedAmount())
+                .sum();
+    }
+
+    public Invoice produceInvoice(String customerName, LocalDate endDate, List<String> roomNumbers) {
+        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
         Map<String, List<BookingInterval>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
             List<BookingInterval> applicableBookings = room.getBookings().stream()
-                    .filter(booking -> Objects.equals(booking.getCustomerName(), customer))
+                    .filter(booking -> Objects.equals(booking.getCustomerName(), customerName))
                     .filter(booking -> !booking.getEndDate().isAfter(endDate))
                     .filter(BookingInterval::getIsCheckedIn).collect(Collectors.toList());
             if(applicableBookings.size() > 0 ){
@@ -48,7 +54,11 @@ public class PaymentService {
                                 .mapToDouble(booking -> 100.0 * booking.dates().size())
                                 .sum())
                         .sum();
+        double credit = remainingCredit(customerName);
+        if(totalAmount > credit){
+            throw new IllegalStateException("Payment insufficient. Necessary payment: " + (totalAmount - credit));
+        }
 
-        return new Invoice(customer, bookingsForRooms, totalAmount);
+        return new Invoice(customerName, bookingsForRooms, totalAmount);
     }
 }

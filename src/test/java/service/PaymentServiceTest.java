@@ -71,6 +71,57 @@ class PaymentServiceTest {
     }
 
     @Test
+    public void produceInvoice_noPayment() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.checkIn(customer1, startDate);
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+
+        // WHEN
+        Throwable t = Assertions.catchThrowable(() -> service.produceInvoice(customer1, endDate, roomNumbers));
+
+        // THEN
+        Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
+        Assertions.assertThat(t.getMessage()).contains("100.0");
+    }
+
+    @Test
+    public void produceInvoice_paymentInsufficient() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.checkIn(customer1, startDate);
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 50.0);
+
+        // WHEN
+        Throwable t = Assertions.catchThrowable(() -> service.produceInvoice(customer1, endDate, roomNumbers));
+
+        // THEN
+        Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
+        Assertions.assertThat(t.getMessage()).contains("50.0");
+    }
+
+    @Test
     public void produceInvoice_oneRoomOneNight() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
@@ -86,6 +137,7 @@ class PaymentServiceTest {
         hotelService.checkIn(customer1, startDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 100.0);
 
         // WHEN
         Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
@@ -116,6 +168,7 @@ class PaymentServiceTest {
         hotelService.checkIn(customer1, startDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 500.0);
 
         // WHEN
         Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
@@ -144,6 +197,7 @@ class PaymentServiceTest {
         hotelService.checkIn(customer1, startDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 200.0);
 
         // WHEN
         Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
@@ -153,4 +207,5 @@ class PaymentServiceTest {
         Assertions.assertThat(invoice.getTotalAmount()).isEqualTo(200.0);
         Assertions.assertThat(invoice.getBookingsForRooms().get("1").size()).isEqualTo(2);
     }
+
 }
