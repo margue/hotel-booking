@@ -31,9 +31,9 @@ public class HotelService {
     [- zimmer zuweisen]
     + einchecken
     + zahlung leisten (auch mehrfach) (customerName) (Refactoring: Kunde hat Guthaben, Monolith, Closure of Operations)
-    - rechnung erstellen (Legacy: Zahlungsausgleich bei der Erstellung, Refactoring: Rg. unbezahlt, Ausgleich im
+    + rechnung erstellen (Legacy: Zahlungsausgleich bei der Erstellung, Refactoring: Rg. unbezahlt, Ausgleich im
     Nachgang)
-    - zahlung leisten (nur wenn bisherige zahlungen < summe invoice)
+    + zahlung leisten (nur wenn bisherige zahlungen < summe invoice)
     - auschecken (nur wenn zahlungen >= summe invoice)
 
     - stornieren (nur wenn nicht eingecheckt. rückbuchung?)

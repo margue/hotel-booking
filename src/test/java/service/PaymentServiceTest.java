@@ -233,6 +233,83 @@ class PaymentServiceTest {
         Assertions.assertThat(service.remainingCredit(customer1)).isEqualTo(0.0);
     }
 
+    @Test
+    public void produceInvoice_twoPaymentsAreMarkedAsUsed() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.checkIn(customer1, startDate);
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 70.0);
+        service.payAmount(customer1, 30.0);
+
+        // WHEN
+        Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
+
+        // THEN
+        Assertions.assertThat(service.remainingCredit(customer1)).isEqualTo(0.0);
+    }
+
+    @Test
+    public void produceInvoice_onePaymentIsDeducted() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.checkIn(customer1, startDate);
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 170.0);
+
+        // WHEN
+        Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
+
+        // THEN
+        Assertions.assertThat(service.remainingCredit(customer1)).isEqualTo(70.0);
+    }
+
+    @Test
+    public void produceInvoice_twoPaymentsArePartiallyDeducted() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
+
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.checkIn(customer1, startDate);
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 70.0);
+        service.payAmount(customer1, 100.0);
+
+        // WHEN
+        Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
+
+        // THEN
+        Assertions.assertThat(service.remainingCredit(customer1)).isEqualTo(70.0);
+    }
+
 
 
 }
