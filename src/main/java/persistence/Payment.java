@@ -31,4 +31,8 @@ public class Payment {
     public LocalDate getPaymentDate() {
         return paymentDate;
     }
+
+    public void reduceCreditBy(double amount) {
+        usedAmount += amount;
+    }
 }

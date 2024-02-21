@@ -30,7 +30,7 @@ public class PaymentService {
         paymentRepository.save(customerName, customerPayments);
     }
 
-    private double remainingCredit(String customerName){
+    public double remainingCredit(String customerName){
         return paymentRepository.load(customerName).stream()
                 .mapToDouble(payment -> payment.getPaidAmount() - payment.getUsedAmount())
                 .sum();
@@ -58,6 +58,27 @@ public class PaymentService {
         if(totalAmount > credit){
             throw new IllegalStateException("Payment insufficient. Necessary payment: " + (totalAmount - credit));
         }
+
+        List<Payment> payments = paymentRepository.load(customerName);
+        payments.sort((o1, o2) -> o1.getPaymentDate().isEqual(o2.getPaymentDate()) ? 0 :
+                        o1.getPaymentDate().isBefore(o2.getPaymentDate()) ? -1 : 1);
+        double remainingTotalAmount = totalAmount;
+        for (Payment payment: payments){
+            if(remainingTotalAmount > 0.0){
+                double remainingCreditForPayment = payment.getPaidAmount() - payment.getUsedAmount();
+                if(remainingCreditForPayment >= remainingTotalAmount){
+                    payment.reduceCreditBy(remainingTotalAmount);
+                    remainingTotalAmount = 0.0;
+                    break;
+                } else {
+                    payment.reduceCreditBy(remainingCreditForPayment);
+                    remainingTotalAmount -= remainingCreditForPayment;
+                }
+            } else {
+                break;
+            }
+        }
+        paymentRepository.save(customerName, payments);
 
         return new Invoice(customerName, bookingsForRooms, totalAmount);
     }
