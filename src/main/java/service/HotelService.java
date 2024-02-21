@@ -23,14 +23,16 @@ public class HotelService {
     alle zimmer sind gleich
     jede nacht kostet 100.0
     ein Kunde ist eindeutig identifiziert durch einen einfachen String
+    Sprachlevel Java 8 -> JUnit5 und JDK 17 zur Ausführung
 
     USE CASES:
     + zimmerinformation erfragen (Verfügbarkeit, Preis)
     + zimmer buchen
     [- zimmer zuweisen]
     + einchecken
-    - zahlung leisten (auch mehrfach)
-    - rechnung erstellen
+    + zahlung leisten (auch mehrfach) (customerName) (Refactoring: Kunde hat Guthaben, Monolith, Closure of Operations)
+    - rechnung erstellen (Legacy: Zahlungsausgleich bei der Erstellung, Refactoring: Rg. unbezahlt, Ausgleich im
+    Nachgang)
     - zahlung leisten (nur wenn bisherige zahlungen < summe invoice)
     - auschecken (nur wenn zahlungen >= summe invoice)
 
