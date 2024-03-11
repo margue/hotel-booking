@@ -73,12 +73,12 @@ public class HotelService {
         return null;
     }
 
-    public void bookRoom(BookingRequestInterval bookingRequestInterval, String customerName) {
-        if (customerName == null) {
+    public void bookRoom(BookingRequestInterval bookingRequestInterval, CustomerName customerName) {
+        if (customerName.customerName() == null) {
             throw new IllegalArgumentException("Customer name must not be null");
         }
         for (Room room : rooms.getRooms().values()) {
-            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), customerName);
+            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), new CustomerName(customerName.customerName()));
             if (room.roomIsFree(bookingInterval)) {
                 room.getBookings().add(bookingInterval); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
@@ -88,15 +88,15 @@ public class HotelService {
         throw new IllegalStateException("No rooms available on the given date(s)");
     }
 
-    public List<String> checkIn(String customerName, LocalDate startDate) {
-        List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
+    public List<String> checkIn(CustomerName customerName, LocalDate startDate) {
+        List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(new CustomerName(customerName.customerName()));
         if (roomsForCustomer.size() == 0) {
             throw new IllegalStateException("Customer cannot check in because they did not book a room");
         }
         List<String> bookedRoomNumbers = new ArrayList<>();
         roomsForCustomer.forEach(room -> {
             List<BookingInterval> currentBookings = room.getBookings().stream()
-                    .filter(interval -> interval.getCustomerName().equals(customerName))
+                    .filter(interval -> interval.getCustomerName().equals(customerName.customerName()))
                     .filter(interval -> interval.getStartDate().equals(startDate))
                     .toList();
             if (currentBookings.size() > 0) {
@@ -108,10 +108,10 @@ public class HotelService {
         return bookedRoomNumbers;
     }
 
-    public void checkOut(String customerName, String roomNumber, LocalDate endDate) {
+    public void checkOut(CustomerName customerName, String roomNumber, LocalDate endDate) {
         Room room = rooms.getRooms().get(roomNumber);
         List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
-                .filter(interval -> Objects.equals(interval.getCustomerName(), customerName))
+                .filter(interval -> Objects.equals(interval.getCustomerName(), customerName.customerName()))
                 .filter(interval -> interval.getEndDate().equals(endDate)).toList();
         if(bookingsToCheckOut.size() == 0){
             throw new IllegalStateException("No booking to be checked out!");
