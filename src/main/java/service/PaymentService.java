@@ -37,7 +37,8 @@ public class PaymentService {
     }
 
     public Invoice produceInvoice(String customerName, LocalDate endDate, List<String> roomNumbers) {
-        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
+        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByCustomerName(customerName)
+                .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
         Map<String, List<BookingInterval>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
             List<BookingInterval> applicableBookings = room.getBookings().stream()

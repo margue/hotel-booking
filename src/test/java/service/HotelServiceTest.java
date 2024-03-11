@@ -121,6 +121,31 @@ class HotelServiceTest {
     }
 
     @Test
+    void bookRoom_bookTwoRoomsForSameNights() {
+        // GIVEN
+        RoomRepository rooms = new RoomRepository();
+        rooms.save(new Room("1", new ArrayList<>()));
+        rooms.save(new Room("2", new ArrayList<>()));
+        HotelService service = new HotelService(rooms);
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+
+        // WHEN
+        service.bookRoom(startDate, endDate, "Peter");
+        service.bookRoom(startDate, endDate, "Peter");
+
+        // THEN
+        List<Room> foundRooms = rooms.findAllRoomsWithBookingIntervalsByCustomerName("Peter");
+        assertThat(foundRooms).hasSize(2);
+        assertThat(foundRooms).extracting("roomNumber")
+                        .containsExactly("1", "2");
+        assertThat(foundRooms.get(0).getBookings().get(0).getStartDate()).isEqualTo(startDate);
+        assertThat(foundRooms.get(0).getBookings().get(0).getEndDate()).isEqualTo(endDate);
+        assertThat(foundRooms.get(1).getBookings().get(0).getStartDate()).isEqualTo(startDate);
+        assertThat(foundRooms.get(1).getBookings().get(0).getEndDate()).isEqualTo(endDate);
+    }
+
+    @Test
     void bookRoom_roomAvailableForMultipleNights() {
         // GIVEN
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings();

@@ -26,7 +26,7 @@ public class BookingInterval {
     }
 
     public boolean contains(LocalDate date) {
-            return (date == startDate || date.isAfter(startDate)) && date.isBefore(endDate);
+            return (date.equals(startDate) || date.isAfter(startDate)) && date.isBefore(endDate);
     }
 
     // method courtesy of Java 9 :)

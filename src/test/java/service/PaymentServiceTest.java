@@ -122,17 +122,19 @@ class PaymentServiceTest {
     }
 
     @Test
-    public void produceInvoice_oneRoomOneNight() {
+    public void produceInvoice_oneRoomOneNight_withOldBooking() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room("2", new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
         List<String> roomNumbers = new ArrayList<>();
         roomNumbers.add("1");
 
         HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
         hotelService.bookRoom(startDate, endDate, customer1);
         hotelService.checkIn(customer1, startDate);
 
