@@ -8,11 +8,11 @@ public class Payment {
 
     private double paidAmount;
     private double usedAmount;
-    private String customerName;
+    private CustomerName customerName;
     private LocalDate paymentDate;
 
     public Payment(CustomerName customerName, double paidAmount){
-        this.customerName = customerName.customerName();
+        this.customerName = customerName;
         this.paidAmount = paidAmount;
         this.paymentDate = LocalDate.now();
         this.usedAmount= 0.0;
@@ -26,7 +26,7 @@ public class Payment {
         return usedAmount;
     }
 
-    public String getCustomerName() {
+    public CustomerName getCustomerName() {
         return customerName;
     }
 
