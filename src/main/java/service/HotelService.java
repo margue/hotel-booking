@@ -78,7 +78,7 @@ public class HotelService {
             throw new IllegalArgumentException("Customer name must not be null");
         }
         for (Room room : rooms.getRooms().values()) {
-            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), new CustomerName(customerName.customerName()));
+            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), customerName);
             if (room.roomIsFree(bookingInterval)) {
                 room.getBookings().add(bookingInterval); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
@@ -89,7 +89,7 @@ public class HotelService {
     }
 
     public List<String> checkIn(CustomerName customerName, LocalDate startDate) {
-        List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(new CustomerName(customerName.customerName()));
+        List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
         if (roomsForCustomer.size() == 0) {
             throw new IllegalStateException("Customer cannot check in because they did not book a room");
         }
