@@ -63,9 +63,9 @@ public class HotelService {
      *
      * @return price as double or null in case of no availability
      */
-    public Double requestRoom(LocalDate startDate, LocalDate endDate) {
+    public Double requestRoom(BookingRequestInterval bookingRequestInterval) {
         for (Room room : rooms.getRooms().values()) {
-            BookingInterval bookingInterval = new BookingInterval(startDate, endDate);
+            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate());
             if (room.roomIsFree(bookingInterval)) {
                 return 100.0 * bookingInterval.dates().size();
             }

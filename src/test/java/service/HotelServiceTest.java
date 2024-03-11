@@ -40,7 +40,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        Double price = service.requestRoom(startDate, endDate);
+        Double price = service.requestRoom(new BookingRequestInterval(startDate, endDate));
 
         // THEN
         assertThat(price).isEqualTo(100.0);
@@ -54,7 +54,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 12);
 
         // WHEN
-        Double price = service.requestRoom(startDate, endDate);
+        Double price = service.requestRoom(new BookingRequestInterval(startDate, endDate));
 
         // THEN
         assertThat(price).isEqualTo(200.0);
@@ -69,7 +69,7 @@ class HotelServiceTest {
                 endDate)));
 
         // WHEN
-        Double price = service.requestRoom(startDate, endDate);
+        Double price = service.requestRoom(new BookingRequestInterval(startDate, endDate));
 
         // THEN
         assertThat(price).isNull();
@@ -83,7 +83,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate.plusDays(5), endDate.plusDays(7))));
 
         // WHEN
-        Double price = service.requestRoom(startDate, endDate);
+        Double price = service.requestRoom(new BookingRequestInterval(startDate, endDate));
 
         // THEN
         assertThat(price).isEqualTo(100.0);
