@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class HotelService {
 
@@ -99,7 +98,7 @@ public class HotelService {
             List<BookingInterval> currentBookings = room.getBookings().stream()
                     .filter(interval -> interval.getCustomerName().equals(customerName))
                     .filter(interval -> interval.getStartDate().equals(startDate))
-                    .collect(Collectors.toList());
+                    .toList();
             if (currentBookings.size() > 0) {
                 currentBookings.forEach(interval -> interval.setCheckedIn(true));
                 bookedRoomNumbers.add(room.getRoomNumber());
@@ -113,14 +112,14 @@ public class HotelService {
         Room room = rooms.getRooms().get(roomNumber);
         List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
                 .filter(interval -> Objects.equals(interval.getCustomerName(), customerName))
-                .filter(interval -> interval.getEndDate().equals(endDate)).collect(Collectors.toList());
+                .filter(interval -> interval.getEndDate().equals(endDate)).toList();
         if(bookingsToCheckOut.size() == 0){
             throw new IllegalStateException("No booking to be checked out!");
         }
         if(bookingsToCheckOut.size() > 1){
             throw new IllegalStateException("More than one booking found!");
         }
-        BookingInterval booking = bookingsToCheckOut.get(0);
+        BookingInterval booking = bookingsToCheckOut.getFirst();
         if(!booking.isInvoiced()){
             throw new IllegalStateException("Checkout only possible for invoiced bookings.");
         }

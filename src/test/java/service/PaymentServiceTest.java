@@ -36,7 +36,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(paymentRepository.load(customer1)).hasSize(1);
-        Assertions.assertThat(paymentRepository.load(customer1).get(0).getPaidAmount()).isEqualTo(42.0);
+        Assertions.assertThat(paymentRepository.load(customer1).getFirst().getPaidAmount()).isEqualTo(42.0);
     }
 
     @Test
@@ -51,7 +51,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(paymentRepository.load(customer1)).hasSize(2);
-        Assertions.assertThat(paymentRepository.load(customer1).get(0).getPaidAmount()).isEqualTo(42.0);
+        Assertions.assertThat(paymentRepository.load(customer1).getFirst().getPaidAmount()).isEqualTo(42.0);
         Assertions.assertThat(paymentRepository.load(customer1).get(1).getPaidAmount()).isEqualTo(120.0);
     }
 
@@ -68,8 +68,8 @@ class PaymentServiceTest {
         // THEN
         Assertions.assertThat(paymentRepository.load(customer1)).hasSize(1);
         Assertions.assertThat(paymentRepository.load(customer2)).hasSize(1);
-        Assertions.assertThat(paymentRepository.load(customer1).get(0).getPaidAmount()).isEqualTo(42.0);
-        Assertions.assertThat(paymentRepository.load(customer2).get(0).getPaidAmount()).isEqualTo(120.0);
+        Assertions.assertThat(paymentRepository.load(customer1).getFirst().getPaidAmount()).isEqualTo(42.0);
+        Assertions.assertThat(paymentRepository.load(customer2).getFirst().getPaidAmount()).isEqualTo(120.0);
     }
 
     @Test

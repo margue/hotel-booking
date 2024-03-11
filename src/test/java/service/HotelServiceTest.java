@@ -116,8 +116,8 @@ class HotelServiceTest {
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Peter");
         assertThat(foundIntervals).hasSize(1);
-        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
-        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
+        assertThat(foundIntervals.getFirst().getStartDate()).isEqualTo(startDate);
+        assertThat(foundIntervals.getFirst().getEndDate()).isEqualTo(endDate);
     }
 
     @Test
@@ -159,8 +159,8 @@ class HotelServiceTest {
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fred");
         assertThat(foundIntervals).hasSize(1);
-        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
-        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
+        assertThat(foundIntervals.getFirst().getStartDate()).isEqualTo(startDate);
+        assertThat(foundIntervals.getFirst().getEndDate()).isEqualTo(endDate);
     }
 
     @Test
@@ -195,8 +195,8 @@ class HotelServiceTest {
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jim");
         assertThat(foundIntervals).hasSize(1);
-        assertThat(foundIntervals.get(0).getStartDate()).isEqualTo(startDate);
-        assertThat(foundIntervals.get(0).getEndDate()).isEqualTo(endDate);
+        assertThat(foundIntervals.getFirst().getStartDate()).isEqualTo(startDate);
+        assertThat(foundIntervals.getFirst().getEndDate()).isEqualTo(endDate);
     }
 
     @Test
@@ -213,7 +213,7 @@ class HotelServiceTest {
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(1);
-        assertThat(checkedInRoomNumbers.get(0)).isEqualTo("1");
+        assertThat(checkedInRoomNumbers.getFirst()).isEqualTo("1");
     }
 
     @Test
@@ -301,7 +301,7 @@ class HotelServiceTest {
         service.checkOut("Fritz", "1", endDate);
 
         // THEN
-        Assertions.assertThat(rooms.getRooms().get("1").getBookings().get(0).isCheckedOut()).isTrue();
+        Assertions.assertThat(rooms.getRooms().get("1").getBookings().getFirst().isCheckedOut()).isTrue();
     }
 
 }
