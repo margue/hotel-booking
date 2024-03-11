@@ -1,5 +1,7 @@
 package persistence;
 
+import service.CustomerName;
+
 import java.time.LocalDate;
 
 public class Payment {
@@ -9,8 +11,8 @@ public class Payment {
     private String customerName;
     private LocalDate paymentDate;
 
-    public Payment(String customerName, double paidAmount){
-        this.customerName = customerName;
+    public Payment(CustomerName customerName, double paidAmount){
+        this.customerName = customerName.customerName();
         this.paidAmount = paidAmount;
         this.paymentDate = LocalDate.now();
         this.usedAmount= 0.0;

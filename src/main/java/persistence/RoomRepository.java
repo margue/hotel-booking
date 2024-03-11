@@ -1,5 +1,7 @@
 package persistence;
 
+import service.CustomerName;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +20,11 @@ public class RoomRepository {
         return rooms;
     }
 
-    public List<Room> findAllRoomsWithBookingIntervalsByCustomerName(String customerName) {
+    public List<Room> findAllRoomsWithBookingIntervalsByCustomerName(CustomerName customerName) {
         List<Room> rooms = new ArrayList<>();
         for (Room room : this.rooms.values()) {
             for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getCustomerName(), customerName)) {
+                if (Objects.equals(interval.getCustomerName(), customerName.customerName())) {
                     rooms.add(room);
                 }
             }
@@ -31,11 +33,11 @@ public class RoomRepository {
     }
 
     // only for testing purposes
-    public List<BookingInterval> findAllBookingIntervalsByCustomerName(String customerName) {
+    public List<BookingInterval> findAllBookingIntervalsByCustomerName(CustomerName customerName) {
         List<BookingInterval> bookingIntervals = new ArrayList<>();
         for (Room room : rooms.values()) {
             for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getCustomerName(), customerName)) {
+                if (Objects.equals(interval.getCustomerName(), customerName.customerName())) {
                     bookingIntervals.add(interval);
                 }
             }

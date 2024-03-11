@@ -96,7 +96,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.bookRoom(new BookingRequestInterval(startDate, endDate), null));
+        Throwable t = catchThrowable(() -> service.bookRoom(new BookingRequestInterval(startDate, endDate), new CustomerName(null)));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalArgumentException.class);
@@ -111,10 +111,10 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Peter");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), new CustomerName("Peter"));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Peter");
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName(new CustomerName("Peter"));
         assertThat(foundIntervals).hasSize(1);
         assertThat(foundIntervals.getFirst().getStartDate()).isEqualTo(startDate);
         assertThat(foundIntervals.getFirst().getEndDate()).isEqualTo(endDate);
@@ -131,11 +131,11 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Peter");
-        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Peter");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), new CustomerName("Peter"));
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), new CustomerName("Peter"));
 
         // THEN
-        List<Room> foundRooms = rooms.findAllRoomsWithBookingIntervalsByCustomerName("Peter");
+        List<Room> foundRooms = rooms.findAllRoomsWithBookingIntervalsByCustomerName(new CustomerName("Peter"));
         assertThat(foundRooms).hasSize(2);
         assertThat(foundRooms).extracting("roomNumber")
                         .containsExactly("1", "2");
@@ -154,10 +154,10 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 12);
 
         // WHEN
-        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Fred");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), new CustomerName("Fred"));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fred");
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName(new CustomerName("Fred"));
         assertThat(foundIntervals).hasSize(1);
         assertThat(foundIntervals.getFirst().getStartDate()).isEqualTo(startDate);
         assertThat(foundIntervals.getFirst().getEndDate()).isEqualTo(endDate);
@@ -173,10 +173,10 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.bookRoom(new BookingRequestInterval(startDate, endDate), "Jack"));
+        Throwable t = catchThrowable(() -> service.bookRoom(new BookingRequestInterval(startDate, endDate), new CustomerName("Jack")));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jack");
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName(new CustomerName("Jack"));
         assertThat(foundIntervals).hasSize(0);
         assertThat(t).isInstanceOf(IllegalStateException.class);
     }
@@ -190,10 +190,10 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Jim");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), new CustomerName("Jim"));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jim");
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName(new CustomerName("Jim"));
         assertThat(foundIntervals).hasSize(1);
         assertThat(foundIntervals.getFirst().getStartDate()).isEqualTo(startDate);
         assertThat(foundIntervals.getFirst().getEndDate()).isEqualTo(endDate);
@@ -205,11 +205,11 @@ class HotelServiceTest {
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
-                endDate, "Fritz"));
+                endDate, new CustomerName("Fritz")));
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        List<String> checkedInRoomNumbers = service.checkIn("Fritz", startDate);
+        List<String> checkedInRoomNumbers = service.checkIn(new CustomerName("Fritz"), startDate);
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(1);
@@ -224,10 +224,10 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkIn("Fritz", startDate));
+        Throwable t = catchThrowable(() -> service.checkIn(new CustomerName("Fritz"), startDate));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fritz");
+        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName(new CustomerName("Fritz"));
         assertThat(foundIntervals).hasSize(0);
         assertThat(t).isInstanceOf(IllegalStateException.class);
     }
@@ -238,12 +238,12 @@ class HotelServiceTest {
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
-                endDate, "Fritz"));
+                endDate, new CustomerName("Fritz")));
         HotelService service = new HotelService(rooms);
         LocalDate checkInDate = startDate.plusDays(17);
 
         // WHEN
-        List<String> checkedInRoomNumbers = service.checkIn("Fritz", checkInDate);
+        List<String> checkedInRoomNumbers = service.checkIn(new CustomerName("Fritz"), checkInDate);
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(0);
@@ -255,11 +255,11 @@ class HotelServiceTest {
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
-                endDate, "Fritz"));
+                endDate, new CustomerName("Fritz")));
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut("Fritz", "1", endDate));
+        Throwable t = catchThrowable(() -> service.checkOut(new CustomerName("Fritz"), "1", endDate));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -271,12 +271,12 @@ class HotelServiceTest {
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
-                endDate, "Fritz"));
+                endDate, new CustomerName("Fritz")));
         HotelService service = new HotelService(rooms);
-        service.checkIn("Fritz", startDate);
+        service.checkIn(new CustomerName("Fritz"), startDate);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut("Fritz", "1", endDate));
+        Throwable t = catchThrowable(() -> service.checkOut(new CustomerName("Fritz"), "1", endDate));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -288,17 +288,17 @@ class HotelServiceTest {
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
-                endDate, "Fritz"));
+                endDate, new CustomerName("Fritz")));
         HotelService service = new HotelService(rooms);
-        service.checkIn("Fritz", startDate);
+        service.checkIn(new CustomerName("Fritz"), startDate);
 
         PaymentRepository paymentRepository = new PaymentRepository();
         PaymentService paymentService = new PaymentService(paymentRepository, rooms);
-        paymentService.payAmount("Fritz", 200.0);
-        paymentService.produceInvoice("Fritz", endDate, Collections.singletonList("1"));
+        paymentService.payAmount(new CustomerName("Fritz"), 200.0);
+        paymentService.produceInvoice(new CustomerName("Fritz"), endDate, Collections.singletonList("1"));
 
         // WHEN
-        service.checkOut("Fritz", "1", endDate);
+        service.checkOut(new CustomerName("Fritz"), "1", endDate);
 
         // THEN
         Assertions.assertThat(rooms.getRooms().get("1").getBookings().getFirst().isCheckedOut()).isTrue();
