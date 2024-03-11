@@ -1,5 +1,7 @@
 package persistence;
 
+import service.CustomerName;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,13 +18,13 @@ public class BookingInterval {
     private boolean checkedOut = false;
 
     public BookingInterval(LocalDate startDate, LocalDate endDate) {
-        this(startDate, endDate, null);
+        this(startDate, endDate, new CustomerName(null));
     }
 
-    public BookingInterval(LocalDate startDate, LocalDate endDate, String customerName) {
+    public BookingInterval(LocalDate startDate, LocalDate endDate, CustomerName customerName) {
         this.startDate = startDate;
         this.endDate = endDate;
-        this.customerName = customerName;
+        this.customerName = customerName.customerName();
     }
 
     public boolean contains(LocalDate date) {
