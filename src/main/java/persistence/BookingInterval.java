@@ -12,7 +12,7 @@ public class BookingInterval {
 
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private String customerName;
+    private CustomerName customerName;
     private boolean invoiced = false;
     private boolean checkedIn = false;
     private boolean checkedOut = false;
@@ -24,7 +24,7 @@ public class BookingInterval {
     public BookingInterval(LocalDate startDate, LocalDate endDate, CustomerName customerName) {
         this.startDate = startDate;
         this.endDate = endDate;
-        this.customerName = customerName.customerName();
+        this.customerName = customerName;
     }
 
     public boolean contains(LocalDate date) {
@@ -53,7 +53,7 @@ public class BookingInterval {
     public LocalDate getEndDate() {
         return endDate;
     }
-    public String getCustomerName() {
+    public CustomerName getCustomerName() {
         return customerName;
     }
 
