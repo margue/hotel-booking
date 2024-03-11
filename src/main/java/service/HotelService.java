@@ -96,7 +96,7 @@ public class HotelService {
         List<String> bookedRoomNumbers = new ArrayList<>();
         roomsForCustomer.forEach(room -> {
             List<BookingInterval> currentBookings = room.getBookings().stream()
-                    .filter(interval -> interval.getCustomerName().equals(customerName.customerName()))
+                    .filter(interval -> interval.getCustomerName().equals(customerName))
                     .filter(interval -> interval.getStartDate().equals(startDate))
                     .toList();
             if (currentBookings.size() > 0) {
@@ -111,7 +111,7 @@ public class HotelService {
     public void checkOut(CustomerName customerName, String roomNumber, LocalDate endDate) {
         Room room = rooms.getRooms().get(roomNumber);
         List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
-                .filter(interval -> Objects.equals(interval.getCustomerName(), customerName.customerName()))
+                .filter(interval -> Objects.equals(interval.getCustomerName(), customerName))
                 .filter(interval -> interval.getEndDate().equals(endDate)).toList();
         if(bookingsToCheckOut.size() == 0){
             throw new IllegalStateException("No booking to be checked out!");

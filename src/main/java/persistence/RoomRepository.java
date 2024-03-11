@@ -24,7 +24,7 @@ public class RoomRepository {
         List<Room> rooms = new ArrayList<>();
         for (Room room : this.rooms.values()) {
             for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getCustomerName(), customerName.customerName())) {
+                if (Objects.equals(interval.getCustomerName(), customerName)) {
                     rooms.add(room);
                 }
             }
@@ -37,7 +37,7 @@ public class RoomRepository {
         List<BookingInterval> bookingIntervals = new ArrayList<>();
         for (Room room : rooms.values()) {
             for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getCustomerName(), customerName.customerName())) {
+                if (Objects.equals(interval.getCustomerName(), customerName)) {
                     bookingIntervals.add(interval);
                 }
             }
@@ -59,7 +59,7 @@ public class RoomRepository {
 
     private boolean listContainsBooking(List<BookingInterval> bookingIntervals, BookingInterval booking) {
         for (BookingInterval bookingInterval : bookingIntervals) {
-            if (bookingInterval.getCustomerName() == booking.getCustomerName() && bookingInterval.getStartDate().equals(booking.getStartDate())) {
+            if (bookingInterval.getCustomerName().equals(booking.getCustomerName()) && bookingInterval.getStartDate().equals(booking.getStartDate())) {
                 return true;
             }
         }

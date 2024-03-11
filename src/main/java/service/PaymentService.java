@@ -42,7 +42,7 @@ public class PaymentService {
         Map<String, List<BookingInterval>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
             List<BookingInterval> applicableBookings = room.getBookings().stream()
-                    .filter(booking -> Objects.equals(booking.getCustomerName(), customerName.customerName()))
+                    .filter(booking -> Objects.equals(booking.getCustomerName(), customerName))
                     .filter(booking -> !booking.getEndDate().isAfter(endDate))
                     .filter(BookingInterval::isCheckedIn).collect(Collectors.toList());
             if(applicableBookings.size() > 0 ){
