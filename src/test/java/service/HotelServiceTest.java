@@ -96,7 +96,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.bookRoom(startDate, endDate, null));
+        Throwable t = catchThrowable(() -> service.bookRoom(new BookingRequestInterval(startDate, endDate), null));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalArgumentException.class);
@@ -111,7 +111,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        service.bookRoom(startDate, endDate, "Peter");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Peter");
 
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Peter");
@@ -131,8 +131,8 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 11);
 
         // WHEN
-        service.bookRoom(startDate, endDate, "Peter");
-        service.bookRoom(startDate, endDate, "Peter");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Peter");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Peter");
 
         // THEN
         List<Room> foundRooms = rooms.findAllRoomsWithBookingIntervalsByCustomerName("Peter");
@@ -154,7 +154,7 @@ class HotelServiceTest {
         LocalDate endDate = LocalDate.of(2020, 10, 12);
 
         // WHEN
-        service.bookRoom(startDate, endDate, "Fred");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Fred");
 
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Fred");
@@ -173,7 +173,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.bookRoom(startDate, endDate, "Jack"));
+        Throwable t = catchThrowable(() -> service.bookRoom(new BookingRequestInterval(startDate, endDate), "Jack"));
 
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jack");
@@ -190,7 +190,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        service.bookRoom(startDate, endDate, "Jim");
+        service.bookRoom(new BookingRequestInterval(startDate, endDate), "Jim");
 
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByCustomerName("Jim");

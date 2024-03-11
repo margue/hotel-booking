@@ -73,12 +73,12 @@ public class HotelService {
         return null;
     }
 
-    public void bookRoom(LocalDate startDate, LocalDate endDate, String customerName) {
+    public void bookRoom(BookingRequestInterval bookingRequestInterval, String customerName) {
         if (customerName == null) {
             throw new IllegalArgumentException("Customer name must not be null");
         }
         for (Room room : rooms.getRooms().values()) {
-            BookingInterval bookingInterval = new BookingInterval(startDate, endDate, customerName);
+            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), customerName);
             if (room.roomIsFree(bookingInterval)) {
                 room.getBookings().add(bookingInterval); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
