@@ -1,0 +1,11 @@
+contexts:
+  - name: Hotel
+    domainVisionStatement: To manage the booking and check-in/check-out of hotel rooms
+    terms:
+      - name: BookingInterval
+        definition: A unit of transportation that needs moving and delivery to its delivery location.
+        examples:
+          - Multiple Customers are involved with a Cargo, each playing a different role.
+          - The Cargo delivery goal is specified.
+        aliases:
+          - unit
