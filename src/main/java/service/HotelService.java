@@ -56,6 +56,61 @@ public class HotelService {
         - zimmer jetzt blockieren
         - zimmer geplant blockieren
         - zimmer wieder freigeben
+
+---
+    INTENTION REVEALING INTERFACES
+    - Value Objects in "Interfaces" (Parameterlists) nutzen
+        - Contextive (https://github.com/dev-cycles/contextive)
+            -> Umweg über BookingRequestInterval zeigen
+        - Ubiquitous Language
+        - JMolecules -> @ValueObject
+    - fachliche Operationen im Datenmodell einführen
+        - Wiederverwendung von Value Objects
+    - Optional
+        - Clean Architecture
+            - In- & Outports als Interfaces extrahieren
+            - Interface je UseCase
+            - JMolecules Onion/Hexagonal/etc.
+
+     SIDE-EFFECT FREE FUNCTIONS
+     - Either-Monade für Fehlerfälle
+     - CQS (getInvoice)
+     - Optional
+        - Application vs Domain Service
+        - Infrastructure(Repositories) in Services?
+
+     ASSERTIONS
+     - Design by Contract
+     - Assertions (Pre(Guards) & Post Conditions):
+        - Directly in programming language? Java assert <- Recherche
+            - https://www.baeldung.com/java-assert
+            - https://stackoverflow.com/questions/4624919/performance-drag-of-java-assertions-when-disabled
+        - in Unit Tests
+            - sind unsere Assertions in den Tests Assertions im Evans'schen Sinne (Zusicherungscharakter)?
+     - Haben wir irgendwo Pre-/Post Conditions, die im Code verbuddelt sind und als solche schwer erkennbar sind
+        - Dokumentiert diese mal, macht sie explizit zum Beispiel in Docs
+     - Optional:
+        - (in Docs)
+        - Domänenmodell - ungültige Zustände nicht repräsentierbar machen (Scott Wlaschin)
+            -> haben wir hier ein Beispiel dafür
+     - Payment (fühlt sich komisch an)
+
+     CONCEPTUAL CONTOURS
+     - Rechnung ausstellen mit Zahlungsziel aktuell nicht möglich
+     - Invoice kennt Raumsituation
+     - Preisberechnung findet mehrfach statt
+
+     STANDALONE CLASSES
+     - fachliche Operationen -> Intention Revealing Interfaces
+     - Logik fast ausschließlich in Services implementiert -> lässt sich davon noch was ins Domänenmodell verschieben
+     -> standard computations
+
+     CLOSURE OF OPERATIONS
+     - Preisberechnung als Monoid (Rückverweis auf standalone classes)
+        -> Es besteht auch die Möglichkeit, Monoide als abstraktes Konzept zu implementieren
+
+     Optionaler Test:
+     - Wie aufwendig ist es, in unsere refactorte Code Base Rabatte einzubauen?
      */
 
     /**
