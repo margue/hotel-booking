@@ -24,25 +24,25 @@ public class PaymentService {
         this.roomRepository = roomRepository;
     }
 
-    public void payAmount(CustomerName customerName, double amount){
-        List<Payment> customerPayments = paymentRepository.load(customerName);
-        customerPayments.add(new Payment(customerName, amount));
-        paymentRepository.save(customerName, customerPayments);
+    public void payAmount(GuestName guestName, double amount){
+        List<Payment> guestPayments = paymentRepository.load(guestName);
+        guestPayments.add(new Payment(guestName, amount));
+        paymentRepository.save(guestName, guestPayments);
     }
 
-    public double remainingCredit(CustomerName customerName){
-        return paymentRepository.load(customerName).stream()
+    public double remainingCredit(GuestName guestName){
+        return paymentRepository.load(guestName).stream()
                 .mapToDouble(payment -> payment.getPaidAmount() - payment.getUsedAmount())
                 .sum();
     }
 
-    public Invoice produceInvoice(CustomerName customerName, LocalDate endDate, List<String> roomNumbers) {
-        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByCustomerName(customerName)
+    public Invoice produceInvoice(GuestName guestName, LocalDate endDate, List<String> roomNumbers) {
+        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
         Map<String, List<BookingInterval>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
             List<BookingInterval> applicableBookings = room.getBookings().stream()
-                    .filter(booking -> Objects.equals(booking.getCustomerName(), customerName))
+                    .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
                     .filter(booking -> !booking.getEndDate().isAfter(endDate))
                     .filter(booking -> !booking.isInvoiced())
                     .filter(BookingInterval::isCheckedIn).collect(Collectors.toList());
@@ -50,7 +50,7 @@ public class PaymentService {
                 bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
             } else {
                 throw new IllegalArgumentException(String.format("No bookingIntervals to be invoiced for given customer " +
-                        "'%s', endDate [%s] and roomNumbers %s", customerName.customerName(), endDate, roomNumbers));
+                        "'%s', endDate [%s] and roomNumbers %s", guestName.guestName(), endDate, roomNumbers));
             }
         });
         double totalAmount =
@@ -59,12 +59,12 @@ public class PaymentService {
                                 .mapToDouble(booking -> 100.0 * booking.dates().size())
                                 .sum())
                         .sum();
-        double credit = remainingCredit(customerName);
+        double credit = remainingCredit(guestName);
         if(totalAmount > credit){
             throw new IllegalStateException("Payment insufficient. Necessary payment: " + (totalAmount - credit));
         }
 
-        List<Payment> payments = paymentRepository.load(customerName);
+        List<Payment> payments = paymentRepository.load(guestName);
         payments.sort((o1, o2) -> o1.getPaymentDate().isEqual(o2.getPaymentDate()) ? 0 :
                         o1.getPaymentDate().isBefore(o2.getPaymentDate()) ? -1 : 1);
         double remainingTotalAmount = totalAmount;
@@ -83,10 +83,10 @@ public class PaymentService {
                 break;
             }
         }
-        paymentRepository.save(customerName, payments);
+        paymentRepository.save(guestName, payments);
 
         roomRepository.markBookingsAsInvoiced(bookingsForRooms);
 
-        return new Invoice(customerName, bookingsForRooms, totalAmount);
+        return new Invoice(guestName, bookingsForRooms, totalAmount);
     }
 }

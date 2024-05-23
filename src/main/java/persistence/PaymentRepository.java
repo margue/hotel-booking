@@ -1,6 +1,6 @@
 package persistence;
 
-import service.CustomerName;
+import service.GuestName;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +11,12 @@ public class PaymentRepository {
 
     private Map<String, List<Payment>> payments = new HashMap<>();
 
-    public List<Payment> load(CustomerName customerName){
-        List<Payment> customerPayments = payments.get(customerName.customerName());
-        return customerPayments == null ? new ArrayList<>() : customerPayments;
+    public List<Payment> load(GuestName guestName){
+        List<Payment> guestPayments = payments.get(guestName.guestName());
+        return guestPayments == null ? new ArrayList<>() : guestPayments;
     }
 
-    public void save(CustomerName customerName, List<Payment> customerPayments){
-        payments.put(customerName.customerName(), customerPayments);
+    public void save(GuestName guestName, List<Payment> guestPayments){
+        payments.put(guestName.guestName(), guestPayments);
     }
 }

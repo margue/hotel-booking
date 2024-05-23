@@ -30,7 +30,7 @@ public class HotelService {
     + zimmer buchen
     [- zimmer zuweisen]
     + einchecken
-    + zahlung leisten (auch mehrfach) (customerName) (Refactoring: Kunde hat Guthaben, Monolith, Closure of Operations)
+    + zahlung leisten (auch mehrfach) (guestName) (Refactoring: Kunde hat Guthaben, Monolith, Closure of Operations)
     + rechnung erstellen (Legacy: Zahlungsausgleich bei der Erstellung, Refactoring: Rg. unbezahlt, Ausgleich im
     Nachgang)
     + zahlung leisten (nur wenn bisherige zahlungen < summe invoice)
@@ -128,12 +128,12 @@ public class HotelService {
         return null;
     }
 
-    public void bookRoom(BookingRequestInterval bookingRequestInterval, CustomerName customerName) {
-        if (customerName.customerName() == null) {
-            throw new IllegalArgumentException("Customer name must not be null");
+    public void bookRoom(BookingRequestInterval bookingRequestInterval, GuestName guestName) {
+        if (guestName.guestName() == null) {
+            throw new IllegalArgumentException("Guest name must not be null");
         }
         for (Room room : rooms.getRooms().values()) {
-            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), customerName);
+            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), guestName);
             if (room.roomIsFree(bookingInterval)) {
                 room.getBookings().add(bookingInterval); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
@@ -143,15 +143,15 @@ public class HotelService {
         throw new IllegalStateException("No rooms available on the given date(s)");
     }
 
-    public List<String> checkIn(CustomerName customerName, LocalDate startDate) {
-        List<Room> roomsForCustomer = rooms.findAllRoomsWithBookingIntervalsByCustomerName(customerName);
-        if (roomsForCustomer.size() == 0) {
-            throw new IllegalStateException("Customer cannot check in because they did not book a room");
+    public List<String> checkIn(GuestName guestName, LocalDate startDate) {
+        List<Room> roomsForGuest = rooms.findAllRoomsWithBookingIntervalsByGuestName(guestName);
+        if (roomsForGuest.size() == 0) {
+            throw new IllegalStateException("Guest cannot check in because they did not book a room");
         }
         List<String> bookedRoomNumbers = new ArrayList<>();
-        roomsForCustomer.forEach(room -> {
+        roomsForGuest.forEach(room -> {
             List<BookingInterval> currentBookings = room.getBookings().stream()
-                    .filter(interval -> interval.getCustomerName().equals(customerName))
+                    .filter(interval -> interval.getGuestName().equals(guestName))
                     .filter(interval -> interval.getStartDate().equals(startDate))
                     .toList();
             if (currentBookings.size() > 0) {
@@ -163,10 +163,10 @@ public class HotelService {
         return bookedRoomNumbers;
     }
 
-    public void checkOut(CustomerName customerName, String roomNumber, LocalDate endDate) {
+    public void checkOut(GuestName guestName, String roomNumber, LocalDate endDate) {
         Room room = rooms.getRooms().get(roomNumber);
         List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
-                .filter(interval -> Objects.equals(interval.getCustomerName(), customerName))
+                .filter(interval -> Objects.equals(interval.getGuestName(), guestName))
                 .filter(interval -> interval.getEndDate().equals(endDate)).toList();
         if(bookingsToCheckOut.size() == 0){
             throw new IllegalStateException("No booking to be checked out!");
