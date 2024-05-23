@@ -1,6 +1,6 @@
 package persistence;
 
-import service.CustomerName;
+import service.GuestName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +20,11 @@ public class RoomRepository {
         return rooms;
     }
 
-    public List<Room> findAllRoomsWithBookingIntervalsByCustomerName(CustomerName customerName) {
+    public List<Room> findAllRoomsWithBookingIntervalsByGuestName(GuestName guestName) {
         List<Room> rooms = new ArrayList<>();
         for (Room room : this.rooms.values()) {
             for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getCustomerName(), customerName)) {
+                if (Objects.equals(interval.getGuestName(), guestName)) {
                     rooms.add(room);
                 }
             }
@@ -33,11 +33,11 @@ public class RoomRepository {
     }
 
     // only for testing purposes
-    public List<BookingInterval> findAllBookingIntervalsByCustomerName(CustomerName customerName) {
+    public List<BookingInterval> findAllBookingIntervalsByGuestName(GuestName guestName) {
         List<BookingInterval> bookingIntervals = new ArrayList<>();
         for (Room room : rooms.values()) {
             for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getCustomerName(), customerName)) {
+                if (Objects.equals(interval.getGuestName(), guestName)) {
                     bookingIntervals.add(interval);
                 }
             }
@@ -59,7 +59,7 @@ public class RoomRepository {
 
     private boolean listContainsBooking(List<BookingInterval> bookingIntervals, BookingInterval booking) {
         for (BookingInterval bookingInterval : bookingIntervals) {
-            if (bookingInterval.getCustomerName().equals(booking.getCustomerName()) && bookingInterval.getStartDate().equals(booking.getStartDate())) {
+            if (bookingInterval.getGuestName().equals(booking.getGuestName()) && bookingInterval.getStartDate().equals(booking.getStartDate())) {
                 return true;
             }
         }

@@ -1,24 +1,24 @@
 package persistence;
 
-import service.CustomerName;
+import service.GuestName;
 
 import java.util.List;
 import java.util.Map;
 
 public class Invoice {
 
-    private CustomerName customerName;
+    private GuestName guestName;
     private Map<String, List<BookingInterval>> bookingsForRooms;
     private double totalAmount;
 
-    public Invoice(CustomerName customerName, Map<String, List<BookingInterval>> bookingsForRooms, double totalAmount) {
-        this.customerName = customerName;
+    public Invoice(GuestName guestName, Map<String, List<BookingInterval>> bookingsForRooms, double totalAmount) {
+        this.guestName = guestName;
         this.bookingsForRooms = bookingsForRooms;
         this.totalAmount = totalAmount;
     }
 
-    public CustomerName getCustomerName() {
-        return customerName;
+    public GuestName getGuestName() {
+        return guestName;
     }
 
     public Map<String, List<BookingInterval>> getBookingsForRooms() {
