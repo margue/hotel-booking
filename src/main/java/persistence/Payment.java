@@ -1,9 +1,11 @@
 package persistence;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import service.GuestName;
 
 import java.time.LocalDate;
 
+@ValueObject
 public class Payment {
 
     private double paidAmount;

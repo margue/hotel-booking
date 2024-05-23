@@ -1,5 +1,6 @@
 package persistence;
 
+import org.jmolecules.ddd.annotation.Repository;
 import service.GuestName;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class PaymentRepository {
 
     private Map<String, List<Payment>> payments = new HashMap<>();

@@ -1,5 +1,6 @@
 package persistence;
 
+import org.jmolecules.ddd.annotation.ValueObject;
 import service.GuestName;
 
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+@ValueObject
 public class BookingInterval {
 
     private final LocalDate startDate;

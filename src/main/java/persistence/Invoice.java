@@ -1,10 +1,12 @@
 package persistence;
 
+import org.jmolecules.ddd.annotation.Entity;
 import service.GuestName;
 
 import java.util.List;
 import java.util.Map;
 
+@Entity
 public class Invoice {
 
     private GuestName guestName;

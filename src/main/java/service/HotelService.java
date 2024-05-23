@@ -1,5 +1,6 @@
 package service;
 
+import org.jmolecules.ddd.annotation.Service;
 import persistence.BookingInterval;
 import persistence.Room;
 import persistence.RoomRepository;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Service
 public class HotelService {
 
     private RoomRepository rooms;

@@ -1,5 +1,6 @@
 package service;
 
+import org.jmolecules.ddd.annotation.Service;
 import persistence.*;
 
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Service
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;

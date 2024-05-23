@@ -1,5 +1,6 @@
 package persistence;
 
+import org.jmolecules.ddd.annotation.Repository;
 import service.GuestName;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Repository
 public class RoomRepository {
 
     private Map<String, Room> rooms = new ConcurrentHashMap<>();

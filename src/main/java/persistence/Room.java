@@ -1,10 +1,15 @@
 package persistence;
 
+import org.jmolecules.ddd.annotation.Entity;
+import org.jmolecules.ddd.annotation.Identity;
+
 import java.time.LocalDate;
 import java.util.List;
 
+@Entity
 public class Room {
 
+    @Identity
     private String roomNumber;
     private List<BookingInterval> bookings;
 
