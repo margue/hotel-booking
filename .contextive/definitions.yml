@@ -3,9 +3,19 @@ contexts:
     domainVisionStatement: To manage the booking and check-in/check-out of hotel rooms
     terms:
       - name: BookingInterval
-        definition: A unit of transportation that needs moving and delivery to its delivery location.
+        definition: The time period of a booking.
         examples:
-          - Multiple Customers are involved with a Cargo, each playing a different role.
-          - The Cargo delivery goal is specified.
+          - A guest specifies the booking interval when placing a reservation.
+          - For a given room, the booking intervals of its bookings may not overlap.
         aliases:
-          - unit
+          - none
+      - name: Invoice
+        definition: The legal entity that represents a guest's payment.
+      - name: Payment
+        definition: The transfer of money from a guest to the hotel.
+      - name: Room
+        definition: The smallest unit that can be booked by a guest.
+      - name: Repository
+        definition: Provides functionality for accessing and publishing the associated object.
+
+
