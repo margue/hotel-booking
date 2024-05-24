@@ -2,7 +2,6 @@ package service;
 
 import persistence.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,21 +35,21 @@ public class PaymentService {
                 .sum();
     }
 
-    public Invoice produceInvoice(GuestName guestName, LocalDate endDate, List<RoomNumber> roomNumbers) {
+    public Invoice produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
         List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
         Map<RoomNumber, List<BookingInterval>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
             List<BookingInterval> applicableBookings = room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
-                    .filter(booking -> !booking.getEndDate().isAfter(endDate))
+                    .filter(booking -> !booking.getEndDate().isAfter(departureDate.date()))
                     .filter(booking -> !booking.isInvoiced())
                     .filter(BookingInterval::isCheckedIn).collect(Collectors.toList());
             if(applicableBookings.size() > 0 ){
                 bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
             } else {
                 throw new IllegalArgumentException(String.format("No bookingIntervals to be invoiced for given customer " +
-                        "'%s', endDate [%s] and roomNumbers %s", guestName.guestName(), endDate, roomNumbers));
+                        "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate.date(), roomNumbers));
             }
         });
         double totalAmount =

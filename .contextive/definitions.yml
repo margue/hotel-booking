@@ -7,16 +7,29 @@ contexts:
         examples:
           - A guest specifies the booking interval when placing a reservation.
           - For a given room, the booking intervals of its bookings may not overlap.
+          - The booking interval starts with the check-in date. This is the date the guest wishes to arrive.
+          - The booking interval ends with the check-out date. This is the date the guest wishes to depart.
         aliases:
           - none
       - name: Invoice
         definition: The legal entity that represents a guest's payment.
+        examples:
+          - The invoice displays the guest's date of arrival and departure, thus specifying the time the guest actually used the room.
+      - name: DepartureDate
+        definition: The day on which the guest actually leaves the room / the hotel.
+        examples:
+          - The guest checks out on their day of departure.
+          - The departure date cannot be later than the check-out date of the corresponding booking.
+          - If the guest wants to depart after the check-out date of the corresponding booking, the booking needs to be modified before the end of the day of the check-out.
       - name: Payment
         definition: The transfer of money from a guest to the hotel.
       - name: Room
         definition: The smallest unit that can be booked by a guest.
         examples:
           - Each room has its unique RoomNumber.
+          - When booking a room, the guest specifies the check-in date and the check-out date.
+          - A guest checks into a room on their arrival date.
+          - A guest checks out of a room on their departure date.
       - name: RoomNumber
         definition: The number that serves to identify each guest room.
       - name: Repository

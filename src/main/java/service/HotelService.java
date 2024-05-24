@@ -161,11 +161,11 @@ public class HotelService {
         return bookedRoomNumbers;
     }
 
-    public void checkOut(GuestName guestName, RoomNumber roomNumber, LocalDate endDate) {
+    public void checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
         Room room = rooms.getRooms().get(roomNumber);
         List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
                 .filter(interval -> Objects.equals(interval.getGuestName(), guestName))
-                .filter(interval -> interval.getEndDate().equals(endDate)).toList();
+                .filter(interval -> interval.getEndDate().equals(departureDate.date())).toList();
         if(bookingsToCheckOut.size() == 0){
             throw new IllegalStateException("No booking to be checked out!");
         }

@@ -254,12 +254,13 @@ class HotelServiceTest {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
+        DepartureDate departureDate = new DepartureDate(endDate);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
                 endDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, endDate));
+        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -270,13 +271,14 @@ class HotelServiceTest {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
+        DepartureDate departureDate = new DepartureDate(endDate);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
                 endDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
         service.checkIn(new GuestName("Fritz"), startDate);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, endDate));
+        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -287,6 +289,7 @@ class HotelServiceTest {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
+        DepartureDate departureDate = new DepartureDate(endDate);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
                 endDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
@@ -295,10 +298,10 @@ class HotelServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         PaymentService paymentService = new PaymentService(paymentRepository, rooms);
         paymentService.payAmount(new GuestName("Fritz"), 200.0);
-        paymentService.produceInvoice(new GuestName("Fritz"), endDate, Collections.singletonList(roomNumber1));
+        paymentService.produceInvoice(new GuestName("Fritz"), departureDate, Collections.singletonList(roomNumber1));
 
         // WHEN
-        service.checkOut(new GuestName("Fritz"), roomNumber1, endDate);
+        service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate);
 
         // THEN
         Assertions.assertThat(rooms.getRooms().get(roomNumber1).getBookings().getFirst().isCheckedOut()).isTrue();
