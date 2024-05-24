@@ -204,12 +204,13 @@ class HotelServiceTest {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
                 endDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), startDate);
+        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(1);
@@ -220,11 +221,12 @@ class HotelServiceTest {
     void checkIn_roomWasNotBooked() {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkIn(new GuestName("Fritz"), startDate));
+        Throwable t = catchThrowable(() -> service.checkIn(new GuestName("Fritz"), arrivalDate));
 
         // THEN
         List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByGuestName(new GuestName("Fritz"));
@@ -240,10 +242,10 @@ class HotelServiceTest {
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
                 endDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
-        LocalDate checkInDate = startDate.plusDays(17);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate.plusDays(17));
 
         // WHEN
-        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), checkInDate);
+        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(0);
@@ -270,12 +272,13 @@ class HotelServiceTest {
     void checkOut_roomWasCheckedIn_error() {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
         DepartureDate departureDate = new DepartureDate(endDate);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
                 endDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
-        service.checkIn(new GuestName("Fritz"), startDate);
+        service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // WHEN
         Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate));
@@ -288,12 +291,13 @@ class HotelServiceTest {
     void checkOut_roomWasInvoiced() {
         // GIVEN
         LocalDate startDate = LocalDate.of(2020, 10, 10);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         LocalDate endDate = LocalDate.of(2020, 10, 12);
         DepartureDate departureDate = new DepartureDate(endDate);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(startDate,
                 endDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
-        service.checkIn(new GuestName("Fritz"), startDate);
+        service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         PaymentRepository paymentRepository = new PaymentRepository();
         PaymentService paymentService = new PaymentService(paymentRepository, rooms);
