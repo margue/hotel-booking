@@ -1,4 +1,4 @@
-package service;
+package persistence;
 
 public record GuestName(String guestName) {
 }

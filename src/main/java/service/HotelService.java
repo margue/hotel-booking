@@ -1,9 +1,6 @@
 package service;
 
-import persistence.BookingInterval;
-import persistence.Room;
-import persistence.RoomNumber;
-import persistence.RoomRepository;
+import persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

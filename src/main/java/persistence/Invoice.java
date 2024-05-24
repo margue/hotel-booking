@@ -1,7 +1,5 @@
 package persistence;
 
-import service.GuestName;
-
 import java.util.List;
 import java.util.Map;
 
