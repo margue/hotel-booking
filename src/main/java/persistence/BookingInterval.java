@@ -1,7 +1,5 @@
 package persistence;
 
-import service.GuestName;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;

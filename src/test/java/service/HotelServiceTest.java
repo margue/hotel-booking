@@ -2,10 +2,7 @@ package service;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import persistence.BookingInterval;
-import persistence.PaymentRepository;
-import persistence.Room;
-import persistence.RoomRepository;
+import persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
