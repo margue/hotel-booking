@@ -15,6 +15,12 @@ contexts:
         definition: The legal entity that represents a guest's payment.
         examples:
           - The invoice displays the guest's date of arrival and departure, thus specifying the time the guest actually used the room.
+      - name: ArrivalDate
+        definition: The day on which the guest actually starts to use the booked room.
+        examples:
+          - The guest checks in on their day of arrival.
+          - The arrival date cannot be earlier than the check-in date of the corresponding booking.
+          - If the guest wants to check in before the check-in date of the corresponding booking, the booking needs to be modified before the end of the desired check-in day.
       - name: DepartureDate
         definition: The day on which the guest actually leaves the room / the hotel.
         examples:

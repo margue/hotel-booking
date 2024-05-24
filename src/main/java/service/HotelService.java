@@ -141,7 +141,7 @@ public class HotelService {
         throw new IllegalStateException("No rooms available on the given date(s)");
     }
 
-    public List<RoomNumber> checkIn(GuestName guestName, LocalDate startDate) {
+    public List<RoomNumber> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
         List<Room> roomsForGuest = rooms.findAllRoomsWithBookingIntervalsByGuestName(guestName);
         if (roomsForGuest.size() == 0) {
             throw new IllegalStateException("Guest cannot check in because they did not book a room");
@@ -150,7 +150,7 @@ public class HotelService {
         roomsForGuest.forEach(room -> {
             List<BookingInterval> currentBookings = room.getBookings().stream()
                     .filter(interval -> interval.getGuestName().equals(guestName))
-                    .filter(interval -> interval.getStartDate().equals(startDate))
+                    .filter(interval -> interval.getStartDate().equals(arrivalDate.date()))
                     .toList();
             if (currentBookings.size() > 0) {
                 currentBookings.forEach(interval -> interval.setCheckedIn(true));

@@ -78,6 +78,7 @@ class PaymentServiceTest {
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -85,7 +86,7 @@ class PaymentServiceTest {
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
 
@@ -104,6 +105,7 @@ class PaymentServiceTest {
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -111,7 +113,7 @@ class PaymentServiceTest {
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 50.0);
@@ -133,6 +135,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
@@ -140,7 +143,7 @@ class PaymentServiceTest {
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 100.0);
@@ -163,6 +166,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
@@ -171,8 +175,8 @@ class PaymentServiceTest {
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(3), endDate), guestName1);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate.minusDays(3));
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, new ArrivalDate(startDate.minusDays(3)));
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 500.0);
@@ -194,6 +198,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
@@ -201,8 +206,8 @@ class PaymentServiceTest {
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(1), endDate.minusDays(1)), guestName1);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate.minusDays(1));
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, new ArrivalDate(startDate.minusDays(1)));
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 200.0);
@@ -224,13 +229,14 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 100.0);
@@ -250,13 +256,14 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 70.0);
@@ -277,13 +284,14 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 170.0);
@@ -303,13 +311,14 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 70.0);
@@ -330,13 +339,14 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 70.0);
@@ -362,13 +372,14 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, startDate);
+        hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 100.0);
@@ -389,6 +400,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
@@ -396,8 +408,8 @@ class PaymentServiceTest {
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
         hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(5), endDate.minusDays(5)), guestName1);
-        hotelService.checkIn(guestName1, startDate);
-        hotelService.checkIn(guestName1, startDate.minusDays(5));
+        hotelService.checkIn(guestName1, arrivalDate);
+        hotelService.checkIn(guestName1, new ArrivalDate(startDate.minusDays(5)));
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 200.0);
@@ -418,6 +430,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        ArrivalDate arrivalDate = new ArrivalDate(startDate);
         DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
@@ -425,8 +438,8 @@ class PaymentServiceTest {
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
         hotelService.bookRoom(new BookingRequestInterval(startDate.plusDays(5), endDate.plusDays(5)), guestName1);
-        hotelService.checkIn(guestName1, startDate);
-        hotelService.checkIn(guestName1, startDate.plusDays(5));
+        hotelService.checkIn(guestName1, arrivalDate);
+        hotelService.checkIn(guestName1, new ArrivalDate(startDate.plusDays(5)));
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 100.0);
