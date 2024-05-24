@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
+
 class PaymentServiceTest {
     String customer1 = "Peter Meier";
     String customer2 = "Lisa Müller";
@@ -88,7 +90,7 @@ class PaymentServiceTest {
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
 
         // WHEN
-        Throwable t = Assertions.catchThrowable(() -> service.produceInvoice(customer1, endDate, roomNumbers));
+        Throwable t = catchThrowable(() -> service.produceInvoice(customer1, endDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -114,7 +116,7 @@ class PaymentServiceTest {
         service.payAmount(customer1, 50.0);
 
         // WHEN
-        Throwable t = Assertions.catchThrowable(() -> service.produceInvoice(customer1, endDate, roomNumbers));
+        Throwable t = catchThrowable(() -> service.produceInvoice(customer1, endDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -306,13 +308,42 @@ class PaymentServiceTest {
         service.payAmount(customer1, 100.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(customer1, endDate, roomNumbers);
+        service.produceInvoice(customer1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(customer1)).isEqualTo(70.0);
     }
 
+    @Test
+    public void produceInvoice_sameInvoiceTwiceLeadsToExcetionAlreadyPaid() {
+        // GIVEN
+        PaymentRepository paymentRepository = new PaymentRepository();
+        RoomRepository roomRepository = new RoomRepository();
+        roomRepository.save(new Room("1", new ArrayList<>()));
+        LocalDate startDate = LocalDate.of(2020, 10, 10);
+        LocalDate endDate = LocalDate.of(2020, 10, 11);
+        List<String> roomNumbers = new ArrayList<>();
+        roomNumbers.add("1");
 
+        HotelService hotelService = new HotelService(roomRepository);
+        hotelService.bookRoom(startDate, endDate, customer1);
+        hotelService.checkIn(customer1, startDate);
+
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        service.payAmount(customer1, 70.0);
+        service.payAmount(customer1, 100.0);
+        service.produceInvoice(customer1, endDate, roomNumbers);
+
+        // WHEN
+        Throwable throwable = catchThrowable(() -> service.produceInvoice(customer1, endDate, roomNumbers));
+
+        // THEN
+        Assertions.assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThat(throwable.getMessage())
+                .isEqualTo(String.format("No bookingIntervals to be invoiced for given customer '%s', endDate [%s] " +
+                        "and roomNumbers %s", customer1, endDate, roomNumbers));
+        Assertions.assertThat(service.remainingCredit(customer1)).isEqualTo(70.0);
+    }
 
     @Test
     public void markBookingsAsInvoiced_oneBooking() {
