@@ -5,15 +5,15 @@ import java.util.List;
 
 public class Room {
 
-    private String roomNumber;
+    private final RoomNumber roomNumber;
     private List<BookingInterval> bookings;
 
-    public Room(String roomNumber, List<BookingInterval> bookings) {
+    public Room(RoomNumber roomNumber, List<BookingInterval> bookings) {
         this.roomNumber = roomNumber;
         this.bookings = bookings;
     }
 
-    public String getRoomNumber() {
+    public RoomNumber getRoomNumber() {
         return roomNumber;
     }
 

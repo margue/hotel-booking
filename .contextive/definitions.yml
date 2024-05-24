@@ -15,6 +15,8 @@ contexts:
         definition: The transfer of money from a guest to the hotel.
       - name: Room
         definition: The smallest unit that can be booked by a guest.
+      - name: RoomNumber
+        definition: The number that serves to identify each guest room.
       - name: Repository
         definition: Provides functionality for accessing and publishing the associated object.
 
