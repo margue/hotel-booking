@@ -79,6 +79,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -89,7 +90,7 @@ class PaymentServiceTest {
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, endDate, roomNumbers));
+        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, departureDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -104,6 +105,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -115,7 +117,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 50.0);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, endDate, roomNumbers));
+        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, departureDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -131,6 +133,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -143,7 +146,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 100.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
@@ -160,6 +163,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
         roomNumbers.add(roomNumber2);
@@ -174,7 +178,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 500.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
@@ -190,6 +194,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -203,7 +208,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 200.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
@@ -219,6 +224,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -230,7 +236,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 100.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(0.0);
@@ -244,6 +250,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -256,7 +263,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 30.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(0.0);
@@ -270,6 +277,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -281,7 +289,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 170.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(70.0);
@@ -295,6 +303,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -307,7 +316,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 100.0);
 
         // WHEN
-        service.produceInvoice(guestName1, endDate, roomNumbers);
+        service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(70.0);
@@ -321,6 +330,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -331,16 +341,16 @@ class PaymentServiceTest {
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, 70.0);
         service.payAmount(guestName1, 100.0);
-        service.produceInvoice(guestName1, endDate, roomNumbers);
+        service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // WHEN
-        Throwable throwable = catchThrowable(() -> service.produceInvoice(guestName1, endDate, roomNumbers));
+        Throwable throwable = catchThrowable(() -> service.produceInvoice(guestName1, departureDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
         Assertions.assertThat(throwable.getMessage())
-                .isEqualTo(String.format("No bookingIntervals to be invoiced for given customer '%s', endDate [%s] " +
-                        "and roomNumbers %s", guestName1.guestName(), endDate, roomNumbers));
+                .isEqualTo(String.format("No bookingIntervals to be invoiced for given customer '%s', departureDate [%s] " +
+                        "and roomNumbers %s", guestName1.guestName(), departureDate.date(), roomNumbers));
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(70.0);
     }
 
@@ -352,6 +362,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -363,7 +374,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 100.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1))
@@ -378,6 +389,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -391,7 +403,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 200.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1))
@@ -406,6 +418,7 @@ class PaymentServiceTest {
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
+        DepartureDate departureDate = new DepartureDate(endDate);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
@@ -419,7 +432,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, 100.0);
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1).size()).isEqualTo(2);
