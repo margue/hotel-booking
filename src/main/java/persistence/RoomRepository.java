@@ -10,13 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomRepository {
 
-    private Map<String, Room> rooms = new ConcurrentHashMap<>();
+    private Map<RoomNumber, Room> rooms = new ConcurrentHashMap<>();
 
     public void save(Room room) {
         rooms.put(room.getRoomNumber(), room);
     }
 
-    public Map<String, Room> getRooms() {
+    public Map<RoomNumber, Room> getRooms() {
         return rooms;
     }
 
@@ -45,7 +45,7 @@ public class RoomRepository {
         return bookingIntervals;
     }
 
-    public void markBookingsAsInvoiced(Map<String, List<BookingInterval>> bookingsForRooms) {
+    public void markBookingsAsInvoiced(Map<RoomNumber, List<BookingInterval>> bookingsForRooms) {
         bookingsForRooms.keySet().forEach(roomNumber -> {
             Room room = rooms.get(roomNumber);
             room.getBookings().forEach(booking -> {

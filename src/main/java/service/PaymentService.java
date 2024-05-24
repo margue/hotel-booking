@@ -36,10 +36,10 @@ public class PaymentService {
                 .sum();
     }
 
-    public Invoice produceInvoice(GuestName guestName, LocalDate endDate, List<String> roomNumbers) {
+    public Invoice produceInvoice(GuestName guestName, LocalDate endDate, List<RoomNumber> roomNumbers) {
         List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
-        Map<String, List<BookingInterval>> bookingsForRooms = new HashMap<>();
+        Map<RoomNumber, List<BookingInterval>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
             List<BookingInterval> applicableBookings = room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getGuestName(), guestName))

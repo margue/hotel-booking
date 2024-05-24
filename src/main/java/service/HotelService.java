@@ -2,6 +2,7 @@ package service;
 
 import persistence.BookingInterval;
 import persistence.Room;
+import persistence.RoomNumber;
 import persistence.RoomRepository;
 
 import java.time.LocalDate;
@@ -143,12 +144,12 @@ public class HotelService {
         throw new IllegalStateException("No rooms available on the given date(s)");
     }
 
-    public List<String> checkIn(GuestName guestName, LocalDate startDate) {
+    public List<RoomNumber> checkIn(GuestName guestName, LocalDate startDate) {
         List<Room> roomsForGuest = rooms.findAllRoomsWithBookingIntervalsByGuestName(guestName);
         if (roomsForGuest.size() == 0) {
             throw new IllegalStateException("Guest cannot check in because they did not book a room");
         }
-        List<String> bookedRoomNumbers = new ArrayList<>();
+        List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
         roomsForGuest.forEach(room -> {
             List<BookingInterval> currentBookings = room.getBookings().stream()
                     .filter(interval -> interval.getGuestName().equals(guestName))
@@ -163,7 +164,7 @@ public class HotelService {
         return bookedRoomNumbers;
     }
 
-    public void checkOut(GuestName guestName, String roomNumber, LocalDate endDate) {
+    public void checkOut(GuestName guestName, RoomNumber roomNumber, LocalDate endDate) {
         Room room = rooms.getRooms().get(roomNumber);
         List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
                 .filter(interval -> Objects.equals(interval.getGuestName(), guestName))

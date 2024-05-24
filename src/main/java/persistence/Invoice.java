@@ -8,10 +8,10 @@ import java.util.Map;
 public class Invoice {
 
     private GuestName guestName;
-    private Map<String, List<BookingInterval>> bookingsForRooms;
+    private Map<RoomNumber, List<BookingInterval>> bookingsForRooms;
     private double totalAmount;
 
-    public Invoice(GuestName guestName, Map<String, List<BookingInterval>> bookingsForRooms, double totalAmount) {
+    public Invoice(GuestName guestName, Map<RoomNumber, List<BookingInterval>> bookingsForRooms, double totalAmount) {
         this.guestName = guestName;
         this.bookingsForRooms = bookingsForRooms;
         this.totalAmount = totalAmount;
@@ -21,7 +21,7 @@ public class Invoice {
         return guestName;
     }
 
-    public Map<String, List<BookingInterval>> getBookingsForRooms() {
+    public Map<RoomNumber, List<BookingInterval>> getBookingsForRooms() {
         return bookingsForRooms;
     }
 

@@ -18,17 +18,20 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 class HotelServiceTest {
 
+    RoomNumber roomNumber1 = new RoomNumber("1");
+    RoomNumber roomNumber2 = new RoomNumber("2");
+
     public HotelService setupHotelService(int numberOfRooms) {
         RoomRepository rooms = new RoomRepository();
         for (int i = 1; i <= numberOfRooms; i++) {
-            rooms.save(new Room(Integer.toString(i), new ArrayList<>()));
+            rooms.save(new Room(new RoomNumber(Integer.toString(i)), new ArrayList<>()));
         }
         return new HotelService(rooms);
     }
 
     public RoomRepository setupRoomsWithOneRoomAndBookings(BookingInterval... bookingIntervals){
         RoomRepository rooms = new RoomRepository();
-        rooms.save(new Room("1", new ArrayList<>(Arrays.asList(bookingIntervals))));
+        rooms.save(new Room(new RoomNumber("1"), new ArrayList<>(Arrays.asList(bookingIntervals))));
         return rooms;
     }
 
@@ -124,8 +127,8 @@ class HotelServiceTest {
     void bookRoom_bookTwoRoomsForSameNights() {
         // GIVEN
         RoomRepository rooms = new RoomRepository();
-        rooms.save(new Room("1", new ArrayList<>()));
-        rooms.save(new Room("2", new ArrayList<>()));
+        rooms.save(new Room(roomNumber1, new ArrayList<>()));
+        rooms.save(new Room(roomNumber2, new ArrayList<>()));
         HotelService service = new HotelService(rooms);
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
@@ -138,7 +141,7 @@ class HotelServiceTest {
         List<Room> foundRooms = rooms.findAllRoomsWithBookingIntervalsByGuestName(new GuestName("Peter"));
         assertThat(foundRooms).hasSize(2);
         assertThat(foundRooms).extracting("roomNumber")
-                        .containsExactly("1", "2");
+                        .containsExactly(roomNumber1, roomNumber2);
         assertThat(foundRooms.get(0).getBookings().get(0).getStartDate()).isEqualTo(startDate);
         assertThat(foundRooms.get(0).getBookings().get(0).getEndDate()).isEqualTo(endDate);
         assertThat(foundRooms.get(1).getBookings().get(0).getStartDate()).isEqualTo(startDate);
@@ -209,11 +212,11 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        List<String> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), startDate);
+        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), startDate);
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(1);
-        assertThat(checkedInRoomNumbers.getFirst()).isEqualTo("1");
+        assertThat(checkedInRoomNumbers.getFirst().number()).isEqualTo("1");
     }
 
     @Test
@@ -243,7 +246,7 @@ class HotelServiceTest {
         LocalDate checkInDate = startDate.plusDays(17);
 
         // WHEN
-        List<String> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), checkInDate);
+        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), checkInDate);
 
         // THEN
         assertThat(checkedInRoomNumbers.size()).isEqualTo(0);
@@ -259,7 +262,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), "1", endDate));
+        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, endDate));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -276,7 +279,7 @@ class HotelServiceTest {
         service.checkIn(new GuestName("Fritz"), startDate);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), "1", endDate));
+        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, endDate));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -295,13 +298,13 @@ class HotelServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         PaymentService paymentService = new PaymentService(paymentRepository, rooms);
         paymentService.payAmount(new GuestName("Fritz"), 200.0);
-        paymentService.produceInvoice(new GuestName("Fritz"), endDate, Collections.singletonList("1"));
+        paymentService.produceInvoice(new GuestName("Fritz"), endDate, Collections.singletonList(roomNumber1));
 
         // WHEN
-        service.checkOut(new GuestName("Fritz"), "1", endDate);
+        service.checkOut(new GuestName("Fritz"), roomNumber1, endDate);
 
         // THEN
-        Assertions.assertThat(rooms.getRooms().get("1").getBookings().getFirst().isCheckedOut()).isTrue();
+        Assertions.assertThat(rooms.getRooms().get(roomNumber1).getBookings().getFirst().isCheckedOut()).isTrue();
     }
 
 }

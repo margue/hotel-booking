@@ -15,7 +15,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 class PaymentServiceTest {
     private final GuestName guestName1 = new GuestName("Peter Meier");
-    String guest2 = "Lisa Müller";
+    private final String guest2 = "Lisa Müller";
+    private final RoomNumber roomNumber1 = new RoomNumber("1");
+    private final RoomNumber roomNumber2 = new RoomNumber("2");
 
     public PaymentService setupPaymentService(PaymentRepository paymentRepository){
         return new PaymentService(paymentRepository);
@@ -77,11 +79,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -102,11 +104,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -128,12 +130,12 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
-        roomRepository.save(new Room("2", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -149,7 +151,7 @@ class PaymentServiceTest {
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(invoice.getTotalAmount()).isEqualTo(100.0);
-        Assertions.assertThat(invoice.getBookingsForRooms().get("1").size()).isEqualTo(1);
+        Assertions.assertThat(invoice.getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
     }
 
     @Test
@@ -157,13 +159,13 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
-        roomRepository.save(new Room("2", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
-        roomNumbers.add("2");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
+        roomNumbers.add(roomNumber2);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(3), endDate), guestName1);
@@ -180,19 +182,19 @@ class PaymentServiceTest {
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(invoice.getTotalAmount()).isEqualTo(500.0);
-        Assertions.assertThat(invoice.getBookingsForRooms().get("1").size()).isEqualTo(1);
-        Assertions.assertThat(invoice.getBookingsForRooms().get("2").size()).isEqualTo(1);
+        Assertions.assertThat(invoice.getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
+        Assertions.assertThat(invoice.getBookingsForRooms().get(new RoomNumber("2")).size()).isEqualTo(1);
     }
     @Test
     public void produceInvoice_manyBookingsEndingOnInvoiceDayOrEarlier() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(1), endDate.minusDays(1)), guestName1);
@@ -209,7 +211,7 @@ class PaymentServiceTest {
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(invoice.getTotalAmount()).isEqualTo(200.0);
-        Assertions.assertThat(invoice.getBookingsForRooms().get("1").size()).isEqualTo(2);
+        Assertions.assertThat(invoice.getBookingsForRooms().get(roomNumber1).size()).isEqualTo(2);
     }
 
     @Test
@@ -217,11 +219,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -242,11 +244,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -268,11 +270,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -293,11 +295,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -319,11 +321,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -350,11 +352,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -376,11 +378,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
@@ -404,11 +406,11 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room("1", new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         LocalDate startDate = LocalDate.of(2020, 10, 10);
         LocalDate endDate = LocalDate.of(2020, 10, 11);
-        List<String> roomNumbers = new ArrayList<>();
-        roomNumbers.add("1");
+        List<RoomNumber> roomNumbers = new ArrayList<>();
+        roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
         hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
