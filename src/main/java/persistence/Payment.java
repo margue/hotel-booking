@@ -4,23 +4,23 @@ import java.time.LocalDate;
 
 public class Payment {
 
-    private double paidAmount;
-    private double usedAmount;
+    private Amount paidAmount;
+    private Amount usedAmount;
     private GuestName guestName;
     private LocalDate paymentDate;
 
-    public Payment(GuestName guestName, double paidAmount){
+    public Payment(GuestName guestName, Amount paidAmount){
         this.guestName = guestName;
         this.paidAmount = paidAmount;
         this.paymentDate = LocalDate.now();
-        this.usedAmount= 0.0;
+        this.usedAmount= new Amount(0.0);
     }
 
-    public double getPaidAmount() {
+    public Amount getPaidAmount() {
         return paidAmount;
     }
 
-    public double getUsedAmount() {
+    public Amount getUsedAmount() {
         return usedAmount;
     }
 
@@ -32,7 +32,7 @@ public class Payment {
         return paymentDate;
     }
 
-    public void reduceCreditBy(double amount) {
-        usedAmount += amount;
+    public void reduceCreditBy(Amount amount) {
+        usedAmount = usedAmount.add(amount);
     }
 }

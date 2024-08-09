@@ -23,16 +23,16 @@ public class PaymentService {
         this.roomRepository = roomRepository;
     }
 
-    public void payAmount(GuestName guestName, double amount){
+    public void payAmount(GuestName guestName, Amount amount){
         List<Payment> guestPayments = paymentRepository.load(guestName);
         guestPayments.add(new Payment(guestName, amount));
         paymentRepository.save(guestName, guestPayments);
     }
 
-    public double remainingCredit(GuestName guestName){
+    public Amount remainingCredit(GuestName guestName){
         return paymentRepository.load(guestName).stream()
-                .mapToDouble(payment -> payment.getPaidAmount() - payment.getUsedAmount())
-                .sum();
+                .map(payment -> payment.getPaidAmount().subtract(payment.getUsedAmount()))
+                .reduce(Amount.ZERO, (sum, element) -> sum.add(element));
     }
 
     public Invoice produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
@@ -52,31 +52,31 @@ public class PaymentService {
                         "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate.date(), roomNumbers));
             }
         });
-        double totalAmount =
-                bookingsForRooms.values().stream()
+        Amount totalAmount =
+                new Amount(bookingsForRooms.values().stream()
                         .mapToDouble(bookingsForRoom -> bookingsForRoom.stream()
                                 .mapToDouble(booking -> 100.0 * booking.dates().size())
                                 .sum())
-                        .sum();
-        double credit = remainingCredit(guestName);
-        if(totalAmount > credit){
-            throw new IllegalStateException("Payment insufficient. Necessary payment: " + (totalAmount - credit));
+                        .sum());
+        Amount credit = remainingCredit(guestName);
+        if(totalAmount.isMoreThan(credit)){
+            throw new IllegalStateException("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit)));
         }
 
         List<Payment> payments = paymentRepository.load(guestName);
         payments.sort((o1, o2) -> o1.getPaymentDate().isEqual(o2.getPaymentDate()) ? 0 :
                         o1.getPaymentDate().isBefore(o2.getPaymentDate()) ? -1 : 1);
-        double remainingTotalAmount = totalAmount;
+        Amount remainingTotalAmount = totalAmount;
         for (Payment payment: payments){
-            if(remainingTotalAmount > 0.0){
-                double remainingCreditForPayment = payment.getPaidAmount() - payment.getUsedAmount();
-                if(remainingCreditForPayment >= remainingTotalAmount){
+            if(remainingTotalAmount.isMoreThan(Amount.ZERO)){
+                Amount remainingCreditForPayment = payment.getPaidAmount().subtract(payment.getUsedAmount());
+                if(remainingCreditForPayment.isMoreThanOrEqual(remainingTotalAmount)){
                     payment.reduceCreditBy(remainingTotalAmount);
-                    remainingTotalAmount = 0.0;
+                    remainingTotalAmount = Amount.ZERO;
                     break;
                 } else {
                     payment.reduceCreditBy(remainingCreditForPayment);
-                    remainingTotalAmount -= remainingCreditForPayment;
+                    remainingTotalAmount = remainingTotalAmount.subtract(remainingCreditForPayment);
                 }
             } else {
                 break;
