@@ -7,9 +7,9 @@ public class Invoice {
 
     private GuestName guestName;
     private Map<RoomNumber, List<BookingInterval>> bookingsForRooms;
-    private double totalAmount;
+    private Amount totalAmount;
 
-    public Invoice(GuestName guestName, Map<RoomNumber, List<BookingInterval>> bookingsForRooms, double totalAmount) {
+    public Invoice(GuestName guestName, Map<RoomNumber, List<BookingInterval>> bookingsForRooms, Amount totalAmount) {
         this.guestName = guestName;
         this.bookingsForRooms = bookingsForRooms;
         this.totalAmount = totalAmount;
@@ -23,7 +23,7 @@ public class Invoice {
         return bookingsForRooms;
     }
 
-    public double getTotalAmount() {
+    public Amount getTotalAmount() {
         return totalAmount;
     }
 }
