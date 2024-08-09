@@ -17,6 +17,26 @@ public class HotelService {
 
 
     /*
+    TODO:
+    - BookingInterval -> RoomBooking: GuestName, ArrivalDate, DepartureDate
+    - BookingRequestInterval -> Trennung in ArrivalDate und DepartureDate
+    - Amount einführen
+    - BookingsForRooms
+    - BookingIntervals
+    - RoomNumbers (Payment service)
+    - PaymentRepository -> Payments
+    - RoomRepository -> Rooms
+
+    - contextive aufpumpen
+
+    Verabredung:
+    - Keine Trennung Buchung / tatsächlicher Aufenthalt
+
+    ================================================================================
+    - später Aggregat: BookingOfARoom
+
+    ================================================================================
+
     ASSUMPTIONS:
     alle zimmer sind gleich
     jede nacht kostet 100.0
