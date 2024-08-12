@@ -32,7 +32,7 @@ public class PaymentService {
     public Amount remainingCredit(GuestName guestName){
         return paymentRepository.load(guestName).stream()
                 .map(payment -> payment.getPaidAmount().subtract(payment.getUsedAmount()))
-                .reduce(Amount.ZERO, (sum, element) -> sum.add(element));
+                .reduce(Amount.ZERO, Amount::add);
     }
 
     public Invoice produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
@@ -53,11 +53,11 @@ public class PaymentService {
             }
         });
         Amount totalAmount =
-                new Amount(bookingsForRooms.values().stream()
-                        .mapToDouble(bookingsForRoom -> bookingsForRoom.stream()
-                                .mapToDouble(booking -> 100.0 * booking.dates().size())
-                                .sum())
-                        .sum());
+                bookingsForRooms.values().stream()
+                        .map(bookingsForRoom -> bookingsForRoom.stream()
+                                .map(booking -> new Amount(100.0 * booking.dates().size()))
+                                .reduce(Amount.ZERO, Amount::add))
+                        .reduce(Amount.ZERO, Amount::add);
         Amount credit = remainingCredit(guestName);
         if(totalAmount.isMoreThan(credit)){
             throw new IllegalStateException("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit)));
