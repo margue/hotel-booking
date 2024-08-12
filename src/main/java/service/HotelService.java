@@ -137,9 +137,9 @@ public class HotelService {
      *
      * @return price as double or null in case of no availability
      */
-    public Double requestRoom(BookingRequestInterval bookingRequestInterval) {
+    public Double requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
+        BookingInterval bookingInterval = new BookingInterval(arrivalDate, departureDate);
         for (Room room : rooms.getRooms().values()) {
-            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate());
             if (room.roomIsFree(bookingInterval)) {
                 return 100.0 * bookingInterval.dates().size();
             }
@@ -147,12 +147,12 @@ public class HotelService {
         return null;
     }
 
-    public void bookRoom(BookingRequestInterval bookingRequestInterval, GuestName guestName) {
+    public void bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
         if (guestName.guestName() == null) {
             throw new IllegalArgumentException("Guest name must not be null");
         }
+        BookingInterval bookingInterval = new BookingInterval(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
-            BookingInterval bookingInterval = new BookingInterval(bookingRequestInterval.startDate(), bookingRequestInterval.endDate(), guestName);
             if (room.roomIsFree(bookingInterval)) {
                 room.getBookings().add(bookingInterval); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence

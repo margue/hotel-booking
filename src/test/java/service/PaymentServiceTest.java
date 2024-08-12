@@ -82,7 +82,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -107,7 +107,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -134,8 +134,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -164,8 +164,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber2);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.minusDays(3), endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate.minusDays(3), endDate, guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(3));
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -193,8 +193,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.minusDays(1), endDate.minusDays(1)), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate.minusDays(1), endDate.minusDays(1), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(1));
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -222,7 +222,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -247,7 +247,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -273,7 +273,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -298,7 +298,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -324,7 +324,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -355,7 +355,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -381,8 +381,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.minusDays(5), endDate.minusDays(5)), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
+        hotelService.bookRoom(arrivalDate.minusDays(5), endDate.minusDays(5), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(5));
 
@@ -409,8 +409,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.plusDays(5), endDate.plusDays(5)), guestName1);
+        hotelService.bookRoom(arrivalDate, endDate, guestName1);
+        hotelService.bookRoom(arrivalDate.plusDays(5), endDate.plusDays(5), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.plusDays(5));
 
