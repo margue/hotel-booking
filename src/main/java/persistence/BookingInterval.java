@@ -8,29 +8,29 @@ import java.util.stream.Stream;
 
 public class BookingInterval {
 
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private final ArrivalDate arrivalDate;
+    private final DepartureDate departureDate;
     private GuestName guestName;
     private boolean invoiced = false;
     private boolean checkedIn = false;
     private boolean checkedOut = false;
 
-    public BookingInterval(LocalDate startDate, LocalDate endDate) {
-        this(startDate, endDate, new GuestName(null));
+    public BookingInterval(ArrivalDate arrivalDate, DepartureDate departureDate) {
+        this(arrivalDate, departureDate, new GuestName(null));
     }
 
-    public BookingInterval(LocalDate startDate, LocalDate endDate, GuestName guestName) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public BookingInterval(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
         this.guestName = guestName;
     }
 
     public boolean contains(LocalDate date) {
-            return (date.equals(startDate) || date.isAfter(startDate)) && date.isBefore(endDate);
+            return arrivalDate.isOnOrBefore(date) && departureDate.isAfter(date);
     }
 
     // method courtesy of Java 9 :)
-    private Stream<LocalDate> datesFromTo(LocalDate startInclusive, LocalDate endExclusive) {
+    private Stream<LocalDate> datesFromTo(ArrivalDate startInclusive, DepartureDate endExclusive) {
         long end = endExclusive.toEpochDay();
         long start = startInclusive.toEpochDay();
         if (end < start) {
@@ -41,15 +41,15 @@ public class BookingInterval {
 
 
     public List<LocalDate> dates(){
-        return datesFromTo(startDate, endDate).collect(Collectors.toList());
+        return datesFromTo(arrivalDate, departureDate).collect(Collectors.toList());
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
+    public ArrivalDate getArrivalDate() {
+        return arrivalDate;
     }
 
-    public LocalDate getEndDate() {
-        return endDate;
+    public DepartureDate getDepartureDate() {
+        return departureDate;
     }
     public GuestName getGuestName() {
         return guestName;

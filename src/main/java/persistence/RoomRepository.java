@@ -57,7 +57,7 @@ public class RoomRepository {
 
     private boolean listContainsBooking(List<BookingInterval> bookingIntervals, BookingInterval booking) {
         for (BookingInterval bookingInterval : bookingIntervals) {
-            if (bookingInterval.getGuestName().equals(booking.getGuestName()) && bookingInterval.getStartDate().equals(booking.getStartDate())) {
+            if (bookingInterval.getGuestName().equals(booking.getGuestName()) && bookingInterval.getArrivalDate().equals(booking.getArrivalDate())) {
                 return true;
             }
         }
