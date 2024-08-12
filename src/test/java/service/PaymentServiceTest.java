@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import persistence.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,21 +76,19 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, departureDate, roomNumbers));
+        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, endDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -104,22 +101,20 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(50.0));
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, departureDate, roomNumbers));
+        Throwable t = catchThrowable(() -> service.produceInvoice(guestName1, endDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(t).isInstanceOf(IllegalStateException.class);
@@ -133,23 +128,21 @@ class PaymentServiceTest {
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
@@ -164,25 +157,23 @@ class PaymentServiceTest {
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
         roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
         roomNumbers.add(roomNumber2);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(3), endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, new ArrivalDate(startDate.minusDays(3)));
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.minusDays(3), endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.checkIn(guestName1, arrivalDate.minusDays(3));
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(500.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
@@ -196,24 +187,22 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(1), endDate.minusDays(1)), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.checkIn(guestName1, new ArrivalDate(startDate.minusDays(1)));
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.minusDays(1), endDate.minusDays(1)), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.checkIn(guestName1, arrivalDate.minusDays(1));
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(invoice.getGuestName()).isEqualTo(guestName1);
@@ -227,22 +216,20 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(Amount.ZERO);
@@ -254,15 +241,13 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -270,7 +255,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, new Amount(30.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(Amount.ZERO);
@@ -282,22 +267,20 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(170.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(new Amount(70.0));
@@ -309,15 +292,13 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -325,7 +306,7 @@ class PaymentServiceTest {
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
-        service.produceInvoice(guestName1, departureDate, roomNumbers);
+        service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(new Amount(70.0));
@@ -337,30 +318,28 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(100.0));
-        service.produceInvoice(guestName1, departureDate, roomNumbers);
+        service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // WHEN
-        Throwable throwable = catchThrowable(() -> service.produceInvoice(guestName1, departureDate, roomNumbers));
+        Throwable throwable = catchThrowable(() -> service.produceInvoice(guestName1, endDate, roomNumbers));
 
         // THEN
         Assertions.assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
         Assertions.assertThat(throwable.getMessage())
                 .isEqualTo(String.format("No bookingIntervals to be invoiced for given customer '%s', departureDate [%s] " +
-                        "and roomNumbers %s", guestName1.guestName(), departureDate.date(), roomNumbers));
+                        "and roomNumbers %s", guestName1.guestName(), endDate, roomNumbers));
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(new Amount(70.0));
     }
 
@@ -370,22 +349,20 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1))
@@ -398,24 +375,22 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(startDate.minusDays(5), endDate.minusDays(5)), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.minusDays(5), endDate.minusDays(5)), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
-        hotelService.checkIn(guestName1, new ArrivalDate(startDate.minusDays(5)));
+        hotelService.checkIn(guestName1, arrivalDate.minusDays(5));
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1))
@@ -428,24 +403,22 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
         roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        LocalDate startDate = LocalDate.of(2020, 10, 10);
-        LocalDate endDate = LocalDate.of(2020, 10, 11);
-        ArrivalDate arrivalDate = new ArrivalDate(startDate);
-        DepartureDate departureDate = new DepartureDate(endDate);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate endDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(new BookingRequestInterval(startDate, endDate), guestName1);
-        hotelService.bookRoom(new BookingRequestInterval(startDate.plusDays(5), endDate.plusDays(5)), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate, endDate), guestName1);
+        hotelService.bookRoom(new BookingRequestInterval(arrivalDate.plusDays(5), endDate.plusDays(5)), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
-        hotelService.checkIn(guestName1, new ArrivalDate(startDate.plusDays(5)));
+        hotelService.checkIn(guestName1, arrivalDate.plusDays(5));
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
-        Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Invoice invoice = service.produceInvoice(guestName1, endDate, roomNumbers);
 
         // THEN
         Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1).size()).isEqualTo(2);

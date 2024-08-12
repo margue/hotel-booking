@@ -42,14 +42,14 @@ public class PaymentService {
         bookedRooms.forEach(room -> {
             List<BookingInterval> applicableBookings = room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
-                    .filter(booking -> !booking.getEndDate().isAfter(departureDate.date()))
+                    .filter(booking -> departureDate.isBeforeOrOn(booking.getDepartureDate()))
                     .filter(booking -> !booking.isInvoiced())
                     .filter(BookingInterval::isCheckedIn).collect(Collectors.toList());
             if(applicableBookings.size() > 0 ){
                 bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
             } else {
                 throw new IllegalArgumentException(String.format("No bookingIntervals to be invoiced for given customer " +
-                        "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate.date(), roomNumbers));
+                        "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomNumbers));
             }
         });
         Amount totalAmount =

@@ -2,7 +2,6 @@ package service;
 
 import persistence.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +24,7 @@ public class HotelService {
     - RoomNumbers (Payment service)
     - PaymentRepository -> Payments
     - RoomRepository -> Rooms
+    - PaymentDate?
 
     - contextive aufpumpen
 
@@ -80,10 +80,10 @@ public class HotelService {
         - Contextive (https://github.com/dev-cycles/contextive)
             -> Umweg über BookingRequestInterval zeigen
         - Ubiquitous Language
-        - JMolecules -> @ValueObject
     - fachliche Operationen im Datenmodell einführen
         - Wiederverwendung von Value Objects
     - Optional
+        - JMolecules -> @ValueObject
         - Clean Architecture
             - In- & Outports als Interfaces extrahieren
             - Interface je UseCase
@@ -91,6 +91,8 @@ public class HotelService {
 
      SIDE-EFFECT FREE FUNCTIONS
      - Either-Monade für Fehlerfälle
+        - https://gist.github.com/colinwd/503cf0d49ed5e26cc92bd791c12bbfb4 (Bug in l. 43?)
+        - https://www.baeldung.com/java-monads
      - CQS (getInvoice)
      - Optional
         - Application vs Domain Service
@@ -169,7 +171,7 @@ public class HotelService {
         roomsForGuest.forEach(room -> {
             List<BookingInterval> currentBookings = room.getBookings().stream()
                     .filter(interval -> interval.getGuestName().equals(guestName))
-                    .filter(interval -> interval.getStartDate().equals(arrivalDate.date()))
+                    .filter(interval -> interval.getArrivalDate().equals(arrivalDate))
                     .toList();
             if (currentBookings.size() > 0) {
                 currentBookings.forEach(interval -> interval.setCheckedIn(true));
@@ -184,7 +186,7 @@ public class HotelService {
         Room room = rooms.getRooms().get(roomNumber);
         List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
                 .filter(interval -> Objects.equals(interval.getGuestName(), guestName))
-                .filter(interval -> interval.getEndDate().equals(departureDate.date())).toList();
+                .filter(interval -> interval.getDepartureDate().equals(departureDate)).toList();
         if(bookingsToCheckOut.size() == 0){
             throw new IllegalStateException("No booking to be checked out!");
         }
