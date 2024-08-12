@@ -18,7 +18,6 @@ public class HotelService {
     /*
     TODO:
     - BookingInterval -> RoomBooking: GuestName, ArrivalDate, DepartureDate
-    - BookingRequestInterval -> Trennung in ArrivalDate und DepartureDate
     - BookingsForRooms
     - BookingIntervals
     - RoomNumbers (Payment service)
