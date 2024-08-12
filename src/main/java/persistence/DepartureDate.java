@@ -19,8 +19,8 @@ public record DepartureDate(LocalDate departureDate) {
         return new DepartureDate(departureDate.plusDays(i));
     }
 
-    public boolean isBeforeOrOn(DepartureDate endDate) {
-        return !endDate.isAfter(departureDate);
+    public boolean isBeforeOrOn(DepartureDate otherDate) {
+        return !otherDate.isAfter(departureDate);
     }
 
     public DepartureDate minusDays(int i) {
