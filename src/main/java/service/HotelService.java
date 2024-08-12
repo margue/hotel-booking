@@ -134,13 +134,13 @@ public class HotelService {
     /**
      * Welcome to Hilberts Hotel!
      *
-     * @return price as double or null in case of no availability
+     * @return price as Amount or null in case of no availability
      */
-    public Double requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
+    public Amount requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         BookingInterval bookingInterval = new BookingInterval(arrivalDate, departureDate);
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(bookingInterval)) {
-                return 100.0 * bookingInterval.dates().size();
+                return new Amount(100.0 * bookingInterval.dates().size());
             }
         }
         return null;

@@ -39,10 +39,10 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Double price = service.requestRoom(arrivalDate, departureDate);
+        Amount price = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
-        assertThat(price).isEqualTo(100.0);
+        assertThat(price).isEqualTo(new Amount(100.0));
     }
 
     @Test
@@ -53,10 +53,10 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
         // WHEN
-        Double price = service.requestRoom(arrivalDate, departureDate);
+        Amount price = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
-        assertThat(price).isEqualTo(200.0);
+        assertThat(price).isEqualTo(new Amount(200.0));
     }
 
     @Test
@@ -68,7 +68,7 @@ class HotelServiceTest {
                 departureDate)));
 
         // WHEN
-        Double price = service.requestRoom(arrivalDate, departureDate);
+        Amount price = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
         assertThat(price).isNull();
@@ -82,10 +82,10 @@ class HotelServiceTest {
         HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate.plusDays(5), departureDate.plusDays(7))));
 
         // WHEN
-        Double price = service.requestRoom(arrivalDate, departureDate);
+        Amount price = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
-        assertThat(price).isEqualTo(100.0);
+        assertThat(price).isEqualTo(new Amount(100.0));
     }
 
     @Test
