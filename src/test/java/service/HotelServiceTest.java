@@ -26,9 +26,9 @@ class HotelServiceTest {
         return new HotelService(rooms);
     }
 
-    public RoomRepository setupRoomsWithOneRoomAndBookings(BookingInterval... bookingIntervals){
+    public RoomRepository setupRoomsWithOneRoomAndBookings(Booking... bookings){
         RoomRepository rooms = new RoomRepository();
-        rooms.save(new Room(new RoomNumber("1"), new ArrayList<>(Arrays.asList(bookingIntervals))));
+        rooms.save(new Room(new RoomNumber("1"), new ArrayList<>(Arrays.asList(bookings))));
         return rooms;
     }
 
@@ -65,7 +65,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
+        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, guestWithBooking)));
 
         // WHEN
@@ -80,7 +80,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
-        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking)));
+        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking)));
 
         // WHEN
         Amount price = service.requestRoom(arrivalDate, departureDate);
@@ -114,10 +114,10 @@ class HotelServiceTest {
         service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByGuestName(new GuestName("Peter"));
-        assertThat(foundIntervals).hasSize(1);
-        assertThat(foundIntervals.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundIntervals.getFirst().getDepartureDate()).isEqualTo(departureDate);
+        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Peter"));
+        assertThat(foundBookings).hasSize(1);
+        assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(foundBookings.getFirst().getDepartureDate()).isEqualTo(departureDate);
     }
 
     @Test
@@ -135,7 +135,7 @@ class HotelServiceTest {
         service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
 
         // THEN
-        List<Room> foundRooms = rooms.findAllRoomsWithBookingIntervalsByGuestName(new GuestName("Peter"));
+        List<Room> foundRooms = rooms.findAllRoomsWithBookingsByGuestName(new GuestName("Peter"));
         assertThat(foundRooms).hasSize(2);
         assertThat(foundRooms).extracting("roomNumber")
                         .containsExactly(roomNumber1, roomNumber2);
@@ -157,10 +157,10 @@ class HotelServiceTest {
         service.bookRoom(arrivalDate, departureDate, new GuestName("Fred"));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByGuestName(new GuestName("Fred"));
-        assertThat(foundIntervals).hasSize(1);
-        assertThat(foundIntervals.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundIntervals.getFirst().getDepartureDate()).isEqualTo(departureDate);
+        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fred"));
+        assertThat(foundBookings).hasSize(1);
+        assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(foundBookings.getFirst().getDepartureDate()).isEqualTo(departureDate);
     }
 
     @Test
@@ -168,7 +168,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, guestWithBooking));
         HotelService service = new HotelService(rooms);
 
@@ -176,8 +176,8 @@ class HotelServiceTest {
         Throwable t = catchThrowable(() -> service.bookRoom(arrivalDate, departureDate, new GuestName("Jack")));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByGuestName(new GuestName("Jack"));
-        assertThat(foundIntervals).hasSize(0);
+        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jack"));
+        assertThat(foundBookings).hasSize(0);
         assertThat(t).isInstanceOf(IllegalStateException.class);
     }
 
@@ -186,17 +186,17 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking));
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking));
         HotelService service = new HotelService(rooms);
 
         // WHEN
         service.bookRoom(arrivalDate, departureDate, new GuestName("Jim"));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByGuestName(new GuestName("Jim"));
-        assertThat(foundIntervals).hasSize(1);
-        assertThat(foundIntervals.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundIntervals.getFirst().getDepartureDate()).isEqualTo(departureDate);
+        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jim"));
+        assertThat(foundBookings).hasSize(1);
+        assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(foundBookings.getFirst().getDepartureDate()).isEqualTo(departureDate);
     }
 
     @Test
@@ -204,7 +204,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
 
@@ -227,8 +227,8 @@ class HotelServiceTest {
         Throwable t = catchThrowable(() -> service.checkIn(new GuestName("Fritz"), arrivalDate));
 
         // THEN
-        List<BookingInterval> foundIntervals = rooms.findAllBookingIntervalsByGuestName(new GuestName("Fritz"));
-        assertThat(foundIntervals).hasSize(0);
+        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fritz"));
+        assertThat(foundBookings).hasSize(0);
         assertThat(t).isInstanceOf(IllegalStateException.class);
     }
 
@@ -237,7 +237,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate1 = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate1,
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate1,
                 departureDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
         ArrivalDate arrivalDate2 = arrivalDate1.plusDays(17);
@@ -254,7 +254,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
 
@@ -270,7 +270,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
         service.checkIn(new GuestName("Fritz"), arrivalDate);
@@ -287,7 +287,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
         HotelService service = new HotelService(rooms);
         service.checkIn(new GuestName("Fritz"), arrivalDate);

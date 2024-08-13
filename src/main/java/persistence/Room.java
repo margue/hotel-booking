@@ -6,9 +6,9 @@ import java.util.List;
 public class Room {
 
     private final RoomNumber roomNumber;
-    private List<BookingInterval> bookings;
+    private List<Booking> bookings;
 
-    public Room(RoomNumber roomNumber, List<BookingInterval> bookings) {
+    public Room(RoomNumber roomNumber, List<Booking> bookings) {
         this.roomNumber = roomNumber;
         this.bookings = bookings;
     }
@@ -17,12 +17,12 @@ public class Room {
         return roomNumber;
     }
 
-    public List<BookingInterval> getBookings() {
+    public List<Booking> getBookings() {
         return bookings;
     }
 
     private boolean dateIsFree(LocalDate date) {
-        for (BookingInterval booking : bookings) {
+        for (Booking booking : bookings) {
             if (booking.contains(date)) {
                 return false;
             }

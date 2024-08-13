@@ -3,10 +3,8 @@ package persistence;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
-public class BookingInterval {
+public class Booking {
 
     private final ArrivalDate arrivalDate;
     private final DepartureDate departureDate;
@@ -15,7 +13,7 @@ public class BookingInterval {
     private boolean checkedIn = false;
     private boolean checkedOut = false;
 
-    public BookingInterval(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
+    public Booking(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;
         this.guestName = guestName;

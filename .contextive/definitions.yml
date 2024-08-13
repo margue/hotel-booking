@@ -2,13 +2,13 @@ contexts:
   - name: Hotel
     domainVisionStatement: To manage the booking and check-in/check-out of hotel rooms
     terms:
-      - name: BookingInterval
-        definition: The time period of a booking.
+      - name: Booking
+        definition: The description of a booking, i.e. time period and name of the guest.
         examples:
-          - A guest specifies the booking interval when placing a reservation.
-          - For a given room, the booking intervals of its bookings may not overlap.
-          - The booking interval starts with the check-in date. This is the date the guest wishes to arrive.
-          - The booking interval ends with the check-out date. This is the date the guest wishes to depart.
+          - A booking is the promise of a guest to occupy a room for the given time period.
+          - For a given room, the time periods of its bookings may not overlap.
+          - The booking starts with the check-in date. This is the date the guest wishes to arrive.
+          - The booking ends with the check-out date. This is the date the guest wishes to depart.
         aliases:
           - none
       - name: Invoice
@@ -32,7 +32,7 @@ contexts:
       - name: Room
         definition: The smallest unit that can be booked by a guest.
         examples:
-          - Each room has its unique RoomNumber.
+          - Each room has its unique Room Number.
           - When booking a room, the guest specifies the check-in date and the check-out date.
           - A guest checks into a room on their arrival date.
           - A guest checks out of a room on their departure date.
