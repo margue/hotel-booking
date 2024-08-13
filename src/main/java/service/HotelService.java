@@ -17,6 +17,8 @@ public class HotelService {
 
     /*
     TODO:
+    - BookingsForRooms in Invoice -> das räumt dann gleich alles auf ^^
+
     - Bookings
     - RoomNumbers (Payment service)
     - PaymentRepository -> Payments
