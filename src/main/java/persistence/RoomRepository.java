@@ -18,11 +18,11 @@ public class RoomRepository {
         return rooms;
     }
 
-    public List<Room> findAllRoomsWithBookingIntervalsByGuestName(GuestName guestName) {
+    public List<Room> findAllRoomsWithBookingsByGuestName(GuestName guestName) {
         List<Room> rooms = new ArrayList<>();
         for (Room room : this.rooms.values()) {
-            for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getGuestName(), guestName)) {
+            for (Booking booking : room.getBookings()) {
+                if (Objects.equals(booking.getGuestName(), guestName)) {
                     rooms.add(room);
                 }
             }
@@ -31,19 +31,19 @@ public class RoomRepository {
     }
 
     // only for testing purposes
-    public List<BookingInterval> findAllBookingIntervalsByGuestName(GuestName guestName) {
-        List<BookingInterval> bookingIntervals = new ArrayList<>();
+    public List<Booking> findAllBookingsByGuestName(GuestName guestName) {
+        List<Booking> bookings = new ArrayList<>();
         for (Room room : rooms.values()) {
-            for (BookingInterval interval : room.getBookings()) {
-                if (Objects.equals(interval.getGuestName(), guestName)) {
-                    bookingIntervals.add(interval);
+            for (Booking booking : room.getBookings()) {
+                if (Objects.equals(booking.getGuestName(), guestName)) {
+                    bookings.add(booking);
                 }
             }
         }
-        return bookingIntervals;
+        return bookings;
     }
 
-    public void markBookingsAsInvoiced(Map<RoomNumber, List<BookingInterval>> bookingsForRooms) {
+    public void markBookingsAsInvoiced(Map<RoomNumber, List<Booking>> bookingsForRooms) {
         bookingsForRooms.keySet().forEach(roomNumber -> {
             Room room = rooms.get(roomNumber);
             room.getBookings().forEach(booking -> {
@@ -55,9 +55,9 @@ public class RoomRepository {
         });
     }
 
-    private boolean listContainsBooking(List<BookingInterval> bookingIntervals, BookingInterval booking) {
-        for (BookingInterval bookingInterval : bookingIntervals) {
-            if (bookingInterval.getGuestName().equals(booking.getGuestName()) && bookingInterval.getArrivalDate().equals(booking.getArrivalDate())) {
+    private boolean listContainsBooking(List<Booking> bookings, Booking booking) {
+        for (Booking aBooking : bookings) {
+            if (aBooking.getGuestName().equals(booking.getGuestName()) && aBooking.getArrivalDate().equals(booking.getArrivalDate())) {
                 return true;
             }
         }

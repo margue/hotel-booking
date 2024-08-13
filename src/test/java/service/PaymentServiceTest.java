@@ -338,7 +338,7 @@ class PaymentServiceTest {
         // THEN
         Assertions.assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
         Assertions.assertThat(throwable.getMessage())
-                .isEqualTo(String.format("No bookingIntervals to be invoiced for given customer '%s', departureDate [%s] " +
+                .isEqualTo(String.format("No bookings to be invoiced for given customer '%s', departureDate [%s] " +
                         "and roomNumbers %s", guestName1.guestName(), departureDate, roomNumbers));
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(new Amount(70.0));
     }
@@ -365,7 +365,7 @@ class PaymentServiceTest {
         Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
-        Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1))
+        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1))
                 .extracting("invoiced").containsOnly(true);
     }
 
@@ -393,7 +393,7 @@ class PaymentServiceTest {
         Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
-        Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1))
+        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1))
                 .extracting("invoiced").containsOnly(true);
     }
 
@@ -421,8 +421,8 @@ class PaymentServiceTest {
         Invoice invoice = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
-        Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1).size()).isEqualTo(2);
-        Assertions.assertThat(roomRepository.findAllBookingIntervalsByGuestName(guestName1))
+        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1).size()).isEqualTo(2);
+        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1))
                 .extracting("invoiced").containsExactly(true, false);
     }
 

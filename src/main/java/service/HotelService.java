@@ -17,7 +17,6 @@ public class HotelService {
 
     /*
     TODO:
-    - BookingInterval -> Booking: GuestName, ArrivalDate, DepartureDate
     - Bookings
     - RoomNumbers (Payment service)
     - PaymentRepository -> Payments
@@ -148,10 +147,10 @@ public class HotelService {
         if (guestName.guestName() == null) {
             throw new IllegalArgumentException("Guest name must not be null");
         }
-        BookingInterval bookingInterval = new BookingInterval(arrivalDate, departureDate, guestName);
+        Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
-                room.getBookings().add(bookingInterval); // no validation (race condition?)
+                room.getBookings().add(booking); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
                 return;
             }
@@ -160,18 +159,18 @@ public class HotelService {
     }
 
     public List<RoomNumber> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
-        List<Room> roomsForGuest = rooms.findAllRoomsWithBookingIntervalsByGuestName(guestName);
+        List<Room> roomsForGuest = rooms.findAllRoomsWithBookingsByGuestName(guestName);
         if (roomsForGuest.size() == 0) {
             throw new IllegalStateException("Guest cannot check in because they did not book a room");
         }
         List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
         roomsForGuest.forEach(room -> {
-            List<BookingInterval> currentBookings = room.getBookings().stream()
-                    .filter(interval -> interval.getGuestName().equals(guestName))
-                    .filter(interval -> interval.getArrivalDate().equals(arrivalDate))
+            List<Booking> currentBookings = room.getBookings().stream()
+                    .filter(booking -> booking.getGuestName().equals(guestName))
+                    .filter(booking -> booking.getArrivalDate().equals(arrivalDate))
                     .toList();
             if (currentBookings.size() > 0) {
-                currentBookings.forEach(interval -> interval.setCheckedIn(true));
+                currentBookings.forEach(booking -> booking.setCheckedIn(true));
                 bookedRoomNumbers.add(room.getRoomNumber());
                 rooms.save(room);
             }
@@ -181,16 +180,16 @@ public class HotelService {
 
     public void checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
         Room room = rooms.getRooms().get(roomNumber);
-        List<BookingInterval> bookingsToCheckOut = room.getBookings().stream()
-                .filter(interval -> Objects.equals(interval.getGuestName(), guestName))
-                .filter(interval -> interval.getDepartureDate().equals(departureDate)).toList();
+        List<Booking> bookingsToCheckOut = room.getBookings().stream()
+                .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
+                .filter(booking -> booking.getDepartureDate().equals(departureDate)).toList();
         if(bookingsToCheckOut.size() == 0){
             throw new IllegalStateException("No booking to be checked out!");
         }
         if(bookingsToCheckOut.size() > 1){
             throw new IllegalStateException("More than one booking found!");
         }
-        BookingInterval booking = bookingsToCheckOut.getFirst();
+        Booking booking = bookingsToCheckOut.getFirst();
         if(!booking.isInvoiced()){
             throw new IllegalStateException("Checkout only possible for invoiced bookings.");
         }

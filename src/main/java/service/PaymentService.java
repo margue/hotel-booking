@@ -36,19 +36,19 @@ public class PaymentService {
     }
 
     public Invoice produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
-        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingIntervalsByGuestName(guestName)
+        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
-        Map<RoomNumber, List<BookingInterval>> bookingsForRooms = new HashMap<>();
+        Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
-            List<BookingInterval> applicableBookings = room.getBookings().stream()
+            List<Booking> applicableBookings = room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
                     .filter(booking -> departureDate.isBeforeOrOn(booking.getDepartureDate()))
                     .filter(booking -> !booking.isInvoiced())
-                    .filter(BookingInterval::isCheckedIn).collect(Collectors.toList());
+                    .filter(Booking::isCheckedIn).collect(Collectors.toList());
             if(applicableBookings.size() > 0 ){
                 bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
             } else {
-                throw new IllegalArgumentException(String.format("No bookingIntervals to be invoiced for given customer " +
+                throw new IllegalArgumentException(String.format("No bookings to be invoiced for given customer " +
                         "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomNumbers));
             }
         });
