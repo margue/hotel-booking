@@ -11,16 +11,12 @@ public record DepartureDate(LocalDate departureDate) {
         return departureDate.isAfter(date);
     }
 
-    public long toEpochDay() {
-        return departureDate.toEpochDay();
-    }
-
     public DepartureDate plusDays(int i) {
         return new DepartureDate(departureDate.plusDays(i));
     }
 
-    public boolean isBeforeOrOn(DepartureDate otherDate) {
-        return !otherDate.isAfter(departureDate);
+    public boolean isOnOrBefore(DepartureDate otherDate) {
+        return departureDate.equals(otherDate.departureDate) || departureDate.isBefore(otherDate.departureDate);
     }
 
     public DepartureDate minusDays(int i) {

@@ -1,18 +1,13 @@
 package persistence;
 
 import java.time.LocalDate;
-import java.util.Collection;
 
 public record ArrivalDate(LocalDate arrivalDate) {
     public ArrivalDate(int year, int month, int day){
         this(LocalDate.of(year, month, day));
     }
     public boolean isOnOrBefore(LocalDate date) {
-        return date.equals(arrivalDate) || date.isAfter(arrivalDate);
-    }
-
-    public long toEpochDay() {
-        return arrivalDate.toEpochDay();
+        return arrivalDate.equals(date) || arrivalDate.isBefore(date);
     }
 
     public ArrivalDate plusDays(int i) {
