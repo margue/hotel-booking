@@ -30,8 +30,8 @@ public class Room {
         return true;
     }
 
-    public boolean roomIsFree(BookingInterval interval) {
-        for (LocalDate date : interval.dates()) {
+    public boolean roomIsFree(ArrivalDate arrivalDate, DepartureDate departureDate) {
+        for (LocalDate date : arrivalDate.arrivalDate().datesUntil(departureDate.departureDate()).toList()) {
             if (!dateIsFree(date)) {
                 return false;
             }

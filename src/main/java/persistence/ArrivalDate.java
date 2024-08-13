@@ -1,6 +1,7 @@
 package persistence;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 public record ArrivalDate(LocalDate arrivalDate) {
     public ArrivalDate(int year, int month, int day){
@@ -20,5 +21,9 @@ public record ArrivalDate(LocalDate arrivalDate) {
 
     public ArrivalDate minusDays(int i) {
         return new ArrivalDate(arrivalDate.minusDays(i));
+    }
+
+    public long daysUntil(LocalDate endExclusive) {
+        return this.arrivalDate.datesUntil(endExclusive).count();
     }
 }

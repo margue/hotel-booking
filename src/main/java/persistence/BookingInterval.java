@@ -15,10 +15,6 @@ public class BookingInterval {
     private boolean checkedIn = false;
     private boolean checkedOut = false;
 
-    public BookingInterval(ArrivalDate arrivalDate, DepartureDate departureDate) {
-        this(arrivalDate, departureDate, new GuestName(null));
-    }
-
     public BookingInterval(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;

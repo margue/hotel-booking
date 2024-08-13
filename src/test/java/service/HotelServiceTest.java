@@ -16,6 +16,7 @@ class HotelServiceTest {
 
     RoomNumber roomNumber1 = new RoomNumber("1");
     RoomNumber roomNumber2 = new RoomNumber("2");
+    GuestName guestWithBooking = new GuestName("Peter");
 
     public HotelService setupHotelService(int numberOfRooms) {
         RoomRepository rooms = new RoomRepository();
@@ -65,7 +66,7 @@ class HotelServiceTest {
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
-                departureDate)));
+                departureDate, guestWithBooking)));
 
         // WHEN
         Amount price = service.requestRoom(arrivalDate, departureDate);
@@ -79,7 +80,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
-        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate.plusDays(5), departureDate.plusDays(7))));
+        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking)));
 
         // WHEN
         Amount price = service.requestRoom(arrivalDate, departureDate);
@@ -168,7 +169,7 @@ class HotelServiceTest {
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate,
-                departureDate));
+                departureDate, guestWithBooking));
         HotelService service = new HotelService(rooms);
 
         // WHEN
@@ -185,7 +186,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate.plusDays(5), departureDate.plusDays(7)));
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new BookingInterval(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking));
         HotelService service = new HotelService(rooms);
 
         // WHEN
