@@ -29,19 +29,8 @@ public class BookingInterval {
             return arrivalDate.isOnOrBefore(date) && departureDate.isAfter(date);
     }
 
-    // method courtesy of Java 9 :)
-    private Stream<LocalDate> datesFromTo(ArrivalDate startInclusive, DepartureDate endExclusive) {
-        long end = endExclusive.toEpochDay();
-        long start = startInclusive.toEpochDay();
-        if (end < start) {
-            throw new IllegalArgumentException(endExclusive + " < " + this);
-        }
-        return LongStream.range(start, end).mapToObj(LocalDate::ofEpochDay);
-    }
-
-
     public List<LocalDate> dates(){
-        return datesFromTo(arrivalDate, departureDate).collect(Collectors.toList());
+        return arrivalDate.arrivalDate().datesUntil(departureDate.departureDate()).collect(Collectors.toList());
     }
 
     public ArrivalDate getArrivalDate() {
