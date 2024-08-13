@@ -17,9 +17,8 @@ public class HotelService {
 
     /*
     TODO:
-    - BookingInterval -> RoomBooking: GuestName, ArrivalDate, DepartureDate
-    - BookingsForRooms
-    - BookingIntervals
+    - BookingInterval -> Booking: GuestName, ArrivalDate, DepartureDate
+    - Bookings
     - RoomNumbers (Payment service)
     - PaymentRepository -> Payments
     - RoomRepository -> Rooms
@@ -137,10 +136,9 @@ public class HotelService {
      * @return price as Amount or null in case of no availability
      */
     public Amount requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
-        BookingInterval bookingInterval = new BookingInterval(arrivalDate, departureDate);
         for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(bookingInterval)) {
-                return new Amount(100.0 * bookingInterval.dates().size());
+            if (room.roomIsFree(arrivalDate, departureDate)) {
+                return new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate()));
             }
         }
         return null;
@@ -152,7 +150,7 @@ public class HotelService {
         }
         BookingInterval bookingInterval = new BookingInterval(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(bookingInterval)) {
+            if (room.roomIsFree(arrivalDate, departureDate)) {
                 room.getBookings().add(bookingInterval); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
                 return;
