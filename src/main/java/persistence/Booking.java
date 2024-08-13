@@ -8,7 +8,7 @@ public class Booking {
 
     private final ArrivalDate arrivalDate;
     private final DepartureDate departureDate;
-    private GuestName guestName;
+    private final GuestName guestName;
     private boolean invoiced = false;
     private boolean checkedIn = false;
     private boolean checkedOut = false;
@@ -23,8 +23,8 @@ public class Booking {
             return arrivalDate.isOnOrBefore(date) && departureDate.isAfter(date);
     }
 
-    public List<LocalDate> dates(){
-        return arrivalDate.arrivalDate().datesUntil(departureDate.departureDate()).collect(Collectors.toList());
+    public long numberOfDays(){
+        return arrivalDate.arrivalDate().datesUntil(departureDate.departureDate()).count();
     }
 
     public ArrivalDate getArrivalDate() {

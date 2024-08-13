@@ -42,7 +42,7 @@ public class PaymentService {
         bookedRooms.forEach(room -> {
             List<Booking> applicableBookings = room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
-                    .filter(booking -> departureDate.isBeforeOrOn(booking.getDepartureDate()))
+                    .filter(booking -> departureDate.isOnOrBefore(booking.getDepartureDate()))
                     .filter(booking -> !booking.isInvoiced())
                     .filter(Booking::isCheckedIn).collect(Collectors.toList());
             if(applicableBookings.size() > 0 ){
@@ -55,7 +55,7 @@ public class PaymentService {
         Amount totalAmount =
                 bookingsForRooms.values().stream()
                         .map(bookingsForRoom -> bookingsForRoom.stream()
-                                .map(booking -> new Amount(100.0 * booking.dates().size()))
+                                .map(booking -> new Amount(100.0 * booking.numberOfDays()))
                                 .reduce(Amount.ZERO, Amount::add))
                         .reduce(Amount.ZERO, Amount::add);
         Amount credit = remainingCredit(guestName);
