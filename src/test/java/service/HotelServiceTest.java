@@ -40,10 +40,11 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Amount price = service.requestRoom(arrivalDate, departureDate);
+        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
-        assertThat(price).isEqualTo(new Amount(100.0));
+        assertThat(result.isError()).isFalse();
+        assertThat(result.second()).isEqualTo(new Amount(100.0));
     }
 
     @Test
@@ -54,10 +55,11 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
         // WHEN
-        Amount price = service.requestRoom(arrivalDate, departureDate);
+        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
-        assertThat(price).isEqualTo(new Amount(200.0));
+        assertThat(result.isError()).isFalse();
+        assertThat(result.second()).isEqualTo(new Amount(200.0));
     }
 
     @Test
@@ -69,10 +71,11 @@ class HotelServiceTest {
                 departureDate, guestWithBooking)));
 
         // WHEN
-        Amount price = service.requestRoom(arrivalDate, departureDate);
+        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
-        assertThat(price).isNull();
+        assertThat(result.isError()).isTrue();
+        assertThat(result.first().errorMessage()).isEqualTo("No available room found for the desired dates");
     }
 
     @Test
@@ -83,10 +86,11 @@ class HotelServiceTest {
         HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking)));
 
         // WHEN
-        Amount price = service.requestRoom(arrivalDate, departureDate);
+        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
-        assertThat(price).isEqualTo(new Amount(100.0));
+        assertThat(result.isError()).isFalse();
+        assertThat(result.second()).isEqualTo(new Amount(100.0));
     }
 
     @Test
@@ -96,10 +100,11 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.bookRoom(arrivalDate, departureDate, new GuestName(null)));
+        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName(null));
 
         // THEN
-        assertThat(t).isInstanceOf(IllegalArgumentException.class);
+        assertThat(result.isError()).isTrue();
+        assertThat(result.first().errorMessage()).isEqualTo("Guest name must not be null");
     }
 
     @Test
@@ -111,9 +116,10 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
 
         // THEN
+        assertThat(result.isError()).isFalse();
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Peter"));
         assertThat(foundBookings).hasSize(1);
         assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
@@ -131,10 +137,12 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
-        service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        Pair<Error, Room> result1 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        Pair<Error, Room> result2 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
 
         // THEN
+        assertThat(result1.isError()).isFalse();
+        assertThat(result2.isError()).isFalse();
         List<Room> foundRooms = rooms.findAllRoomsWithBookingsByGuestName(new GuestName("Peter"));
         assertThat(foundRooms).hasSize(2);
         assertThat(foundRooms).extracting("roomNumber")
@@ -154,9 +162,10 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
         // WHEN
-        service.bookRoom(arrivalDate, departureDate, new GuestName("Fred"));
+        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Fred"));
 
         // THEN
+        assertThat(result.isError()).isFalse();
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fred"));
         assertThat(foundBookings).hasSize(1);
         assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
@@ -173,12 +182,14 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.bookRoom(arrivalDate, departureDate, new GuestName("Jack")));
+        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jack"));
 
         // THEN
+        assertThat(result.isError()).isTrue();
+        assertThat(result.first().errorMessage()).isEqualTo("No rooms available on the given date(s)");
+        // no accidental changes to rooms:
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jack"));
         assertThat(foundBookings).hasSize(0);
-        assertThat(t).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -190,13 +201,15 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        service.bookRoom(arrivalDate, departureDate, new GuestName("Jim"));
+        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jim"));
 
         // THEN
+        assertThat(result.isError()).isFalse();
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jim"));
         assertThat(foundBookings).hasSize(1);
         assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
         assertThat(foundBookings.getFirst().getDepartureDate()).isEqualTo(departureDate);
+        // do some checks with the room?
     }
 
     @Test
