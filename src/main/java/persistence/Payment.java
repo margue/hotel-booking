@@ -7,12 +7,12 @@ public class Payment {
     private Amount paidAmount;
     private Amount usedAmount;
     private GuestName guestName;
-    private LocalDate paymentDate;
+    private PaymentDate paymentDate;
 
     public Payment(GuestName guestName, Amount paidAmount){
         this.guestName = guestName;
         this.paidAmount = paidAmount;
-        this.paymentDate = LocalDate.now();
+        this.paymentDate = new PaymentDate(LocalDate.now());
         this.usedAmount= new Amount(0.0);
     }
 
@@ -28,7 +28,7 @@ public class Payment {
         return guestName;
     }
 
-    public LocalDate getPaymentDate() {
+    public PaymentDate getPaymentDate() {
         return paymentDate;
     }
 

@@ -19,19 +19,19 @@ public class HotelService {
     TODO:
     - BookingsForRooms in Invoice -> das räumt dann gleich alles auf ^^
 
-    - Bookings
-    - RoomNumbers (Payment service)
-    - PaymentRepository -> Payments
-    - RoomRepository -> Rooms
-    - PaymentDate?
-
     - contextive aufpumpen
 
     Verabredung:
     - Keine Trennung Buchung / tatsächlicher Aufenthalt
 
     ================================================================================
-    - später Aggregat: BookingOfARoom
+    später:
+    - Aggregat: BookingOfARoom
+    - Invoice als Record
+
+    später??:
+    - PaymentRepository -> Payments
+    - RoomRepository -> Rooms
 
     ================================================================================
 
@@ -75,11 +75,11 @@ public class HotelService {
 
 ---
     INTENTION REVEALING INTERFACES
-    - Value Objects in "Interfaces" (Parameterlists) nutzen
+    + Value Objects in "Interfaces" (Parameterlists) nutzen
         - Contextive (https://github.com/dev-cycles/contextive)
             -> Umweg über BookingRequestInterval zeigen
-        - Ubiquitous Language
-    - fachliche Operationen im Datenmodell einführen
+    - Ubiquitous Language
+    + fachliche Operationen im Datenmodell einführen
         - Wiederverwendung von Value Objects
     - Optional
         - JMolecules -> @ValueObject
@@ -92,6 +92,7 @@ public class HotelService {
      - Either-Monade für Fehlerfälle
         - https://gist.github.com/colinwd/503cf0d49ed5e26cc92bd791c12bbfb4 (Bug in l. 43?)
         - https://www.baeldung.com/java-monads
+        - HotelService requestRoom vs. bookRoom
      - CQS (getInvoice)
      - Optional
         - Application vs Domain Service
