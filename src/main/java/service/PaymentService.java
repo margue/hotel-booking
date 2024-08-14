@@ -64,8 +64,8 @@ public class PaymentService {
         }
 
         List<Payment> payments = paymentRepository.load(guestName);
-        payments.sort((o1, o2) -> o1.getPaymentDate().isEqual(o2.getPaymentDate()) ? 0 :
-                        o1.getPaymentDate().isBefore(o2.getPaymentDate()) ? -1 : 1);
+        payments.sort((o1, o2) -> o1.getPaymentDate().paymentDate().isEqual(o2.getPaymentDate().paymentDate()) ? 0 :
+                        o1.getPaymentDate().paymentDate().isBefore(o2.getPaymentDate().paymentDate()) ? -1 : 1);
         Amount remainingTotalAmount = totalAmount;
         for (Payment payment: payments){
             if(remainingTotalAmount.isMoreThan(Amount.ZERO)){
