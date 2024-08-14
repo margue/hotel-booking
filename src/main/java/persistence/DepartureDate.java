@@ -16,7 +16,13 @@ public record DepartureDate(LocalDate departureDate) {
     }
 
     public boolean isOnOrBefore(DepartureDate otherDate) {
-        return departureDate.equals(otherDate.departureDate) || departureDate.isBefore(otherDate.departureDate);
+        return !otherDate.isAfter(departureDate);
+
+        // A.isOnOrBefore B
+        // A <= B
+        // !(B > A) --> B <= A --> A >= B
+
+        // return departureDate.equals(otherDate.departureDate) || departureDate.isBefore(otherDate.departureDate);
     }
 
     public DepartureDate minusDays(int i) {
