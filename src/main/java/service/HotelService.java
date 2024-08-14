@@ -89,10 +89,11 @@ public class HotelService {
             - JMolecules Onion/Hexagonal/etc.
 
      SIDE-EFFECT FREE FUNCTIONS
-     - Either-Monade für Fehlerfälle
+     + Either-Monade für Fehlerfälle
         - https://gist.github.com/colinwd/503cf0d49ed5e26cc92bd791c12bbfb4 (Bug in l. 43?)
         - https://www.baeldung.com/java-monads
         - HotelService requestRoom vs. bookRoom
+        -> zunächst mal nur mit Tupel
      - CQS (getInvoice)
      - Optional
         - Application vs Domain Service
@@ -137,28 +138,28 @@ public class HotelService {
      *
      * @return price as Amount or null in case of no availability
      */
-    public Amount requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
+    public Pair<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
-                return new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate()));
+                return new Pair<>(null, new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
             }
         }
-        return null;
+        return new Pair<>(new Error("No available room found for the desired dates"), null);
     }
 
-    public void bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
+    public Pair<Error, Room> bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
         if (guestName == null) {
-            throw new IllegalArgumentException("Guest name must be provided");
+            return new Pair<>(new Error("Guest name must be provided"), null);
         }
         Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
                 room.getBookings().add(booking); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
-                return;
+                return new Pair<>(null, room);
             }
         }
-        throw new IllegalStateException("No rooms available on the given date(s)");
+        return new Pair<>(new Error("No rooms available on the given date(s)"), null);
     }
 
     public List<RoomNumber> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
