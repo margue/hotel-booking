@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 class HotelServiceTest {
 
@@ -267,7 +266,7 @@ class HotelServiceTest {
     }
 
     @Test
-    void checkOut_roomWasBooked_error() {
+    void checkOut_roomWasBookedButNotCheckedIn_error() {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
@@ -276,14 +275,15 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate));
+        Either<Error, Booking> result =  service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate);
 
         // THEN
-        assertThat(t).isInstanceOf(IllegalStateException.class);
+        assertThat(result.isError()).isTrue();
+        assertThat(result.error().errorMessage()).isEqualTo("Checkout only possible for invoiced bookings.");
     }
 
     @Test
-    void checkOut_roomWasCheckedIn_error() {
+    void checkOut_roomWasCheckedInButNotInvoiced_error() {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
@@ -293,10 +293,11 @@ class HotelServiceTest {
         service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate));
+        Either<Error, Booking> result = service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate);
 
         // THEN
-        assertThat(t).isInstanceOf(IllegalStateException.class);
+        assertThat(result.isError()).isTrue();
+        assertThat(result.error().errorMessage()).isEqualTo("Checkout only possible for invoiced bookings.");
     }
 
     @Test
@@ -315,10 +316,11 @@ class HotelServiceTest {
         paymentService.produceInvoice(new GuestName("Fritz"), departureDate, Collections.singletonList(roomNumber1));
 
         // WHEN
-        service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate);
+        Either<Error, Booking> result = service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate);
 
         // THEN
-        Assertions.assertThat(rooms.getRooms().get(roomNumber1).getBookings().getFirst().isCheckedOut()).isTrue();
+        assertThat(result.isError()).isFalse();
+        Assertions.assertThat(result.result().isCheckedOut()).isTrue();
     }
 
 }
