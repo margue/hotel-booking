@@ -162,10 +162,10 @@ public class HotelService {
         return new Either<>(new Error("No rooms available on the given date(s)"), null);
     }
 
-    public List<RoomNumber> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
+    public Either<Error, List<RoomNumber>> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
         List<Room> roomsForGuest = rooms.findAllRoomsWithBookingsByGuestName(guestName);
         if (roomsForGuest.size() == 0) {
-            throw new IllegalStateException("Guest cannot check in because they did not book a room");
+            return new Either<>(new Error("Guest cannot check in because they did not book a room"), null);
         }
         List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
         roomsForGuest.forEach(room -> {
@@ -179,7 +179,7 @@ public class HotelService {
                 rooms.save(room);
             }
         });
-        return bookedRoomNumbers;
+        return new Either(null, bookedRoomNumbers);
     }
 
     public void checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
