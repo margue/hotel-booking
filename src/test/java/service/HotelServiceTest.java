@@ -223,11 +223,12 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), arrivalDate);
+        Either<Error, List<RoomNumber>> result = service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // THEN
-        assertThat(checkedInRoomNumbers.size()).isEqualTo(1);
-        assertThat(checkedInRoomNumbers.getFirst().number()).isEqualTo("1");
+        assertThat(result.isError()).isFalse();
+        assertThat(result.result().size()).isEqualTo(1);
+        assertThat(result.result().getFirst().number()).isEqualTo("1");
     }
 
     @Test
@@ -238,12 +239,13 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.checkIn(new GuestName("Fritz"), arrivalDate));
+        Either<Error, List<RoomNumber>> result = service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // THEN
+        assertThat(result.isError()).isTrue();
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fritz"));
         assertThat(foundBookings).hasSize(0);
-        assertThat(t).isInstanceOf(IllegalStateException.class);
+        assertThat(result.error().errorMessage()).isEqualTo("Guest cannot check in because they did not book a room");
     }
 
     @Test
@@ -257,10 +259,11 @@ class HotelServiceTest {
         ArrivalDate arrivalDate2 = arrivalDate1.plusDays(17);
 
         // WHEN
-        List<RoomNumber> checkedInRoomNumbers = service.checkIn(new GuestName("Fritz"), arrivalDate2);
+        Either<Error, List<RoomNumber>> result = service.checkIn(new GuestName("Fritz"), arrivalDate2);
 
         // THEN
-        assertThat(checkedInRoomNumbers.size()).isEqualTo(0);
+        assertThat(result.isError()).isFalse();
+        assertThat(result.result().size()).isEqualTo(0);
     }
 
     @Test
