@@ -35,7 +35,7 @@ public class PaymentService {
                 .reduce(Amount.ZERO, Amount::add);
     }
 
-    public Invoice produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
+    public Either<Error,Invoice> produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
         List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
         Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
@@ -60,7 +60,7 @@ public class PaymentService {
                         .reduce(Amount.ZERO, Amount::add);
         Amount credit = remainingCredit(guestName);
         if(totalAmount.isMoreThan(credit)){
-            throw new IllegalStateException("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit)));
+            return new Either<>(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))), null);
         }
 
         List<Payment> payments = paymentRepository.load(guestName);
@@ -86,6 +86,6 @@ public class PaymentService {
 
         roomRepository.markBookingsAsInvoiced(bookingsForRooms);
 
-        return new Invoice(guestName, bookingsForRooms, totalAmount);
+        return new Either<>(null, new Invoice(guestName, bookingsForRooms, totalAmount));
     }
 }
