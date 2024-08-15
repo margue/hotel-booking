@@ -138,28 +138,28 @@ public class HotelService {
      *
      * @return price as Amount or null in case of no availability
      */
-    public Pair<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
+    public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
-                return new Pair<>(null, new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
+                return new Either<>(null, new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
             }
         }
-        return new Pair<>(new Error("No available room found for the desired dates"), null);
+        return new Either<>(new Error("No available room found for the desired dates"), null);
     }
 
-    public Pair<Error, Room> bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
+    public Either<Error, RoomNumber> bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
         if (guestName.guestName() == null) {
-            return new Pair<>(new Error("Guest name must not be null"), null);
+            return new Either<>(new Error("Guest name must not be null"), null);
         }
         Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
                 room.getBookings().add(booking); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
-                return new Pair<>(null, room);
+                return new Either<>(null, room.getRoomNumber());
             }
         }
-        return new Pair<>(new Error("No rooms available on the given date(s)"), null);
+        return new Either<>(new Error("No rooms available on the given date(s)"), null);
     }
 
     public List<RoomNumber> checkIn(GuestName guestName, ArrivalDate arrivalDate) {

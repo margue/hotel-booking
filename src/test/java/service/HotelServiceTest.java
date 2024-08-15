@@ -40,11 +40,11 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
+        Either<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
         assertThat(result.isError()).isFalse();
-        assertThat(result.second()).isEqualTo(new Amount(100.0));
+        assertThat(result.result()).isEqualTo(new Amount(100.0));
     }
 
     @Test
@@ -55,11 +55,11 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
         // WHEN
-        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
+        Either<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
         assertThat(result.isError()).isFalse();
-        assertThat(result.second()).isEqualTo(new Amount(200.0));
+        assertThat(result.result()).isEqualTo(new Amount(200.0));
     }
 
     @Test
@@ -71,11 +71,11 @@ class HotelServiceTest {
                 departureDate, guestWithBooking)));
 
         // WHEN
-        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
+        Either<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
         assertThat(result.isError()).isTrue();
-        assertThat(result.first().errorMessage()).isEqualTo("No available room found for the desired dates");
+        assertThat(result.error().errorMessage()).isEqualTo("No available room found for the desired dates");
     }
 
     @Test
@@ -86,11 +86,11 @@ class HotelServiceTest {
         HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking)));
 
         // WHEN
-        Pair<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
+        Either<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
 
         // THEN
         assertThat(result.isError()).isFalse();
-        assertThat(result.second()).isEqualTo(new Amount(100.0));
+        assertThat(result.result()).isEqualTo(new Amount(100.0));
     }
 
     @Test
@@ -100,11 +100,11 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName(null));
+        Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, new GuestName(null));
 
         // THEN
         assertThat(result.isError()).isTrue();
-        assertThat(result.first().errorMessage()).isEqualTo("Guest name must not be null");
+        assertThat(result.error().errorMessage()).isEqualTo("Guest name must not be null");
     }
 
     @Test
@@ -116,7 +116,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
 
         // THEN
         assertThat(result.isError()).isFalse();
@@ -136,12 +136,13 @@ class HotelServiceTest {
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
+        Either<Error, RoomNumber> result1 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        assertThat(result1.isError()).isFalse();
+
         // WHEN
-        Pair<Error, Room> result1 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
-        Pair<Error, Room> result2 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        Either<Error, RoomNumber> result2 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
 
         // THEN
-        assertThat(result1.isError()).isFalse();
         assertThat(result2.isError()).isFalse();
         List<Room> foundRooms = rooms.findAllRoomsWithBookingsByGuestName(new GuestName("Peter"));
         assertThat(foundRooms).hasSize(2);
@@ -162,7 +163,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
         // WHEN
-        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Fred"));
+        Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Fred"));
 
         // THEN
         assertThat(result.isError()).isFalse();
@@ -182,11 +183,11 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jack"));
+        Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jack"));
 
         // THEN
         assertThat(result.isError()).isTrue();
-        assertThat(result.first().errorMessage()).isEqualTo("No rooms available on the given date(s)");
+        assertThat(result.error().errorMessage()).isEqualTo("No rooms available on the given date(s)");
         // no accidental changes to rooms:
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jack"));
         assertThat(foundBookings).hasSize(0);
@@ -201,7 +202,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Pair<Error, Room> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jim"));
+        Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jim"));
 
         // THEN
         assertThat(result.isError()).isFalse();
