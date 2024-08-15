@@ -141,31 +141,31 @@ public class HotelService {
     public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
-                return new Either<>(null, new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
+                return Either.ofResult(new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
             }
         }
-        return new Either<>(new Error("No available room found for the desired dates"), null);
+        return Either.ofError(new Error("No available room found for the desired dates"));
     }
 
     public Either<Error, RoomNumber> bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
         if (guestName == null) {
-            return new Either<>(new Error("Guest name must be provided"), null);
+            return Either.ofError(new Error("Guest name must be provided"));
         }
         Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
                 room.getBookings().add(booking); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
-                return new Either<>(null, room.getRoomNumber());
+                return Either.ofResult(room.getRoomNumber());
             }
         }
-        return new Either<>(new Error("No rooms available on the given date(s)"), null);
+        return Either.ofError(new Error("No rooms available on the given date(s)"));
     }
 
     public Either<Error, List<RoomNumber>> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
         List<Room> roomsForGuest = rooms.findAllRoomsWithBookingsByGuestName(guestName);
         if (roomsForGuest.size() == 0) {
-            return new Either<>(new Error("Guest cannot check in because they did not book a room"), null);
+            return Either.ofError(new Error("Guest cannot check in because they did not book a room"));
         }
         List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
         roomsForGuest.forEach(room -> {
@@ -179,7 +179,7 @@ public class HotelService {
                 rooms.save(room);
             }
         });
-        return new Either(null, bookedRoomNumbers);
+        return Either.ofResult(bookedRoomNumbers);
     }
 
     public void checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {

@@ -60,7 +60,7 @@ public class PaymentService {
                         .reduce(Amount.ZERO, Amount::add);
         Amount credit = remainingCredit(guestName);
         if(totalAmount.isMoreThan(credit)){
-            return new Either<>(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))), null);
+            return Either.ofError(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))));
         }
 
         List<Payment> payments = paymentRepository.load(guestName);
@@ -86,6 +86,6 @@ public class PaymentService {
 
         roomRepository.markBookingsAsInvoiced(bookingsForRooms);
 
-        return new Either<>(null, new Invoice(guestName, bookingsForRooms, totalAmount));
+        return Either.ofResult(new Invoice(guestName, bookingsForRooms, totalAmount));
     }
 }
