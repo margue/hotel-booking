@@ -182,22 +182,23 @@ public class HotelService {
         return Either.ofResult(bookedRoomNumbers);
     }
 
-    public void checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
+    public Either<Error, Booking> checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
         Room room = rooms.getRooms().get(roomNumber);
         List<Booking> bookingsToCheckOut = room.getBookings().stream()
                 .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
                 .filter(booking -> booking.getDepartureDate().equals(departureDate)).toList();
         if(bookingsToCheckOut.size() == 0){
-            throw new IllegalStateException("No booking to be checked out!");
+            return Either.ofError(new Error("No booking to be checked out!"));
         }
         if(bookingsToCheckOut.size() > 1){
-            throw new IllegalStateException("More than one booking found!");
+            return Either.ofError(new Error("More than one booking found!"));
         }
         Booking booking = bookingsToCheckOut.getFirst();
         if(!booking.isInvoiced()){
-            throw new IllegalStateException("Checkout only possible for invoiced bookings.");
+            return Either.ofError(new Error("Checkout only possible for invoiced bookings."));
         }
         booking.setCheckedOut(true);
         rooms.save(room);
+        return Either.ofResult(booking);
     }
 }
