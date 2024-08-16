@@ -20,7 +20,7 @@ class PaymentServiceTest {
     }
 
     public PaymentService setupPaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository){
-        return new PaymentService(paymentRepository, roomRepository);
+        return new PaymentService(paymentRepository, roomRepository, new InvoiceRepository());
     }
 
     @Test

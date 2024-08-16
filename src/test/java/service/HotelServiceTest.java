@@ -308,7 +308,8 @@ class HotelServiceTest {
         service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         PaymentRepository paymentRepository = new PaymentRepository();
-        PaymentService paymentService = new PaymentService(paymentRepository, rooms);
+        InvoiceRepository invoiceRepository = new InvoiceRepository();
+        PaymentService paymentService = new PaymentService(paymentRepository, rooms, invoiceRepository);
         paymentService.payAmount(new GuestName("Fritz"), new Amount(200.0));
         paymentService.produceInvoice(new GuestName("Fritz"), departureDate, Collections.singletonList(roomNumber1));
 
