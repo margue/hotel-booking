@@ -148,7 +148,8 @@ class PaymentServiceTest {
         Assertions.assertThat(result.isError()).isFalse();
         Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(100.0));
-        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(0).bookings().size()).isEqualTo(1);
     }
 
     @Test
@@ -180,8 +181,9 @@ class PaymentServiceTest {
         Assertions.assertThat(result.isError()).isFalse();
         Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(500.0));
-        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(new RoomNumber("2")).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(2);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(0).bookings().size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(1).bookings().size()).isEqualTo(1);
     }
     @Test
     public void produceInvoice_manyBookingsEndingOnInvoiceDayOrEarlier() {
@@ -210,7 +212,8 @@ class PaymentServiceTest {
         Assertions.assertThat(result.isError()).isFalse();
         Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(200.0));
-        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(2);
+        Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(0).bookings().size()).isEqualTo(2);
     }
 
     @Test
@@ -341,12 +344,11 @@ class PaymentServiceTest {
 
         // WHEN
         // Either<Error, Invoice> result = service.produceInvoice(guestName1, departureDate, roomNumbers);
-        Throwable throwable = catchThrowable(() -> service.produceInvoice(guestName1, departureDate, roomNumbers));
+        Either<Error, Invoice> result = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
-        // Assertions.assertThat(result.isError()).isTrue();
-        Assertions.assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
-        Assertions.assertThat(throwable.getMessage())
+        Assertions.assertThat(result.isError()).isTrue();
+        Assertions.assertThat(result.error().errorMessage())
                 .isEqualTo(String.format("No bookings to be invoiced for given customer '%s', departureDate [%s] " +
                         "and roomNumbers %s", guestName1.guestName(), departureDate, roomNumbers));
         Assertions.assertThat(service.remainingCredit(guestName1)).isEqualTo(new Amount(70.0));

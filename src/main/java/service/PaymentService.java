@@ -2,10 +2,7 @@ package service;
 
 import persistence.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PaymentService {
@@ -38,26 +35,32 @@ public class PaymentService {
     public Either<Error,Invoice> produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
         List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
-        Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
+        List<BookingsForRoom> bookingsForRooms = new ArrayList<>();
         bookedRooms.forEach(room -> {
-            List<Booking> applicableBookings = room.getBookings().stream()
+            BookingsForRoom applicableBookings = new BookingsForRoom(room.getRoomNumber());
+            applicableBookings.add(room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
                     .filter(booking -> departureDate.isOnOrBefore(booking.getDepartureDate()))
                     .filter(booking -> !booking.isInvoiced())
-                    .filter(Booking::isCheckedIn).collect(Collectors.toList());
-            if(applicableBookings.size() > 0 ){
-                bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
-            } else {
-                throw new IllegalArgumentException(String.format("No bookings to be invoiced for given customer " +
-                        "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomNumbers));
-            }
+                    .filter(Booking::isCheckedIn).collect(Collectors.toList()));
+            bookingsForRooms.add(applicableBookings);
         });
+        List<RoomNumber> roomsWithoutBookings = bookingsForRooms.stream()
+                .filter(BookingsForRoom::hasNoBookings)
+                .map(BookingsForRoom::roomNumber).toList();
+        if (roomsWithoutBookings.size() > 0) {
+            return Either.ofError(new Error(String.format("No bookings to be invoiced for given customer " +
+                    "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomsWithoutBookings.toString())));
+        }
         Amount totalAmount =
-                bookingsForRooms.values().stream()
-                        .map(bookingsForRoom -> bookingsForRoom.stream()
-                                .map(booking -> new Amount(100.0 * booking.numberOfDays()))
-                                .reduce(Amount.ZERO, Amount::add))
-                        .reduce(Amount.ZERO, Amount::add);
+                bookingsForRooms.stream()
+                        .map(bookingsForRoom ->
+                                bookingsForRoom.bookings().stream()
+                                    .map(booking -> {
+                                        return new Amount(100.0 * booking.numberOfDays());
+                                    })
+                                    .reduce(Amount.ZERO, Amount::add)
+                        ).reduce(Amount.ZERO, Amount::add);
         Amount credit = remainingCredit(guestName);
         if(totalAmount.isMoreThan(credit)){
             return Either.ofError(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))));

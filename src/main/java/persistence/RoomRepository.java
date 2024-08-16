@@ -1,9 +1,6 @@
 package persistence;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomRepository {
@@ -19,7 +16,7 @@ public class RoomRepository {
     }
 
     public List<Room> findAllRoomsWithBookingsByGuestName(GuestName guestName) {
-        List<Room> rooms = new ArrayList<>();
+        Set<Room> rooms = new HashSet<>();
         for (Room room : this.rooms.values()) {
             for (Booking booking : room.getBookings()) {
                 if (Objects.equals(booking.getGuestName(), guestName)) {
@@ -27,7 +24,7 @@ public class RoomRepository {
                 }
             }
         }
-        return rooms;
+        return rooms.stream().toList();
     }
 
     // only for testing purposes
@@ -43,11 +40,11 @@ public class RoomRepository {
         return bookings;
     }
 
-    public void markBookingsAsInvoiced(Map<RoomNumber, List<Booking>> bookingsForRooms) {
-        bookingsForRooms.keySet().forEach(roomNumber -> {
-            Room room = rooms.get(roomNumber);
+    public void markBookingsAsInvoiced(List<BookingsForRoom> bookingsForRooms) {
+        bookingsForRooms.forEach(bookingsForRoom -> {
+            Room room = rooms.get(bookingsForRoom.roomNumber());
             room.getBookings().forEach(booking -> {
-                if (listContainsBooking(bookingsForRooms.get(roomNumber), booking)) {
+                if (listContainsBooking(bookingsForRoom.bookings(), booking)) {
                     booking.setInvoiced(true);
                 }
             });
