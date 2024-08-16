@@ -9,15 +9,18 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final RoomRepository roomRepository;
+    private final InvoiceRepository invoiceRepository;
 
     public PaymentService(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
         this.roomRepository = new RoomRepository();
+        this.invoiceRepository = new InvoiceRepository();
     }
 
-    public PaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository) {
+    public PaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository, InvoiceRepository invoiceRepository) {
         this.paymentRepository = paymentRepository;
         this.roomRepository = roomRepository;
+        this.invoiceRepository = invoiceRepository;
     }
 
     public void payAmount(GuestName guestName, Amount amount){
@@ -90,6 +93,10 @@ public class PaymentService {
 
         roomRepository.markBookingsAsInvoiced(bookingsForRooms);
 
-        return Either.ofResult(new Invoice(guestName, bookingsForRooms, totalAmount));
+        Invoice invoice = new Invoice(guestName, bookingsForRooms, totalAmount);
+
+        invoiceRepository.save(invoice);
+
+        return Either.ofResult(invoice);
     }
 }
