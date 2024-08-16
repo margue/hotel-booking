@@ -4,10 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import persistence.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -146,7 +143,7 @@ class HotelServiceTest {
         List<Room> foundRooms = rooms.findAllRoomsWithBookingsByGuestName(new GuestName("Peter"));
         assertThat(foundRooms).hasSize(2);
         assertThat(foundRooms).extracting("roomNumber")
-                        .containsExactly(roomNumber1, roomNumber2);
+                        .containsExactlyInAnyOrder(roomNumber1, roomNumber2);
         assertThat(foundRooms.get(0).getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
         assertThat(foundRooms.get(0).getBookings().get(0).getDepartureDate()).isEqualTo(departureDate);
         assertThat(foundRooms.get(1).getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);

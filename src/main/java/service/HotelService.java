@@ -5,6 +5,7 @@ import persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class HotelService {
 
@@ -95,6 +96,7 @@ public class HotelService {
         - HotelService requestRoom vs. bookRoom
         -> zunächst mal nur mit Tupel
      - CQS (getInvoice)
+        - implement repository for Invoices, persist there
      - Optional
         - Application vs Domain Service
         - Infrastructure(Repositories) in Services?
