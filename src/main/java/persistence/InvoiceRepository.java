@@ -1,22 +1,24 @@
 package persistence;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InvoiceRepository {
 
-    private final Map<String, List<Invoice>> invoices = new HashMap<>();
+    private final Map<InvoiceId, Invoice> invoices = new HashMap<>();
 
-    public List<Invoice> load(GuestName guestName){
-        List<Invoice> guestInvoices = invoices.get(guestName.guestName());
-        return guestInvoices == null ? new ArrayList<>() : guestInvoices;
+    public List<Invoice> loadFor(GuestName guestName){
+        return invoices.values().stream()
+                .filter(invoice -> invoice.guestName().equals(guestName))
+                .toList();
+    }
+
+    public Invoice getFor(InvoiceId invoiceId){
+        return invoices.get(invoiceId);
     }
 
     public void save(Invoice invoice){
-        List<Invoice> guestInvoices = invoices.getOrDefault(invoice.getGuestName().guestName(), new ArrayList<>());
-        guestInvoices.add(invoice);
-        invoices.put(invoice.getGuestName().guestName(), guestInvoices);
+        invoices.put(invoice.id(), invoice);
     }
 }

@@ -93,7 +93,7 @@ public class PaymentService {
 
         roomRepository.markBookingsAsInvoiced(bookingsForRooms);
 
-        Invoice invoice = new Invoice(guestName, bookingsForRooms, totalAmount);
+        Invoice invoice = new Invoice(new InvoiceId(UUID.randomUUID().toString()), guestName, bookingsForRooms, totalAmount);
 
         invoiceRepository.save(invoice);
 

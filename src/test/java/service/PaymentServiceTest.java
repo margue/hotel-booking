@@ -146,10 +146,10 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(result.isError()).isFalse();
-        Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
-        Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(100.0));
-        Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(1);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().guestName()).isEqualTo(guestName1);
+        Assertions.assertThat(result.result().totalAmount()).isEqualTo(new Amount(100.0));
+        Assertions.assertThat(result.result().bookingsForRooms().size()).isEqualTo(1);
+        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
     }
 
     @Test
@@ -179,11 +179,11 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(result.isError()).isFalse();
-        Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
-        Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(500.0));
-        Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(2);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber2).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().guestName()).isEqualTo(guestName1);
+        Assertions.assertThat(result.result().totalAmount()).isEqualTo(new Amount(500.0));
+        Assertions.assertThat(result.result().bookingsForRooms().size()).isEqualTo(2);
+        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber2).size()).isEqualTo(1);
     }
     @Test
     public void produceInvoice_manyBookingsEndingOnInvoiceDayOrEarlier() {
@@ -210,10 +210,10 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(result.isError()).isFalse();
-        Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
-        Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(200.0));
-        Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(1);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(2);
+        Assertions.assertThat(result.result().guestName()).isEqualTo(guestName1);
+        Assertions.assertThat(result.result().totalAmount()).isEqualTo(new Amount(200.0));
+        Assertions.assertThat(result.result().bookingsForRooms().size()).isEqualTo(1);
+        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber1).size()).isEqualTo(2);
     }
 
     @Test

@@ -95,7 +95,7 @@ public class HotelService {
         - https://www.baeldung.com/java-monads
         - HotelService requestRoom vs. bookRoom
         -> zunächst mal nur mit Tupel
-     - CQS (getInvoice)
+     + CQS (getInvoice)
         - implement repository for Invoices, persist there
      - Optional
         - Application vs Domain Service
