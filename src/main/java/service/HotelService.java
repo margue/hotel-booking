@@ -19,6 +19,8 @@ public class HotelService {
     TODO:
     - BookingsForRooms in Invoice -> das räumt dann gleich alles auf ^^
 
+    - RoomRepository macht auch Fachliches...
+
     - contextive aufpumpen
 
     Verabredung:
