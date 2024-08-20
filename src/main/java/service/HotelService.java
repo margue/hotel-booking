@@ -96,7 +96,7 @@ public class HotelService {
         -> zunächst mal nur mit Tupel
      + CQS (getInvoice)
         - implement repository for Invoices, persist there
-    - Payment side-effect-free machen
+     - Payment side-effect-free machen
      - Optional
         - Application vs Domain Service
         - Infrastructure(Repositories) in Services?
