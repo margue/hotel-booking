@@ -96,7 +96,7 @@ public class HotelService {
         -> zunächst mal nur mit Tupel
      + CQS (getInvoice)
         - implement repository for Invoices, persist there
-     - Payment side-effect-free machen
+    - Payment side-effect-free machen
      - Optional
         - Application vs Domain Service
         - Infrastructure(Repositories) in Services?
@@ -143,7 +143,9 @@ public class HotelService {
     /**
      * Welcome to Hilberts Hotel!
      *
-     * @return price as Amount or null in case of no availability
+     * @return price as Amount or Error in case of no availability
+     *
+     * Precondition: There must be a room available for the given dates
      */
     public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         for (Room room : rooms.getRooms().values()) {
@@ -154,6 +156,12 @@ public class HotelService {
         return Either.ofError(new Error("No available room found for the desired dates"));
     }
 
+    /*
+    Precondition: Guest name must not be null
+    Precondition: There must be a room available for the given dates
+
+    Postcondition: Guest has booked a room.
+     */
     public Either<Error, RoomNumber> bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
         if (guestName.guestName() == null) {
             return Either.ofError(new Error("Guest name must not be null"));
@@ -169,6 +177,11 @@ public class HotelService {
         return Either.ofError(new Error("No rooms available on the given date(s)"));
     }
 
+    /*
+    Precondition: Guest must have booked one or more rooms for the given arrival date
+
+    Postcondition: Guest is checked in.
+     */
     public Either<Error, List<RoomNumber>> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
         List<Room> roomsForGuest = rooms.findAllRoomsWithBookingsByGuestName(guestName);
         if (roomsForGuest.size() == 0) {
@@ -189,6 +202,13 @@ public class HotelService {
         return Either.ofResult(bookedRoomNumbers);
     }
 
+    /*
+    Precondition: There must be a booking that the guest can check out of
+    Precondition: There must be exactly one such booking
+    Precondition: The booking must have been invoiced before checkout
+
+    Postcondition: Guest is checked out of room
+     */
     public Either<Error, Booking> checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
         Room room = rooms.getRooms().get(roomNumber);
         List<Booking> bookingsToCheckOut = room.getBookings().stream()

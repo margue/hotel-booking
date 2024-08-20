@@ -23,6 +23,9 @@ public class PaymentService {
         this.invoiceRepository = invoiceRepository;
     }
 
+    /*
+    Postcondition: Guest has paid a certain amount to the hotel.
+     */
     public void payAmount(GuestName guestName, Amount amount){
         List<Payment> guestPayments = paymentRepository.load(guestName);
         guestPayments.add(new Payment(guestName, amount));
@@ -35,6 +38,14 @@ public class PaymentService {
                 .reduce(Amount.ZERO, Amount::add);
     }
 
+    /*
+    Precondition: For all room numbers passed to the method there must be a booking that can be invoiced.
+    Precondition: The guest must have paid enough to the hotel up-front.
+
+    Postcondition: An invoice has been created and stored in the InvoiceRepository.
+    Postcondition: The guest's payments are reduced by the amount of the invoice.
+    Postcondition: The invoiced bookings are marked as invoiced.
+     */
     public Either<Error,Invoice> produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
         List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).toList();
