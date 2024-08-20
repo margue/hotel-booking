@@ -19,8 +19,6 @@ public class HotelService {
     TODO:
     - BookingsForRooms in Invoice -> das räumt dann gleich alles auf ^^
 
-    - RoomRepository macht auch Fachliches...
-
     - contextive aufpumpen
 
     Verabredung:
@@ -128,6 +126,7 @@ public class HotelService {
      - Preisberechnung findet mehrfach statt
      - Implizites Kontensystem über die Zahlungen
      - Gast ist noch keine richtige Entität
+    - RoomRepository macht auch Fachliches
 
      STANDALONE CLASSES
      - fachliche Operationen -> Intention Revealing Interfaces
