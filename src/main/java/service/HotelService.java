@@ -118,9 +118,14 @@ public class HotelService {
      - Payment (fühlt sich komisch an)
 
      CONCEPTUAL CONTOURS
+     -> nur theoretisch abhandeln, kritische Fragen stellen
+     - Passt unser Modell zur Realität?
      - Rechnung ausstellen mit Zahlungsziel aktuell nicht möglich
      - Invoice kennt Raumsituation
+     - Bookings kennen Raumsituation
      - Preisberechnung findet mehrfach statt
+     - Implizites Kontensystem über die Zahlungen
+     - Gast ist noch keine richtige Entität
 
      STANDALONE CLASSES
      - fachliche Operationen -> Intention Revealing Interfaces
