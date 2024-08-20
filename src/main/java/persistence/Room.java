@@ -6,7 +6,7 @@ import java.util.List;
 public class Room {
 
     private final RoomNumber roomNumber;
-    private List<Booking> bookings;
+    private final List<Booking> bookings;
 
     public Room(RoomNumber roomNumber, List<Booking> bookings) {
         this.roomNumber = roomNumber;
