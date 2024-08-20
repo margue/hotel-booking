@@ -4,7 +4,6 @@ import persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class HotelService {
 
@@ -190,10 +189,7 @@ public class HotelService {
         }
         List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
         roomsForGuest.forEach(room -> {
-            List<Booking> currentBookings = room.getBookings().stream()
-                    .filter(booking -> booking.getGuestName().equals(guestName))
-                    .filter(booking -> booking.getArrivalDate().equals(arrivalDate))
-                    .toList();
+            List<Booking> currentBookings = room.getBookingsFrom(guestName, arrivalDate);
             if (currentBookings.size() > 0) {
                 currentBookings.forEach(booking -> booking.setCheckedIn(true));
                 bookedRoomNumbers.add(room.getRoomNumber());
@@ -212,9 +208,7 @@ public class HotelService {
      */
     public Either<Error, Booking> checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
         Room room = rooms.getRooms().get(roomNumber);
-        List<Booking> bookingsToCheckOut = room.getBookings().stream()
-                .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
-                .filter(booking -> booking.getDepartureDate().equals(departureDate)).toList();
+        List<Booking> bookingsToCheckOut = room.getBookingsUntil(guestName, departureDate);
         if(bookingsToCheckOut.size() == 0){
             return Either.ofError(new Error("No booking to be checked out!"));
         }
@@ -229,4 +223,5 @@ public class HotelService {
         rooms.save(room);
         return Either.ofResult(booking);
     }
+
 }

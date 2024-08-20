@@ -16,6 +16,15 @@ public class Payment {
         this.usedAmount= new Amount(0.0);
     }
 
+    public static int compareByPaymentDate(Payment p1, Payment p2) {
+        return p1.getPaymentDate().paymentDate().isEqual(p2.getPaymentDate().paymentDate()) ? 0 :
+                p1.getPaymentDate().paymentDate().isBefore(p2.getPaymentDate().paymentDate()) ? -1 : 1;
+    }
+
+    public Amount getRemainingCredit() {
+        return getPaidAmount().subtract(getUsedAmount());
+    }
+
     public Amount getPaidAmount() {
         return paidAmount;
     }

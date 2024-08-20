@@ -3,7 +3,6 @@ package service;
 import persistence.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PaymentService {
 
@@ -33,8 +32,13 @@ public class PaymentService {
     }
 
     public Amount remainingCredit(GuestName guestName){
-        return paymentRepository.load(guestName).stream()
-                .map(payment -> payment.getPaidAmount().subtract(payment.getUsedAmount()))
+        List<Payment> payments = paymentRepository.load(guestName);
+        return remainingCredit(payments);
+    }
+
+    private static Amount remainingCredit(List<Payment> payments) {
+        return payments.stream()
+                .map(Payment::getRemainingCredit)
                 .reduce(Amount.ZERO, Amount::add);
     }
 
@@ -51,12 +55,7 @@ public class PaymentService {
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).toList();
         Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
-            List<Booking> applicableBookings = room.getBookings().stream()
-                    .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
-                    .filter(booking -> departureDate.isOnOrBefore(booking.getDepartureDate()))
-                    .filter(booking -> !booking.isInvoiced())
-                    .filter(Booking::isCheckedIn).collect(Collectors.toList());
-            bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
+            bookingsForRooms.put(room.getRoomNumber(), room.getNonInvoicedBookingsFor(guestName, departureDate));
         });
         List<RoomNumber> roomsWithoutBookings = new ArrayList<>();
         bookingsForRooms.forEach(
@@ -76,21 +75,19 @@ public class PaymentService {
                                 .map(booking -> new Amount(100.0 * booking.numberOfDays()))
                                 .reduce(Amount.ZERO, Amount::add)
                         ).reduce(Amount.ZERO, Amount::add);
-        Amount credit = remainingCredit(guestName);
+        List<Payment> payments = paymentRepository.load(guestName);
+        Amount credit = remainingCredit(payments);
         if(totalAmount.isMoreThan(credit)){
             return Either.ofError(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))));
         }
 
-        List<Payment> payments = paymentRepository.load(guestName);
-        payments.sort((o1, o2) -> o1.getPaymentDate().paymentDate().isEqual(o2.getPaymentDate().paymentDate()) ? 0 :
-                        o1.getPaymentDate().paymentDate().isBefore(o2.getPaymentDate().paymentDate()) ? -1 : 1);
+        payments.sort(Payment::compareByPaymentDate);
         Amount remainingTotalAmount = totalAmount;
         for (Payment payment: payments){
             if(remainingTotalAmount.isMoreThan(Amount.ZERO)){
-                Amount remainingCreditForPayment = payment.getPaidAmount().subtract(payment.getUsedAmount());
+                Amount remainingCreditForPayment = payment.getRemainingCredit();
                 if(remainingCreditForPayment.isMoreThanOrEqual(remainingTotalAmount)){
                     payment.reduceCreditBy(remainingTotalAmount);
-                    remainingTotalAmount = Amount.ZERO;
                     break;
                 } else {
                     payment.reduceCreditBy(remainingCreditForPayment);
@@ -110,4 +107,5 @@ public class PaymentService {
 
         return Either.ofResult(invoice);
     }
+
 }
