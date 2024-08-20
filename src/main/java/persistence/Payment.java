@@ -4,10 +4,10 @@ import java.time.LocalDate;
 
 public class Payment {
 
-    private Amount paidAmount;
+    private final Amount paidAmount;
     private Amount usedAmount;
-    private GuestName guestName;
-    private PaymentDate paymentDate;
+    private final GuestName guestName;
+    private final PaymentDate paymentDate;
 
     public Payment(GuestName guestName, Amount paidAmount){
         this.guestName = guestName;

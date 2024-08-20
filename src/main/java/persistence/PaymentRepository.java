@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class PaymentRepository {
 
-    private Map<String, List<Payment>> payments = new HashMap<>();
+    private final Map<String, List<Payment>> payments = new HashMap<>();
 
     public List<Payment> load(GuestName guestName){
         List<Payment> guestPayments = payments.get(guestName.guestName());

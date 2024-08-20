@@ -37,7 +37,7 @@ public class PaymentService {
 
     public Either<Error,Invoice> produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
         List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingsByGuestName(guestName)
-                .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
+                .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).toList();
         Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
             List<Booking> applicableBookings = room.getBookings().stream()
@@ -57,14 +57,14 @@ public class PaymentService {
         );
         if (roomsWithoutBookings.size() > 0) {
             return Either.ofError(new Error(String.format("No bookings to be invoiced for given customer " +
-                    "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomsWithoutBookings.toString())));
+                    "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomsWithoutBookings)));
         }
         Amount totalAmount =
                 bookingsForRooms.values().stream()
                         .map(bookingsForRoom -> bookingsForRoom.stream()
                                 .map(booking -> new Amount(100.0 * booking.numberOfDays()))
-                                .reduce(Amount.ZERO, Amount::add))
-                        .reduce(Amount.ZERO, Amount::add);
+                                .reduce(Amount.ZERO, Amount::add)
+                        ).reduce(Amount.ZERO, Amount::add);
         Amount credit = remainingCredit(guestName);
         if(totalAmount.isMoreThan(credit)){
             return Either.ofError(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))));

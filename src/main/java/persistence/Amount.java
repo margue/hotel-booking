@@ -2,7 +2,7 @@ package persistence;
 
 // change to a better representation at some point
 public record Amount(double amount) {
-    public static Amount ZERO = new Amount(0);
+    public static final Amount ZERO = new Amount(0);
 
     public Amount add(Amount amount) {
         return new Amount(this.amount + amount.amount);

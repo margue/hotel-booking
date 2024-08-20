@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingsForRoom {
-    private RoomNumber roomNumber;
-    private List<Booking> bookings;
+    private final RoomNumber roomNumber;
+    private final List<Booking> bookings;
     public BookingsForRoom(RoomNumber roomNumber) {
         this.roomNumber = roomNumber;
         this.bookings = new ArrayList<>();

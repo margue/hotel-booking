@@ -7,8 +7,6 @@ import persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
-
 class PaymentServiceTest {
     private final GuestName guestName1 = new GuestName("Peter Meier");
     private final String guest2 = "Lisa Müller";

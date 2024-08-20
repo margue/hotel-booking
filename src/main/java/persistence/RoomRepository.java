@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomRepository {
 
-    private Map<RoomNumber, Room> rooms = new ConcurrentHashMap<>();
+    private final Map<RoomNumber, Room> rooms = new ConcurrentHashMap<>();
 
     public void save(Room room) {
         rooms.put(room.getRoomNumber(), room);

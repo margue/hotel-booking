@@ -10,9 +10,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HotelServiceTest {
 
-    RoomNumber roomNumber1 = new RoomNumber("1");
-    RoomNumber roomNumber2 = new RoomNumber("2");
-    GuestName guestWithBooking = new GuestName("Peter");
+    final RoomNumber roomNumber1 = new RoomNumber("1");
+    final RoomNumber roomNumber2 = new RoomNumber("2");
+    final GuestName guestWithBooking = new GuestName("Peter");
 
     public HotelService setupHotelService(int numberOfRooms) {
         RoomRepository rooms = new RoomRepository();

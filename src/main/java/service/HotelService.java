@@ -5,11 +5,10 @@ import persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class HotelService {
 
-    private RoomRepository rooms;
+    private final RoomRepository rooms;
 
     public HotelService(RoomRepository rooms) {
         this.rooms = rooms;
@@ -97,6 +96,7 @@ public class HotelService {
         -> zunächst mal nur mit Tupel
      + CQS (getInvoice)
         - implement repository for Invoices, persist there
+     - Payment side-effect-free machen
      - Optional
         - Application vs Domain Service
         - Infrastructure(Repositories) in Services?
