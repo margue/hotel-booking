@@ -6,6 +6,7 @@ import persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class PaymentServiceTest {
     private final GuestName guestName1 = new GuestName("Peter Meier");
@@ -17,8 +18,8 @@ class PaymentServiceTest {
         return new PaymentService(paymentRepository);
     }
 
-    public PaymentService setupPaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository){
-        return new PaymentService(paymentRepository, roomRepository, new InvoiceRepository());
+    public PaymentService setupPaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository, BookingsRepository bookingsRepository){
+        return new PaymentService(paymentRepository, roomRepository, new InvoiceRepository(), bookingsRepository);
     }
 
     @Test
@@ -32,7 +33,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(paymentRepository.load(guestName1)).hasSize(1);
-        Assertions.assertThat(paymentRepository.load(guestName1).getFirst().getPaidAmount()).isEqualTo(new Amount(42.0));
+        Assertions.assertThat(paymentRepository.load(guestName1).get(0).getPaidAmount()).isEqualTo(new Amount(42.0));
     }
 
     @Test
@@ -47,7 +48,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(paymentRepository.load(guestName1)).hasSize(2);
-        Assertions.assertThat(paymentRepository.load(guestName1).getFirst().getPaidAmount()).isEqualTo(new Amount(42.0));
+        Assertions.assertThat(paymentRepository.load(guestName1).get(0).getPaidAmount()).isEqualTo(new Amount(42.0));
         Assertions.assertThat(paymentRepository.load(guestName1).get(1).getPaidAmount()).isEqualTo(new Amount(120.0));
     }
 
@@ -64,8 +65,8 @@ class PaymentServiceTest {
         // THEN
         Assertions.assertThat(paymentRepository.load(guestName1)).hasSize(1);
         Assertions.assertThat(paymentRepository.load(new GuestName(guest2))).hasSize(1);
-        Assertions.assertThat(paymentRepository.load(guestName1).getFirst().getPaidAmount()).isEqualTo(new Amount(42.0));
-        Assertions.assertThat(paymentRepository.load(new GuestName(guest2)).getFirst().getPaidAmount()).isEqualTo(new Amount(120.0));
+        Assertions.assertThat(paymentRepository.load(guestName1).get(0).getPaidAmount()).isEqualTo(new Amount(42.0));
+        Assertions.assertThat(paymentRepository.load(new GuestName(guest2)).get(0).getPaidAmount()).isEqualTo(new Amount(120.0));
     }
 
     @Test
@@ -73,17 +74,18 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
 
         // WHEN
         Either<Error, Invoice> result = service.produceInvoice(guestName1, departureDate, roomNumbers);
@@ -98,17 +100,18 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(50.0));
 
         // WHEN
@@ -124,19 +127,20 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
+        roomRepository.save(new Room(new RoomNumber("2")));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -146,8 +150,7 @@ class PaymentServiceTest {
         Assertions.assertThat(result.isError()).isFalse();
         Assertions.assertThat(result.result().guestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().totalAmount()).isEqualTo(new Amount(100.0));
-        Assertions.assertThat(result.result().bookingsForRooms().size()).isEqualTo(1);
-        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().invoicedBookings().size()).isEqualTo(1);
     }
 
     @Test
@@ -155,21 +158,22 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
+        roomRepository.save(new Room(new RoomNumber("2")));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
         roomNumbers.add(roomNumber2);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate.minusDays(3), departureDate, guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(3));
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(500.0));
 
         // WHEN
@@ -179,28 +183,28 @@ class PaymentServiceTest {
         Assertions.assertThat(result.isError()).isFalse();
         Assertions.assertThat(result.result().guestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().totalAmount()).isEqualTo(new Amount(500.0));
-        Assertions.assertThat(result.result().bookingsForRooms().size()).isEqualTo(2);
-        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
-        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber2).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().invoicedBookings().size()).isEqualTo(2);
+        Assertions.assertThat(result.result().invoicedBookings().stream().map(Booking::getRoomNumber).collect(Collectors.toSet()).size()).isEqualTo(2);
     }
     @Test
     public void produceInvoice_manyBookingsEndingOnInvoiceDayOrEarlier() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate.minusDays(1), departureDate.minusDays(1), guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(1));
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
@@ -210,8 +214,8 @@ class PaymentServiceTest {
         Assertions.assertThat(result.isError()).isFalse();
         Assertions.assertThat(result.result().guestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().totalAmount()).isEqualTo(new Amount(200.0));
-        Assertions.assertThat(result.result().bookingsForRooms().size()).isEqualTo(1);
-        Assertions.assertThat(result.result().bookingsForRooms().get(roomNumber1).size()).isEqualTo(2);
+        Assertions.assertThat(result.result().invoicedBookings().size()).isEqualTo(2);
+        Assertions.assertThat(result.result().invoicedBookings().stream().map(Booking::getRoomNumber).collect(Collectors.toSet()).size()).isEqualTo(1);
     }
 
     @Test
@@ -219,17 +223,18 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -245,17 +250,18 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(30.0));
 
@@ -272,17 +278,18 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(170.0));
 
         // WHEN
@@ -298,17 +305,18 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(100.0));
 
@@ -325,23 +333,24 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(100.0));
-        service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Either<Error, Invoice> setup = service.produceInvoice(guestName1, departureDate, roomNumbers);
+        Assertions.assertThat(setup.isError()).isFalse();
 
         // WHEN
-        // Either<Error, Invoice> result = service.produceInvoice(guestName1, departureDate, roomNumbers);
         Either<Error, Invoice> result = service.produceInvoice(guestName1, departureDate, roomNumbers);
 
         // THEN
@@ -357,17 +366,18 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -375,7 +385,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(result.isError()).isFalse();
-        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1))
+        Assertions.assertThat(bookings.findAllBookingsByGuestName(guestName1))
                 .extracting("invoiced").containsOnly(true);
     }
 
@@ -384,19 +394,20 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.bookRoom(arrivalDate.minusDays(5), departureDate.minusDays(5), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(5));
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
@@ -404,7 +415,7 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(result.isError()).isFalse();
-        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1))
+        Assertions.assertThat(bookings.findAllBookingsByGuestName(guestName1))
                 .extracting("invoiced").containsOnly(true);
     }
 
@@ -413,19 +424,20 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        BookingsRepository bookings = new BookingsRepository();
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.bookRoom(arrivalDate.plusDays(5), departureDate.plusDays(5), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.plusDays(5));
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, roomRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -433,8 +445,8 @@ class PaymentServiceTest {
 
         // THEN
         Assertions.assertThat(result.isError()).isFalse();
-        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1).size()).isEqualTo(2);
-        Assertions.assertThat(roomRepository.findAllBookingsByGuestName(guestName1))
+        Assertions.assertThat(bookings.findAllBookingsByGuestName(guestName1).size()).isEqualTo(2);
+        Assertions.assertThat(bookings.findAllBookingsByGuestName(guestName1))
                 .extracting("invoiced").containsExactly(true, false);
     }
 

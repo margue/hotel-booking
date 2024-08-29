@@ -8,9 +8,11 @@ import java.util.List;
 public class HotelService {
 
     private final RoomRepository rooms;
+    private final BookingsRepository bookings;
 
-    public HotelService(RoomRepository rooms) {
+    public HotelService(RoomRepository rooms, BookingsRepository bookings) {
         this.rooms = rooms;
+        this.bookings = bookings;
     }
 
 
@@ -116,21 +118,24 @@ public class HotelService {
             -> haben wir hier ein Beispiel dafür
      - Payment (fühlt sich komisch an)
 
+     STANDALONE CLASSES
+     - fachliche Operationen -> Intention Revealing Interfaces
+     - Logik fast ausschließlich in Services implementiert -> lässt sich davon noch was ins Domänenmodell verschieben
+     -> standard computations
+
      CONCEPTUAL CONTOURS
+     - vorher checken: Verwenden meine Tests das Interface? Oder machen sie selbst was?
      -> nur theoretisch abhandeln, kritische Fragen stellen
      - Passt unser Modell zur Realität?
+     + Bookings kennen Raumsituation
+     - BookingsForRoom ist kein immutable VO
      - Rechnung ausstellen mit Zahlungsziel aktuell nicht möglich
      - Invoice kennt Raumsituation
-     - Bookings kennen Raumsituation
      - Preisberechnung findet mehrfach statt
      - Implizites Kontensystem über die Zahlungen
      - Gast ist noch keine richtige Entität
     - RoomRepository macht auch Fachliches
 
-     STANDALONE CLASSES
-     - fachliche Operationen -> Intention Revealing Interfaces
-     - Logik fast ausschließlich in Services implementiert -> lässt sich davon noch was ins Domänenmodell verschieben
-     -> standard computations
 
      CLOSURE OF OPERATIONS
      - Preisberechnung als Monoid (Rückverweis auf standalone classes)
@@ -149,7 +154,7 @@ public class HotelService {
      */
     public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(arrivalDate, departureDate)) {
+            if (bookings.bookingsFor(room.roomNumber()).roomIsFree(arrivalDate, departureDate)) {
                 return Either.ofResult(new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
             }
         }
@@ -166,12 +171,12 @@ public class HotelService {
         if (guestName.guestName() == null) {
             return Either.ofError(new Error("Guest name must not be null"));
         }
-        Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(arrivalDate, departureDate)) {
-                room.getBookings().add(booking); // no validation (race condition?)
-                rooms.save(room); // not needed here, but generally required for persistence
-                return Either.ofResult(room.getRoomNumber());
+            BookingsForRoom bookingsForRoom = bookings.bookingsFor(room.roomNumber());
+            if (bookingsForRoom.roomIsFree(arrivalDate, departureDate)) {
+                Booking booking = new Booking(arrivalDate, departureDate, guestName, room.roomNumber());
+                bookings.save(bookingsForRoom.add(booking)); // no validation (race condition?)
+                return Either.ofResult(room.roomNumber());
             }
         }
         return Either.ofError(new Error("No rooms available on the given date(s)"));
@@ -183,19 +188,13 @@ public class HotelService {
     Postcondition: Guest is checked in.
      */
     public Either<Error, List<RoomNumber>> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
-        List<Room> roomsForGuest = rooms.findAllRoomsWithBookingsByGuestName(guestName);
-        if (roomsForGuest.size() == 0) {
+        List<Booking> currentBookings = bookings.getBookingsFrom(guestName, arrivalDate);
+        currentBookings.forEach(booking -> booking.setCheckedIn(true));
+        currentBookings.forEach(bookings::update);
+        List<RoomNumber> bookedRoomNumbers = currentBookings.stream().map(Booking::getRoomNumber).toList();
+        if (bookedRoomNumbers.size() == 0) {
             return Either.ofError(new Error("Guest cannot check in because they did not book a room"));
         }
-        List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
-        roomsForGuest.forEach(room -> {
-            List<Booking> currentBookings = room.getBookingsFrom(guestName, arrivalDate);
-            if (currentBookings.size() > 0) {
-                currentBookings.forEach(booking -> booking.setCheckedIn(true));
-                bookedRoomNumbers.add(room.getRoomNumber());
-                rooms.save(room);
-            }
-        });
         return Either.ofResult(bookedRoomNumbers);
     }
 
@@ -208,14 +207,14 @@ public class HotelService {
      */
     public Either<Error, Booking> checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
         Room room = rooms.getRooms().get(roomNumber);
-        List<Booking> bookingsToCheckOut = room.getBookingsUntil(guestName, departureDate);
+        List<Booking> bookingsToCheckOut = bookings.getBookingsUntil(guestName, departureDate);
         if(bookingsToCheckOut.size() == 0){
             return Either.ofError(new Error("No booking to be checked out!"));
         }
         if(bookingsToCheckOut.size() > 1){
             return Either.ofError(new Error("More than one booking found!"));
         }
-        Booking booking = bookingsToCheckOut.getFirst();
+        Booking booking = bookingsToCheckOut.get(0);
         if(!booking.isInvoiced()){
             return Either.ofError(new Error("Checkout only possible for invoiced bookings."));
         }
