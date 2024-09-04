@@ -149,7 +149,7 @@ public class HotelService {
      */
     public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(arrivalDate, departureDate)) {
+            if (room.getBookingsForRoom().roomIsFree(arrivalDate, departureDate)) {
                 return Either.ofResult(new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
             }
         }
@@ -168,7 +168,7 @@ public class HotelService {
         }
         Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(arrivalDate, departureDate)) {
+            if (room.getBookingsForRoom().roomIsFree(arrivalDate, departureDate)) {
                 room.getBookings().add(booking); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
                 return Either.ofResult(room.getRoomNumber());
@@ -189,7 +189,7 @@ public class HotelService {
         }
         List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
         roomsForGuest.forEach(room -> {
-            List<Booking> currentBookings = room.getBookingsFrom(guestName, arrivalDate);
+            List<Booking> currentBookings = room.getBookingsForRoom().getBookingsFrom(guestName, arrivalDate);
             if (currentBookings.size() > 0) {
                 currentBookings.forEach(booking -> booking.setCheckedIn(true));
                 bookedRoomNumbers.add(room.getRoomNumber());
@@ -208,7 +208,7 @@ public class HotelService {
      */
     public Either<Error, Booking> checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
         Room room = rooms.getRooms().get(roomNumber);
-        List<Booking> bookingsToCheckOut = room.getBookingsUntil(guestName, departureDate);
+        List<Booking> bookingsToCheckOut = room.getBookingsForRoom().getBookingsUntil(guestName, departureDate);
         if(bookingsToCheckOut.size() == 0){
             return Either.ofError(new Error("No booking to be checked out!"));
         }

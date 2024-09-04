@@ -55,7 +55,7 @@ public class PaymentService {
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).toList();
         Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
-            bookingsForRooms.put(room.getRoomNumber(), room.getNonInvoicedBookingsFor(guestName, departureDate));
+            bookingsForRooms.put(room.getRoomNumber(), room.getBookingsForRoom().getNonInvoicedBookingsFor(guestName, departureDate));
         });
         List<RoomNumber> roomsWithoutBookings = new ArrayList<>();
         bookingsForRooms.forEach(
