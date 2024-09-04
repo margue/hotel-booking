@@ -8,11 +8,17 @@ import java.util.List;
 public class HotelService {
 
     private final RoomRepository rooms;
+    private final BookingsRepository bookings;
 
-    public HotelService(RoomRepository rooms) {
+    public HotelService(RoomRepository rooms, BookingsRepository bookings) {
         this.rooms = rooms;
+        this.bookings = bookings;
     }
 
+    public HotelService(RoomRepository rooms){
+        this(rooms, new BookingsRepository());
+        rooms.getRooms().values().forEach(room -> this.bookings.save(room.getBookingsForRoom()));
+    }
 
     /*
     TODO:
@@ -171,6 +177,7 @@ public class HotelService {
             if (room.getBookingsForRoom().roomIsFree(arrivalDate, departureDate)) {
                 room.getBookings().add(booking); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
+                bookings.save(room.getBookingsForRoom());
                 return Either.ofResult(room.getRoomNumber());
             }
         }
@@ -194,6 +201,7 @@ public class HotelService {
                 currentBookings.forEach(booking -> booking.setCheckedIn(true));
                 bookedRoomNumbers.add(room.getRoomNumber());
                 rooms.save(room);
+                bookings.save(room.getBookingsForRoom());
             }
         });
         return Either.ofResult(bookedRoomNumbers);
@@ -221,6 +229,7 @@ public class HotelService {
         }
         booking.setCheckedOut(true);
         rooms.save(room);
+        bookings.save(room.getBookingsForRoom());
         return Either.ofResult(booking);
     }
 
