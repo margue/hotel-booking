@@ -154,8 +154,8 @@ public class HotelService {
      * Precondition: There must be a room available for the given dates
      */
     public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
-        for (Room room : rooms.getRooms().values()) {
-            if (room.getBookingsForRoom().roomIsFree(arrivalDate, departureDate)) {
+        for (BookingsForRoom bookingsForRoom : bookings.getBookingsForRooms()) {
+            if (bookingsForRoom.roomIsFree(arrivalDate, departureDate)) {
                 return Either.ofResult(new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
             }
         }
@@ -173,12 +173,12 @@ public class HotelService {
             return Either.ofError(new Error("Guest name must not be null"));
         }
         Booking booking = new Booking(arrivalDate, departureDate, guestName);
-        for (Room room : rooms.getRooms().values()) {
-            if (room.getBookingsForRoom().roomIsFree(arrivalDate, departureDate)) {
-                room.getBookings().add(booking); // no validation (race condition?)
-                rooms.save(room); // not needed here, but generally required for persistence
-                bookings.save(room.getBookingsForRoom());
-                return Either.ofResult(room.getRoomNumber());
+        for (BookingsForRoom bookingsForRoom : bookings.getBookingsForRooms()) {
+            if (bookingsForRoom.roomIsFree(arrivalDate, departureDate)) {
+                bookingsForRoom.add(booking); // no validation (race condition?)
+                rooms.save(new Room(bookingsForRoom)); // not needed here, but generally required for persistence
+                bookings.save(bookingsForRoom);
+                return Either.ofResult(bookingsForRoom.roomNumber());
             }
         }
         return Either.ofError(new Error("No rooms available on the given date(s)"));
@@ -215,8 +215,8 @@ public class HotelService {
     Postcondition: Guest is checked out of room
      */
     public Either<Error, Booking> checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
-        Room room = rooms.getRooms().get(roomNumber);
-        List<Booking> bookingsToCheckOut = room.getBookingsForRoom().getBookingsUntil(guestName, departureDate);
+        BookingsForRoom bookingsForRoom = bookings.getBookingsForRoom(roomNumber);
+        List<Booking> bookingsToCheckOut = bookingsForRoom.getBookingsUntil(guestName, departureDate);
         if(bookingsToCheckOut.size() == 0){
             return Either.ofError(new Error("No booking to be checked out!"));
         }
@@ -228,8 +228,8 @@ public class HotelService {
             return Either.ofError(new Error("Checkout only possible for invoiced bookings."));
         }
         booking.setCheckedOut(true);
-        rooms.save(room);
-        bookings.save(room.getBookingsForRoom());
+        rooms.save(new Room(bookingsForRoom));
+        bookings.save(bookingsForRoom);
         return Either.ofResult(booking);
     }
 

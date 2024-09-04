@@ -19,6 +19,11 @@ public class BookingsForRoom {
         return this;
     }
 
+    public BookingsForRoom add(Booking booking) {
+        this.bookings.add(booking);
+        return this;
+    }
+
     public RoomNumber roomNumber() {
         return roomNumber;
     }

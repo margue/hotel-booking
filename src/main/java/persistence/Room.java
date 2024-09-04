@@ -6,6 +6,10 @@ public class Room {
 
     private final BookingsForRoom bookings;
 
+    public Room(BookingsForRoom bookings) {
+        this.bookings = bookings;
+    }
+
     public Room(RoomNumber roomNumber, List<Booking> bookings) {
         this.bookings = new BookingsForRoom(roomNumber).add(bookings);
     }
