@@ -40,11 +40,11 @@ public class RoomRepository {
         return bookings;
     }
 
-    public void markBookingsAsInvoiced(List<BookingsForRoom> bookingsForRooms) {
-        bookingsForRooms.forEach(bookingsForRoom -> {
-            Room room = rooms.get(bookingsForRoom.roomNumber());
+    public void markBookingsAsInvoiced(Map<RoomNumber, List<Booking>> bookingsForRooms) {
+        bookingsForRooms.forEach((roomNumber, bookingsForRoom) -> {
+            Room room = rooms.get(roomNumber);
             room.getBookings().forEach(booking -> {
-                if (listContainsBooking(bookingsForRoom.bookings(), booking)) {
+                if (listContainsBooking(bookingsForRoom, booking)) {
                     booking.setInvoiced(true);
                 }
             });

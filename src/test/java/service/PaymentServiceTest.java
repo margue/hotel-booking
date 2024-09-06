@@ -149,7 +149,7 @@ class PaymentServiceTest {
         Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(100.0));
         Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(1);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(0).bookings().size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
     }
 
     @Test
@@ -182,8 +182,8 @@ class PaymentServiceTest {
         Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(500.0));
         Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(2);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(0).bookings().size()).isEqualTo(1);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(1).bookings().size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(1);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber2).size()).isEqualTo(1);
     }
     @Test
     public void produceInvoice_manyBookingsEndingOnInvoiceDayOrEarlier() {
@@ -213,7 +213,7 @@ class PaymentServiceTest {
         Assertions.assertThat(result.result().getGuestName()).isEqualTo(guestName1);
         Assertions.assertThat(result.result().getTotalAmount()).isEqualTo(new Amount(200.0));
         Assertions.assertThat(result.result().getBookingsForRooms().size()).isEqualTo(1);
-        Assertions.assertThat(result.result().getBookingsForRooms().get(0).bookings().size()).isEqualTo(2);
+        Assertions.assertThat(result.result().getBookingsForRooms().get(roomNumber1).size()).isEqualTo(2);
     }
 
     @Test

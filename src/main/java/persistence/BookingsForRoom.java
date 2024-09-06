@@ -10,9 +10,6 @@ public class BookingsForRoom {
         this.roomNumber = roomNumber;
         this.bookings = new ArrayList<>();
     }
-    public boolean hasNoBookings(){
-        return this.bookings.isEmpty();
-    }
 
     public BookingsForRoom add(List<Booking> bookings) {
         this.bookings.addAll(bookings);

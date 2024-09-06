@@ -35,32 +35,33 @@ public class PaymentService {
     public Either<Error,Invoice> produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
         List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingsByGuestName(guestName)
                 .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).collect(Collectors.toList());
-        List<BookingsForRoom> bookingsForRooms = new ArrayList<>();
+        Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
         bookedRooms.forEach(room -> {
-            BookingsForRoom applicableBookings = new BookingsForRoom(room.getRoomNumber());
-            applicableBookings.add(room.getBookings().stream()
+            List<Booking> applicableBookings = room.getBookings().stream()
                     .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
                     .filter(booking -> departureDate.isOnOrBefore(booking.getDepartureDate()))
                     .filter(booking -> !booking.isInvoiced())
-                    .filter(Booking::isCheckedIn).collect(Collectors.toList()));
-            bookingsForRooms.add(applicableBookings);
+                    .filter(Booking::isCheckedIn).collect(Collectors.toList());
+            bookingsForRooms.put(room.getRoomNumber(), applicableBookings);
         });
-        List<RoomNumber> roomsWithoutBookings = bookingsForRooms.stream()
-                .filter(BookingsForRoom::hasNoBookings)
-                .map(BookingsForRoom::roomNumber).toList();
+        List<RoomNumber> roomsWithoutBookings = new ArrayList<>();
+        bookingsForRooms.forEach(
+                (roomNumber, bookings) -> {
+                    if(bookings.isEmpty()){
+                        roomsWithoutBookings.add(roomNumber);
+                    }
+                }
+        );
         if (roomsWithoutBookings.size() > 0) {
             return Either.ofError(new Error(String.format("No bookings to be invoiced for given customer " +
                     "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomsWithoutBookings.toString())));
         }
         Amount totalAmount =
-                bookingsForRooms.stream()
-                        .map(bookingsForRoom ->
-                                bookingsForRoom.bookings().stream()
-                                    .map(booking -> {
-                                        return new Amount(100.0 * booking.numberOfDays());
-                                    })
-                                    .reduce(Amount.ZERO, Amount::add)
-                        ).reduce(Amount.ZERO, Amount::add);
+                bookingsForRooms.values().stream()
+                        .map(bookingsForRoom -> bookingsForRoom.stream()
+                                .map(booking -> new Amount(100.0 * booking.numberOfDays()))
+                                .reduce(Amount.ZERO, Amount::add))
+                        .reduce(Amount.ZERO, Amount::add);
         Amount credit = remainingCredit(guestName);
         if(totalAmount.isMoreThan(credit)){
             return Either.ofError(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))));

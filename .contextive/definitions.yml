@@ -21,6 +21,8 @@ contexts:
           - The guest checks in on their day of arrival.
           - The arrival date cannot be earlier than the check-in date of the corresponding booking.
           - If the guest wants to check in before the check-in date of the corresponding booking, the booking needs to be modified before the end of the desired check-in day.
+      - name: BookingsForRoom
+        definition: Contains all existing bookings for a given room. This is an Entity with the room number as its identifier.
       - name: DepartureDate
         definition: The day on which the guest actually leaves the room / the hotel.
         examples:
