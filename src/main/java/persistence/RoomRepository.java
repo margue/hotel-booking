@@ -40,24 +40,4 @@ public class RoomRepository {
         return bookings;
     }
 
-    public void markBookingsAsInvoiced(Map<RoomNumber, List<Booking>> bookingsForRooms) {
-        bookingsForRooms.forEach((roomNumber, bookingsForRoom) -> {
-            Room room = rooms.get(roomNumber);
-            room.getBookings().forEach(booking -> {
-                if (listContainsBooking(bookingsForRoom, booking)) {
-                    booking.setInvoiced(true);
-                }
-            });
-            save(room);
-        });
-    }
-
-    private boolean listContainsBooking(List<Booking> bookings, Booking booking) {
-        for (Booking aBooking : bookings) {
-            if (aBooking.getGuestName().equals(booking.getGuestName()) && aBooking.getArrivalDate().equals(booking.getArrivalDate())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

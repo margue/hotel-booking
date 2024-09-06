@@ -1,8 +1,6 @@
 package persistence;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BookingsRepository {
     private final Map<RoomNumber, BookingsForRoom> bookingsByRoom  = new HashMap<>();
@@ -17,5 +15,29 @@ public class BookingsRepository {
 
     public BookingsForRoom getBookingsForRoom(RoomNumber roomNumber) {
         return bookingsByRoom.getOrDefault(roomNumber, new BookingsForRoom(roomNumber));
+    }
+
+    public List<BookingsForRoom> getBookingsForRooms(List<RoomNumber> roomNumbers) {
+        return roomNumbers.stream().map(this::getBookingsForRoom).toList();
+    }
+
+    public void markBookingsAsInvoiced(Map<RoomNumber, List<Booking>> bookingsBeingInvoiced) {
+        bookingsBeingInvoiced.forEach((roomNumber, bookingsBeingInvoicedForOneRoom) -> {
+            BookingsForRoom existingBookings = bookingsByRoom.get(roomNumber);
+            existingBookings.bookings().forEach(booking -> {
+                if (listContainsBooking(bookingsBeingInvoicedForOneRoom, booking)) {
+                    booking.setInvoiced(true);
+                }
+            });
+            save(existingBookings);
+        });
+    }
+    private boolean listContainsBooking(List<Booking> bookings, Booking booking) {
+        for (Booking aBooking : bookings) {
+            if (aBooking.getGuestName().equals(booking.getGuestName()) && aBooking.getArrivalDate().equals(booking.getArrivalDate())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

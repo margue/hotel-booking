@@ -7,19 +7,20 @@ import java.util.*;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final RoomRepository roomRepository;
+    private final BookingsRepository bookings;
     private final InvoiceRepository invoiceRepository;
 
     public PaymentService(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
-        this.roomRepository = new RoomRepository();
         this.invoiceRepository = new InvoiceRepository();
+        this.bookings = new BookingsRepository();
     }
 
     public PaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository, InvoiceRepository invoiceRepository) {
         this.paymentRepository = paymentRepository;
-        this.roomRepository = roomRepository;
         this.invoiceRepository = invoiceRepository;
+        this.bookings = new BookingsRepository();
+        roomRepository.getRooms().values().forEach(room -> this.bookings.save(room.getBookingsForRoom()));
     }
 
     /*
@@ -51,27 +52,24 @@ public class PaymentService {
     Postcondition: The invoiced bookings are marked as invoiced.
      */
     public Either<Error,Invoice> produceInvoice(GuestName guestName, DepartureDate departureDate, List<RoomNumber> roomNumbers) {
-        List<Room> bookedRooms = roomRepository.findAllRoomsWithBookingsByGuestName(guestName)
-                .stream().filter(r -> roomNumbers.contains(r.getRoomNumber())).toList();
-        Map<RoomNumber, List<Booking>> bookingsForRooms = new HashMap<>();
-        bookedRooms.forEach(room -> {
-            bookingsForRooms.put(room.getRoomNumber(), room.getBookingsForRoom().getNonInvoicedBookingsFor(guestName, departureDate));
+        List<BookingsForRoom> bookingsForBookedRooms = bookings.getBookingsForRooms(roomNumbers);
+        Map<RoomNumber, List<Booking>> nonInvoicedBookingsForRooms = new HashMap<>();
+        bookingsForBookedRooms.forEach(bookings -> {
+            nonInvoicedBookingsForRooms.put(bookings.roomNumber(), bookings.getNonInvoicedBookingsFor(guestName, departureDate));
         });
         List<RoomNumber> roomsWithoutBookings = new ArrayList<>();
-        bookingsForRooms.forEach(
-                (roomNumber, bookings) -> {
-                    if(bookings.isEmpty()){
-                        roomsWithoutBookings.add(roomNumber);
-                    }
-                }
-        );
+        nonInvoicedBookingsForRooms.forEach(((roomNumber, bookings1) -> {
+            if (bookings1.size() == 0){
+                roomsWithoutBookings.add(roomNumber);
+            }
+        }));
         if (roomsWithoutBookings.size() > 0) {
             return Either.ofError(new Error(String.format("No bookings to be invoiced for given customer " +
                     "'%s', departureDate [%s] and roomNumbers %s", guestName.guestName(), departureDate, roomsWithoutBookings)));
         }
         Amount totalAmount =
-                bookingsForRooms.values().stream()
-                        .map(bookingsForRoom -> bookingsForRoom.stream()
+                nonInvoicedBookingsForRooms.values().stream()
+                        .map(bookingList -> bookingList.stream()
                                 .map(booking -> new Amount(100.0 * booking.numberOfDays()))
                                 .reduce(Amount.ZERO, Amount::add)
                         ).reduce(Amount.ZERO, Amount::add);
@@ -99,9 +97,9 @@ public class PaymentService {
         }
         paymentRepository.save(guestName, payments);
 
-        roomRepository.markBookingsAsInvoiced(bookingsForRooms);
+        bookings.markBookingsAsInvoiced(nonInvoicedBookingsForRooms);
 
-        Invoice invoice = new Invoice(new InvoiceId(UUID.randomUUID().toString()), guestName, bookingsForRooms, totalAmount);
+        Invoice invoice = new Invoice(new InvoiceId(UUID.randomUUID().toString()), guestName, nonInvoicedBookingsForRooms, totalAmount);
 
         invoiceRepository.save(invoice);
 
