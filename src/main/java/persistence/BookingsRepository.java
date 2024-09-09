@@ -21,8 +21,12 @@ public class BookingsRepository {
         return roomNumbers.stream().map(this::getBookingsForRoom).toList();
     }
 
-    public List<BookingsForRoom> getBookingsForRoomsWithBookingFor(GuestName guestName, ArrivalDate arrivalDate) {
+    public List<BookingsForRoom> findBookingsForRoomsWithBookingFor(GuestName guestName, ArrivalDate arrivalDate) {
         return bookingsByRoom.values().stream().filter(bookings -> ! bookings.getBookingsFrom(guestName, arrivalDate).isEmpty()).toList();
+    }
+
+    public List<BookingsForRoom> findBookingsForRoomsWithBookingFor(GuestName guestName) {
+        return bookingsByRoom.values().stream().filter(bookings -> ! bookings.getBookingsFor(guestName).isEmpty()).toList();
     }
 
     public void markBookingsAsInvoiced(Map<RoomNumber, List<Booking>> bookingsBeingInvoiced) {

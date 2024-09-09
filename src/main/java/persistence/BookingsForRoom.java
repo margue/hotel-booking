@@ -81,4 +81,10 @@ public class BookingsForRoom {
                 .filter(booking -> booking.getArrivalDate().equals(arrivalDate))
                 .toList();
     }
+
+    public List<Booking> getBookingsFor(GuestName guestName) {
+        return bookings.stream()
+                .filter(booking -> booking.getGuestName().equals(guestName))
+                .toList();
+    }
 }

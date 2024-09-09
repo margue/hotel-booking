@@ -189,7 +189,7 @@ public class HotelService {
     Postcondition: Guest is checked in.
      */
     public Either<Error, List<RoomNumber>> checkIn(final GuestName guestName, ArrivalDate arrivalDate) {
-        Collection<BookingsForRoom> bookingsForRooms = bookings.getBookingsForRoomsWithBookingFor(guestName, arrivalDate);
+        Collection<BookingsForRoom> bookingsForRooms = bookings.findBookingsForRoomsWithBookingFor(guestName, arrivalDate);
         if (bookingsForRooms.isEmpty()) {
             return Either.ofError(new Error("Guest cannot check in because they did not book a room on " + arrivalDate.toString()));
         }

@@ -28,6 +28,14 @@ class HotelServiceTest {
         return rooms;
     }
 
+    public BookingsRepository setupBookingsForRoomsWithOneRoomAndBookings(Booking... bookings){
+        BookingsRepository bookingsRepository = new BookingsRepository();
+        BookingsForRoom bookingsForRoom = new BookingsForRoom(new RoomNumber("1"));
+        bookingsForRoom.add(Arrays.stream(bookings).toList());
+        bookingsRepository.save(bookingsForRoom);
+        return bookingsRepository;
+    }
+
     @Test
     void requestRoom_roomAvailable() {
         // GIVEN
@@ -107,7 +115,8 @@ class HotelServiceTest {
     void bookRoom_roomAvailable() {
         // GIVEN
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
-        HotelService service = new HotelService(rooms);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService service = new HotelService(rooms, bookings);
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
@@ -116,10 +125,10 @@ class HotelServiceTest {
 
         // THEN
         assertThat(result.isError()).isFalse();
-        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Peter"));
+        List<BookingsForRoom> foundBookings = bookings.findBookingsForRoomsWithBookingFor(new GuestName("Peter"));
         assertThat(foundBookings).hasSize(1);
-        assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundBookings.getFirst().getDepartureDate()).isEqualTo(departureDate);
+        assertThat(foundBookings.getFirst().bookings().getFirst().getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(foundBookings.getFirst().bookings().getFirst().getDepartureDate()).isEqualTo(departureDate);
     }
 
     @Test
@@ -128,33 +137,38 @@ class HotelServiceTest {
         RoomRepository rooms = new RoomRepository();
         rooms.save(new Room(roomNumber1, new ArrayList<>()));
         rooms.save(new Room(roomNumber2, new ArrayList<>()));
-        HotelService service = new HotelService(rooms);
+        BookingsRepository bookings = new BookingsRepository();
+        bookings.save(new BookingsForRoom(roomNumber1));
+        bookings.save(new BookingsForRoom(roomNumber2));
+        HotelService service = new HotelService(rooms, bookings);
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
-        Either<Error, RoomNumber> result1 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        GuestName peter = new GuestName("Peter");
+        Either<Error, RoomNumber> result1 = service.bookRoom(arrivalDate, departureDate, peter);
         assertThat(result1.isError()).isFalse();
 
         // WHEN
-        Either<Error, RoomNumber> result2 = service.bookRoom(arrivalDate, departureDate, new GuestName("Peter"));
+        Either<Error, RoomNumber> result2 = service.bookRoom(arrivalDate, departureDate, peter);
 
         // THEN
         assertThat(result2.isError()).isFalse();
-        List<Room> foundRooms = rooms.findAllRoomsWithBookingsByGuestName(new GuestName("Peter"));
+        List<BookingsForRoom> foundRooms = bookings.findBookingsForRoomsWithBookingFor(peter);
         assertThat(foundRooms).hasSize(2);
         assertThat(foundRooms).extracting("roomNumber")
                         .containsExactlyInAnyOrder(roomNumber1, roomNumber2);
-        assertThat(foundRooms.get(0).getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundRooms.get(0).getBookings().get(0).getDepartureDate()).isEqualTo(departureDate);
-        assertThat(foundRooms.get(1).getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundRooms.get(1).getBookings().get(0).getDepartureDate()).isEqualTo(departureDate);
+        assertThat(foundRooms.get(0).bookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(foundRooms.get(0).bookings().get(0).getDepartureDate()).isEqualTo(departureDate);
+        assertThat(foundRooms.get(1).bookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(foundRooms.get(1).bookings().get(0).getDepartureDate()).isEqualTo(departureDate);
     }
 
     @Test
     void bookRoom_roomAvailableForMultipleNights() {
         // GIVEN
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
-        HotelService service = new HotelService(rooms);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService service = new HotelService(rooms, bookings);
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
@@ -163,10 +177,10 @@ class HotelServiceTest {
 
         // THEN
         assertThat(result.isError()).isFalse();
-        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fred"));
+        List<BookingsForRoom> foundBookings = bookings.findBookingsForRoomsWithBookingFor(new GuestName("Fred"));
         assertThat(foundBookings).hasSize(1);
-        assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundBookings.getFirst().getDepartureDate()).isEqualTo(departureDate);
+        assertThat(foundBookings.getFirst().bookings().getFirst().getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(foundBookings.getFirst().bookings().getFirst().getDepartureDate()).isEqualTo(departureDate);
     }
 
     @Test
@@ -174,8 +188,10 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
-                departureDate, guestWithBooking));
+        Booking booking1 = new Booking(arrivalDate,
+                departureDate, guestWithBooking);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(booking1);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings(booking1);
         HotelService service = new HotelService(rooms);
 
         // WHEN
@@ -185,7 +201,7 @@ class HotelServiceTest {
         assertThat(result.isError()).isTrue();
         assertThat(result.error().errorMessage()).isEqualTo("No rooms available on the given date(s)");
         // no accidental changes to rooms:
-        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jack"));
+        List<BookingsForRoom> foundBookings = bookings.findBookingsForRoomsWithBookingFor(new GuestName("Jack"));
         assertThat(foundBookings).hasSize(0);
     }
 
@@ -194,15 +210,20 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking));
-        HotelService service = new HotelService(rooms);
+        Booking booking1 = new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking);
+        RoomRepository rooms = setupRoomsWithOneRoomAndBookings(booking1);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings(booking1);
+        HotelService service = new HotelService(rooms, bookings);
 
         // WHEN
-        Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jim"));
+        GuestName jim = new GuestName("Jim");
+        Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, jim);
 
         // THEN
         assertThat(result.isError()).isFalse();
-        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jim"));
+        List<BookingsForRoom> foundBookingsForRooms = bookings.findBookingsForRoomsWithBookingFor(jim);
+        assertThat(foundBookingsForRooms).hasSize(1);
+        List<Booking> foundBookings = foundBookingsForRooms.getFirst().getBookingsFor(jim);
         assertThat(foundBookings).hasSize(1);
         assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
         assertThat(foundBookings.getFirst().getDepartureDate()).isEqualTo(departureDate);
@@ -232,14 +253,15 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
-        HotelService service = new HotelService(rooms);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService service = new HotelService(rooms, bookings);
 
         // WHEN
         Either<Error, List<RoomNumber>> result = service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // THEN
         assertThat(result.isError()).isTrue();
-        List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fritz"));
+        List<BookingsForRoom> foundBookings = bookings.findBookingsForRoomsWithBookingFor(new GuestName("Fritz"));
         assertThat(foundBookings).hasSize(0);
         assertThat(result.error().errorMessage()).isEqualTo("Guest cannot check in because they did not book a room on ArrivalDate[arrivalDate=2020-10-10]");
     }

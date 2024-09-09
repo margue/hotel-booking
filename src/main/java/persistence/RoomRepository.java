@@ -14,30 +14,4 @@ public class RoomRepository {
     public Map<RoomNumber, Room> getRooms() {
         return rooms;
     }
-
-    public List<Room> findAllRoomsWithBookingsByGuestName(GuestName guestName) {
-        Set<Room> rooms = new HashSet<>();
-        for (Room room : this.rooms.values()) {
-            for (Booking booking : room.getBookings()) {
-                if (Objects.equals(booking.getGuestName(), guestName)) {
-                    rooms.add(room);
-                }
-            }
-        }
-        return rooms.stream().toList();
-    }
-
-    // only for testing purposes
-    public List<Booking> findAllBookingsByGuestName(GuestName guestName) {
-        List<Booking> bookings = new ArrayList<>();
-        for (Room room : rooms.values()) {
-            for (Booking booking : room.getBookings()) {
-                if (Objects.equals(booking.getGuestName(), guestName)) {
-                    bookings.add(booking);
-                }
-            }
-        }
-        return bookings;
-    }
-
 }
