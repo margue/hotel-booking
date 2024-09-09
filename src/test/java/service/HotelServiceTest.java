@@ -241,7 +241,7 @@ class HotelServiceTest {
         assertThat(result.isError()).isTrue();
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fritz"));
         assertThat(foundBookings).hasSize(0);
-        assertThat(result.error().errorMessage()).isEqualTo("Guest cannot check in because they did not book a room");
+        assertThat(result.error().errorMessage()).isEqualTo("Guest cannot check in because they did not book a room on ArrivalDate[arrivalDate=2020-10-10]");
     }
 
     @Test
@@ -258,8 +258,8 @@ class HotelServiceTest {
         Either<Error, List<RoomNumber>> result = service.checkIn(new GuestName("Fritz"), arrivalDate2);
 
         // THEN
-        assertThat(result.isError()).isFalse();
-        assertThat(result.result().size()).isEqualTo(0);
+        assertThat(result.isError()).isTrue();
+        assertThat(result.error().errorMessage()).isEqualTo("Guest cannot check in because they did not book a room on ArrivalDate[arrivalDate=2020-10-27]");
     }
 
     @Test

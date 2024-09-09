@@ -2,8 +2,7 @@ package service;
 
 import persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class HotelService {
 
@@ -189,22 +188,17 @@ public class HotelService {
 
     Postcondition: Guest is checked in.
      */
-    public Either<Error, List<RoomNumber>> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
-        List<Room> roomsForGuest = rooms.findAllRoomsWithBookingsByGuestName(guestName);
-        if (roomsForGuest.size() == 0) {
-            return Either.ofError(new Error("Guest cannot check in because they did not book a room"));
+    public Either<Error, List<RoomNumber>> checkIn(final GuestName guestName, ArrivalDate arrivalDate) {
+        Collection<BookingsForRoom> bookingsForRooms = bookings.getBookingsForRoomsWithBookingFor(guestName, arrivalDate);
+        if (bookingsForRooms.isEmpty()) {
+            return Either.ofError(new Error("Guest cannot check in because they did not book a room on " + arrivalDate.toString()));
         }
-        List<RoomNumber> bookedRoomNumbers = new ArrayList<>();
-        roomsForGuest.forEach(room -> {
-            List<Booking> currentBookings = room.getBookingsForRoom().getBookingsFrom(guestName, arrivalDate);
-            if (currentBookings.size() > 0) {
-                currentBookings.forEach(booking -> booking.setCheckedIn(true));
-                bookedRoomNumbers.add(room.getRoomNumber());
-                rooms.save(room);
-                bookings.save(room.getBookingsForRoom());
-            }
+        bookingsForRooms.forEach(bookingsForRoom -> bookingsForRoom.markBookingsAsCheckedIn(guestName, arrivalDate));
+        bookingsForRooms.forEach(bookingsForRoom -> {
+            rooms.save(new Room(bookingsForRoom));
+            bookings.save(bookingsForRoom);
         });
-        return Either.ofResult(bookedRoomNumbers);
+        return Either.ofResult(bookingsForRooms.stream().map(BookingsForRoom::roomNumber).toList());
     }
 
     /*

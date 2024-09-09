@@ -6,12 +6,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+// Entity
 public class BookingsForRoom {
     private final RoomNumber roomNumber;
     private final List<Booking> bookings;
     public BookingsForRoom(RoomNumber roomNumber) {
         this.roomNumber = roomNumber;
         this.bookings = new ArrayList<>();
+    }
+
+    public void markBookingsAsCheckedIn(GuestName guestName, ArrivalDate arrivalDate) {
+        this.bookings.replaceAll(booking -> {
+            if(booking.getGuestName().equals(guestName) && booking.getArrivalDate().equals(arrivalDate)) {
+                booking.setCheckedIn(true);
+            }
+            return booking;
+        });
     }
 
     public BookingsForRoom add(List<Booking> bookings) {
