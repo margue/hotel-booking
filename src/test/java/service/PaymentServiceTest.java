@@ -1,6 +1,5 @@
 package service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import persistence.*;
 
@@ -19,8 +18,8 @@ class PaymentServiceTest {
         return new PaymentService(paymentRepository);
     }
 
-    public PaymentService setupPaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository){
-        return new PaymentService(paymentRepository, roomRepository, new InvoiceRepository());
+    public PaymentService setupPaymentService(PaymentRepository paymentRepository, BookingsRepository bookings){
+        return new PaymentService(paymentRepository, bookings, new InvoiceRepository());
     }
 
     @Test
@@ -81,11 +80,12 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
 
         // WHEN
         Either<Error, Invoice> result = service.produceInvoice(guestName1, departureDate, roomNumbers);
@@ -106,11 +106,13 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(50.0));
 
         // WHEN
@@ -133,12 +135,13 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -165,13 +168,14 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
         roomNumbers.add(roomNumber2);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate.minusDays(3), departureDate, guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(3));
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(500.0));
 
         // WHEN
@@ -196,13 +200,14 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate.minusDays(1), departureDate.minusDays(1), guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(1));
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
@@ -227,11 +232,12 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -253,11 +259,12 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(30.0));
 
@@ -280,11 +287,12 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(170.0));
 
         // WHEN
@@ -306,11 +314,12 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(100.0));
 
@@ -333,11 +342,12 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository);
+        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
+        HotelService hotelService = new HotelService(roomRepository, bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(100.0));
         service.produceInvoice(guestName1, departureDate, roomNumbers);
@@ -371,7 +381,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -404,7 +414,7 @@ class PaymentServiceTest {
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(5));
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
@@ -438,7 +448,7 @@ class PaymentServiceTest {
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.plusDays(5));
 
-        PaymentService service = setupPaymentService(paymentRepository, roomRepository);
+        PaymentService service = setupPaymentService(paymentRepository, bookings);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN

@@ -16,11 +16,10 @@ public class PaymentService {
         this.bookings = new BookingsRepository();
     }
 
-    public PaymentService(PaymentRepository paymentRepository, RoomRepository roomRepository, InvoiceRepository invoiceRepository) {
+    public PaymentService(PaymentRepository paymentRepository, BookingsRepository bookings, InvoiceRepository invoiceRepository) {
         this.paymentRepository = paymentRepository;
         this.invoiceRepository = invoiceRepository;
-        this.bookings = new BookingsRepository();
-        roomRepository.getRooms().values().forEach(room -> this.bookings.save(room.getBookingsForRoom()));
+        this.bookings = bookings;
     }
 
     /*

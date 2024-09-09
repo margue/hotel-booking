@@ -18,9 +18,5 @@ public class Room {
         return bookings.roomNumber();
     }
 
-    public List<Booking> getBookings() {
-        return bookings.bookings();
-    }
-
     public BookingsForRoom getBookingsForRoom() { return bookings; }
 }

@@ -6,17 +6,16 @@ import java.util.*;
 
 public class HotelService {
 
-    private final RoomRepository rooms;
     private final BookingsRepository bookings;
 
-    public HotelService(RoomRepository rooms, BookingsRepository bookings) {
-        this.rooms = rooms;
-        this.bookings = bookings;
+    public static BookingsRepository buildBookingsRepository(RoomRepository rooms){
+        BookingsRepository bookings = new BookingsRepository();
+        rooms.getRooms().values().forEach(room -> bookings.save(room.getBookingsForRoom()));
+        return bookings;
     }
 
-    public HotelService(RoomRepository rooms){
-        this(rooms, new BookingsRepository());
-        rooms.getRooms().values().forEach(room -> this.bookings.save(room.getBookingsForRoom()));
+    public HotelService(RoomRepository rooms, BookingsRepository bookings) {
+        this.bookings = bookings;
     }
 
     /*
@@ -175,8 +174,7 @@ public class HotelService {
         for (BookingsForRoom bookingsForRoom : bookings.getBookingsForRooms()) {
             if (bookingsForRoom.roomIsFree(arrivalDate, departureDate)) {
                 bookingsForRoom.add(booking); // no validation (race condition?)
-                rooms.save(new Room(bookingsForRoom)); // not needed here, but generally required for persistence
-                bookings.save(bookingsForRoom);
+                bookings.save(bookingsForRoom); // not needed here, but generally required for persistence
                 return Either.ofResult(bookingsForRoom.roomNumber());
             }
         }
@@ -195,7 +193,6 @@ public class HotelService {
         }
         bookingsForRooms.forEach(bookingsForRoom -> bookingsForRoom.markBookingsAsCheckedIn(guestName, arrivalDate));
         bookingsForRooms.forEach(bookingsForRoom -> {
-            rooms.save(new Room(bookingsForRoom));
             bookings.save(bookingsForRoom);
         });
         return Either.ofResult(bookingsForRooms.stream().map(BookingsForRoom::roomNumber).toList());
@@ -222,7 +219,6 @@ public class HotelService {
             return Either.ofError(new Error("Checkout only possible for invoiced bookings."));
         }
         booking.setCheckedOut(true);
-        rooms.save(new Room(bookingsForRoom));
         bookings.save(bookingsForRoom);
         return Either.ofResult(booking);
     }

@@ -15,11 +15,11 @@ class HotelServiceTest {
     final GuestName guestWithBooking = new GuestName("Peter");
 
     public HotelService setupHotelService(int numberOfRooms) {
-        RoomRepository rooms = new RoomRepository();
+        BookingsRepository bookings = new BookingsRepository();
         for (int i = 1; i <= numberOfRooms; i++) {
-            rooms.save(new Room(new RoomNumber(Integer.toString(i)), new ArrayList<>()));
+            bookings.save(new BookingsForRoom(new RoomNumber(Integer.toString(i))));
         }
-        return new HotelService(rooms);
+        return new HotelService(new RoomRepository(), bookings);
     }
 
     public RoomRepository setupRoomsWithOneRoomAndBookings(Booking... bookings){
@@ -72,7 +72,8 @@ class HotelServiceTest {
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
-                departureDate, guestWithBooking)));
+                        departureDate, guestWithBooking)), HotelService.buildBookingsRepository(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
+                        departureDate, guestWithBooking))));
 
         // WHEN
         Either<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
@@ -87,7 +88,7 @@ class HotelServiceTest {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
-        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking)));
+        HotelService service = new HotelService(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking)), HotelService.buildBookingsRepository(setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate.plusDays(5), departureDate.plusDays(7), guestWithBooking))));
 
         // WHEN
         Either<Error, Amount> result = service.requestRoom(arrivalDate, departureDate);
@@ -192,7 +193,7 @@ class HotelServiceTest {
                 departureDate, guestWithBooking);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(booking1);
         BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings(booking1);
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(rooms, HotelService.buildBookingsRepository(rooms));
 
         // WHEN
         Either<Error, RoomNumber> result = service.bookRoom(arrivalDate, departureDate, new GuestName("Jack"));
@@ -237,7 +238,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(rooms, HotelService.buildBookingsRepository(rooms));
 
         // WHEN
         Either<Error, List<RoomNumber>> result = service.checkIn(new GuestName("Fritz"), arrivalDate);
@@ -273,7 +274,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate1,
                 departureDate, new GuestName("Fritz")));
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(rooms, HotelService.buildBookingsRepository(rooms));
         ArrivalDate arrivalDate2 = arrivalDate1.plusDays(17);
 
         // WHEN
@@ -291,7 +292,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(rooms, HotelService.buildBookingsRepository(rooms));
 
         // WHEN
         Either<Error, Booking> result =  service.checkOut(new GuestName("Fritz"), roomNumber1, departureDate);
@@ -308,7 +309,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(rooms, HotelService.buildBookingsRepository(rooms));
         service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         // WHEN
@@ -326,12 +327,12 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings(new Booking(arrivalDate,
                 departureDate, new GuestName("Fritz")));
-        HotelService service = new HotelService(rooms);
+        HotelService service = new HotelService(rooms, HotelService.buildBookingsRepository(rooms));
         service.checkIn(new GuestName("Fritz"), arrivalDate);
 
         PaymentRepository paymentRepository = new PaymentRepository();
         InvoiceRepository invoiceRepository = new InvoiceRepository();
-        PaymentService paymentService = new PaymentService(paymentRepository, rooms, invoiceRepository);
+        PaymentService paymentService = new PaymentService(paymentRepository, HotelService.buildBookingsRepository(rooms), invoiceRepository);
         paymentService.payAmount(new GuestName("Fritz"), new Amount(200.0));
         paymentService.produceInvoice(new GuestName("Fritz"), departureDate, Collections.singletonList(roomNumber1));
 
