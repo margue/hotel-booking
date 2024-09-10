@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import persistence.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +21,14 @@ class PaymentServiceTest {
 
     public PaymentService setupPaymentService(PaymentRepository paymentRepository, BookingsRepository bookings){
         return new PaymentService(paymentRepository, bookings, new InvoiceRepository());
+    }
+
+    public BookingsRepository setupBookingsForRoomsWithOneRoomAndBookings(Booking... bookings){
+        BookingsRepository bookingsRepository = new BookingsRepository();
+        BookingsForRoom bookingsForRoom = new BookingsForRoom(new RoomNumber("1"));
+        bookingsForRoom.add(Arrays.stream(bookings).toList());
+        bookingsRepository.save(bookingsForRoom);
+        return bookingsRepository;
     }
 
     @Test
@@ -73,15 +82,13 @@ class PaymentServiceTest {
     public void produceInvoice_noPayment() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -99,15 +106,13 @@ class PaymentServiceTest {
     public void produceInvoice_paymentInsufficient() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -127,16 +132,15 @@ class PaymentServiceTest {
     public void produceInvoice_oneRoomOneNight_withOldBooking() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
-        roomRepository.save(new Room(new RoomNumber("2")));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = new BookingsRepository();
+        bookings.save(new BookingsForRoom(roomNumber1));
+        bookings.save(new BookingsForRoom(new RoomNumber("2")));
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
@@ -159,17 +163,16 @@ class PaymentServiceTest {
     public void produceInvoice_manyBookingsDifferentStartDaysSameEndDay() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
-        roomRepository.save(new Room(new RoomNumber("2")));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
         roomNumbers.add(roomNumber2);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = new BookingsRepository();
+        bookings.save(new BookingsForRoom(roomNumber1));
+        bookings.save(new BookingsForRoom(new RoomNumber("2")));
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate.minusDays(3), departureDate, guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(3));
@@ -193,15 +196,13 @@ class PaymentServiceTest {
     public void produceInvoice_manyBookingsEndingOnInvoiceDayOrEarlier() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate.minusDays(1), departureDate.minusDays(1), guestName1);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(1));
@@ -225,15 +226,13 @@ class PaymentServiceTest {
     public void produceInvoice_onePaymentIsMarkedAsUsed() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -252,15 +251,13 @@ class PaymentServiceTest {
     public void produceInvoice_twoPaymentsAreMarkedAsUsed() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -280,15 +277,13 @@ class PaymentServiceTest {
     public void produceInvoice_onePaymentIsDeducted() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -307,15 +302,13 @@ class PaymentServiceTest {
     public void produceInvoice_twoPaymentsArePartiallyDeducted() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -335,15 +328,13 @@ class PaymentServiceTest {
     public void produceInvoice_sameInvoiceTwiceLeadsToExcetionAlreadyPaid() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        BookingsRepository bookings = HotelService.buildBookingsRepository(roomRepository);
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -368,8 +359,6 @@ class PaymentServiceTest {
     public void markBookingsAsInvoiced_oneBooking() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -377,7 +366,7 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -399,8 +388,6 @@ class PaymentServiceTest {
     public void markBookingsAsInvoiced_twoBookingsInPast() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -408,7 +395,7 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.bookRoom(arrivalDate.minusDays(5), departureDate.minusDays(5), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
@@ -433,8 +420,6 @@ class PaymentServiceTest {
     public void markBookingsAsInvoiced_twoBookingsOneInPast() {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
-        RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1));
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -442,7 +427,7 @@ class PaymentServiceTest {
         List<RoomNumber> roomNumbers = new ArrayList<>();
         roomNumbers.add(roomNumber1);
 
-        HotelService hotelService = new HotelService(roomRepository, bookings);
+        HotelService hotelService = new HotelService(bookings);
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.bookRoom(arrivalDate.plusDays(5), departureDate.plusDays(5), guestName1);
         hotelService.checkIn(guestName1, arrivalDate);

@@ -8,16 +8,6 @@ public class HotelService {
 
     private final BookingsRepository bookings;
 
-    public static BookingsRepository buildBookingsRepository(RoomRepository rooms){
-        BookingsRepository bookings = new BookingsRepository();
-        rooms.getRooms().values().forEach(room -> bookings.save(room.getBookingsForRoom()));
-        return bookings;
-    }
-
-    public HotelService(RoomRepository rooms, BookingsRepository bookings) {
-        this.bookings = bookings;
-    }
-
     public HotelService(BookingsRepository bookings) {
         this.bookings = bookings;
     }
