@@ -2,19 +2,27 @@ package persistence;
 
 import java.time.LocalDate;
 
+// Value Object
 public class Booking {
 
     private final ArrivalDate arrivalDate;
     private final DepartureDate departureDate;
     private final GuestName guestName;
-    private boolean invoiced = false;
-    private boolean checkedIn = false;
-    private boolean checkedOut = false;
+    private final boolean invoiced;
+    private final boolean checkedIn;
+    private boolean checkedOut;
 
     public Booking(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
+        this(arrivalDate, departureDate, guestName, false, false, false);
+    }
+
+    private Booking(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName, boolean invoiced, boolean checkedIn, boolean checkedOut) {
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;
         this.guestName = guestName;
+        this.invoiced = invoiced;
+        this.checkedIn = checkedIn;
+        this.checkedOut = checkedOut;
     }
 
     public boolean contains(LocalDate date) {
@@ -40,20 +48,22 @@ public class Booking {
         return checkedIn;
     }
 
-    public void setCheckedIn(boolean checkedIn) {
-        this.checkedIn = checkedIn;
+    public Booking checkIn() {
+        return new Booking(this.arrivalDate, this.departureDate, this.guestName, this.invoiced, true, this.checkedOut);
     }
 
-    public void setInvoiced(boolean invoiced) {
-        this.invoiced = invoiced;
+    public Booking markAsInvoiced() {
+        return new Booking(this.arrivalDate, this.departureDate, this.guestName, true, this.checkedIn, this.checkedOut);
     }
 
     public boolean isInvoiced() {
         return invoiced;
     }
 
-    public void setCheckedOut(boolean checkedOut) {
-        this.checkedOut = checkedOut;
+    public Booking checkOut() {
+        this.checkedOut = true;
+        return this;
+        // TODO return new Booking(this.arrivalDate, this.departureDate, this.guestName, this.invoiced, this.checkedIn, true);
     }
 
     public boolean isCheckedOut() {

@@ -18,7 +18,7 @@ public class BookingsForRoom {
     public void markBookingsAsCheckedIn(GuestName guestName, ArrivalDate arrivalDate) {
         this.bookings.replaceAll(booking -> {
             if(booking.getGuestName().equals(guestName) && booking.getArrivalDate().equals(arrivalDate)) {
-                booking.setCheckedIn(true);
+                return booking.checkIn();
             }
             return booking;
         });

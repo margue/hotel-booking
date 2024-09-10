@@ -29,13 +29,18 @@ public class BookingsRepository {
         return bookingsByRoom.values().stream().filter(bookings -> ! bookings.getBookingsFor(guestName).isEmpty()).toList();
     }
 
+    public List<BookingsForRoom> findBookingsForRoomsWithBookingUntil(GuestName guestName, DepartureDate departureDate) {
+        return bookingsByRoom.values().stream().filter(bookings -> ! bookings.getBookingsUntil(guestName, departureDate).isEmpty()).toList();
+    }
+
     public void markBookingsAsInvoiced(Map<RoomNumber, List<Booking>> bookingsBeingInvoiced) {
         bookingsBeingInvoiced.forEach((roomNumber, bookingsBeingInvoicedForOneRoom) -> {
             BookingsForRoom existingBookings = bookingsByRoom.get(roomNumber);
-            existingBookings.bookings().forEach(booking -> {
+            existingBookings.bookings().replaceAll(booking -> {
                 if (listContainsBooking(bookingsBeingInvoicedForOneRoom, booking)) {
-                    booking.setInvoiced(true);
+                    return booking.markAsInvoiced();
                 }
+                return booking;
             });
             save(existingBookings);
         });

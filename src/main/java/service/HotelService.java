@@ -212,7 +212,7 @@ public class HotelService {
         if(!booking.isInvoiced()){
             return Either.ofError(new Error("Checkout only possible for invoiced bookings."));
         }
-        booking.setCheckedOut(true);
+        booking.checkOut();
         bookings.save(bookingsForRoom);
         return Either.ofResult(booking);
     }
