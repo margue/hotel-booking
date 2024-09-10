@@ -74,7 +74,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -100,7 +100,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -128,8 +128,8 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
+        roomRepository.save(new Room(new RoomNumber("2")));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -160,8 +160,8 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
-        roomRepository.save(new Room(new RoomNumber("2"), new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
+        roomRepository.save(new Room(new RoomNumber("2")));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -194,7 +194,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -226,7 +226,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -253,7 +253,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -281,7 +281,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -308,7 +308,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -336,7 +336,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -369,7 +369,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -400,7 +400,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -434,7 +434,7 @@ class PaymentServiceTest {
         // GIVEN
         PaymentRepository paymentRepository = new PaymentRepository();
         RoomRepository roomRepository = new RoomRepository();
-        roomRepository.save(new Room(roomNumber1, new ArrayList<>()));
+        roomRepository.save(new Room(roomNumber1));
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);

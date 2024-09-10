@@ -115,9 +115,8 @@ class HotelServiceTest {
     @Test
     void bookRoom_roomAvailable() {
         // GIVEN
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
         BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
-        HotelService service = new HotelService(rooms, bookings);
+        HotelService service = new HotelService(bookings);
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
@@ -136,8 +135,8 @@ class HotelServiceTest {
     void bookRoom_bookTwoRoomsForSameNights() {
         // GIVEN
         RoomRepository rooms = new RoomRepository();
-        rooms.save(new Room(roomNumber1, new ArrayList<>()));
-        rooms.save(new Room(roomNumber2, new ArrayList<>()));
+        rooms.save(new Room(roomNumber1));
+        rooms.save(new Room(roomNumber2));
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         bookings.save(new BookingsForRoom(roomNumber2));
@@ -167,9 +166,8 @@ class HotelServiceTest {
     @Test
     void bookRoom_roomAvailableForMultipleNights() {
         // GIVEN
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
         BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
-        HotelService service = new HotelService(rooms, bookings);
+        HotelService service = new HotelService(bookings);
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
@@ -253,9 +251,8 @@ class HotelServiceTest {
     void checkIn_roomWasNotBooked() {
         // GIVEN
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
-        RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
         BookingsRepository bookings = setupBookingsForRoomsWithOneRoomAndBookings();
-        HotelService service = new HotelService(rooms, bookings);
+        HotelService service = new HotelService(bookings);
 
         // WHEN
         Either<Error, List<RoomNumber>> result = service.checkIn(new GuestName("Fritz"), arrivalDate);

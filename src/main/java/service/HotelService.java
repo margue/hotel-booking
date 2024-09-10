@@ -18,6 +18,10 @@ public class HotelService {
         this.bookings = bookings;
     }
 
+    public HotelService(BookingsRepository bookings) {
+        this.bookings = bookings;
+    }
+
     /*
     TODO:
     - BookingsForRooms in Invoice -> das räumt dann gleich alles auf ^^
