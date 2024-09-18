@@ -2,6 +2,7 @@ package persistence;
 
 import java.time.LocalDate;
 
+// Entity
 public class Payment {
 
     private final Amount paidAmount;

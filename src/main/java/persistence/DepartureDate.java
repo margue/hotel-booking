@@ -2,6 +2,7 @@ package persistence;
 
 import java.time.LocalDate;
 
+// Value Object
 public record DepartureDate(LocalDate departureDate) {
     public DepartureDate(int year, int month, int day){
         this(LocalDate.of(year, month, day));

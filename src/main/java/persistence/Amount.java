@@ -1,6 +1,8 @@
 package persistence;
 
 // change to a better representation at some point
+
+// Value Object
 public record Amount(double amount) {
     public static final Amount ZERO = new Amount(0);
 
