@@ -72,7 +72,7 @@ public class PaymentService {
 
         bookings.markBookingsAsInvoiced(nonInvoicedBookingsForRooms);
 
-        Invoice invoice = new Invoice(new InvoiceId(UUID.randomUUID().toString()), guestName, nonInvoicedBookingsForRooms, totalAmount);
+        Invoice invoice = new Invoice(new InvoiceId(UUID.randomUUID().toString()), guestName, InvoiceTextGenerator.textForInvoice(nonInvoicedBookingsForRooms), totalAmount);
 
         invoiceRepository.save(invoice);
 
