@@ -11,16 +11,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PaymentServiceTest {
     private final GuestName guestName1 = new GuestName("Peter Meier");
-    private final String guest2 = "Lisa Müller";
+    private final GuestName guestName2 = new GuestName("Lisa Müller");
     private final RoomNumber roomNumber1 = new RoomNumber("1");
     private final RoomNumber roomNumber2 = new RoomNumber("2");
 
-    public PaymentService setupPaymentService(PaymentRepository paymentRepository){
-        return new PaymentService(paymentRepository);
+    public PaymentService setupPaymentService(CheckingAccountRepository checkingAccounts){
+        return new PaymentService(checkingAccounts);
     }
 
-    public PaymentService setupPaymentService(PaymentRepository paymentRepository, BookingsRepository bookings){
-        return new PaymentService(paymentRepository, bookings, new InvoiceRepository());
+    public PaymentService setupPaymentService(BookingsRepository bookings, CheckingAccountRepository checkingAccounts){
+        return new PaymentService(bookings, new InvoiceRepository(), checkingAccounts);
     }
 
     public BookingsRepository setupBookingsForRoomsWithOneRoomAndBookings(Booking... bookings){
@@ -34,54 +34,49 @@ class PaymentServiceTest {
     @Test
     public void payAmount_guestPaidForTheFirstTime() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
-        PaymentService service = setupPaymentService(paymentRepository);
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
+        PaymentService service = setupPaymentService(checkingAccounts);
 
         // WHEN
         service.payAmount(guestName1, new Amount(42.0));
 
         // THEN
-        assertThat(paymentRepository.load(guestName1)).hasSize(1);
-        assertThat(paymentRepository.load(guestName1).getFirst().getPaidAmount()).isEqualTo(new Amount(42.0));
+        assertThat(checkingAccounts.load(guestName1).credit()).isEqualTo(new Amount(42.0));
     }
 
     @Test
     public void payAmount_guestPaidForTheSecondTime() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
-        PaymentService service = setupPaymentService(paymentRepository);
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
+        PaymentService service = setupPaymentService(checkingAccounts);
         service.payAmount(guestName1, new Amount(42.0));
 
         // WHEN
         service.payAmount(guestName1, new Amount(120.0));
 
         // THEN
-        assertThat(paymentRepository.load(guestName1)).hasSize(2);
-        assertThat(paymentRepository.load(guestName1).getFirst().getPaidAmount()).isEqualTo(new Amount(42.0));
-        assertThat(paymentRepository.load(guestName1).get(1).getPaidAmount()).isEqualTo(new Amount(120.0));
+        assertThat(checkingAccounts.load(guestName1).credit()).isEqualTo(new Amount(162.0));
     }
 
     @Test
     public void payAmount_secondGuestPaidForTheFirstTime() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
-        PaymentService service = setupPaymentService(paymentRepository);
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
+        PaymentService service = setupPaymentService(checkingAccounts);
         service.payAmount(guestName1, new Amount(42.0));
 
         // WHEN
-        service.payAmount(new GuestName(guest2), new Amount(120.0));
+        service.payAmount(guestName2, new Amount(120.0));
 
         // THEN
-        assertThat(paymentRepository.load(guestName1)).hasSize(1);
-        assertThat(paymentRepository.load(new GuestName(guest2))).hasSize(1);
-        assertThat(paymentRepository.load(guestName1).getFirst().getPaidAmount()).isEqualTo(new Amount(42.0));
-        assertThat(paymentRepository.load(new GuestName(guest2)).getFirst().getPaidAmount()).isEqualTo(new Amount(120.0));
+        assertThat(checkingAccounts.load(guestName1).credit()).isEqualTo(new Amount(42.0));
+        assertThat(checkingAccounts.load(guestName2).credit()).isEqualTo(new Amount(120.0));
     }
 
     @Test
     public void produceInvoice_noPayment() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -92,7 +87,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
 
         // WHEN
         Either<Error, Invoice> result = service.produceInvoice(guestName1, departureDate, roomNumbers);
@@ -105,7 +100,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_paymentInsufficient() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -117,7 +112,7 @@ class PaymentServiceTest {
         hotelService.checkIn(guestName1, arrivalDate);
 
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(50.0));
 
         // WHEN
@@ -131,7 +126,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_oneRoomOneNight_withOldBooking() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -145,7 +140,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -162,7 +157,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_manyBookingsDifferentStartDaysSameEndDay() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -178,7 +173,7 @@ class PaymentServiceTest {
         hotelService.checkIn(guestName1, arrivalDate.minusDays(3));
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(500.0));
 
         // WHEN
@@ -195,7 +190,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_manyBookingsEndingOnInvoiceDayOrEarlier() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -208,7 +203,7 @@ class PaymentServiceTest {
         hotelService.checkIn(guestName1, arrivalDate.minusDays(1));
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
@@ -225,7 +220,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_onePaymentIsMarkedAsUsed() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -236,7 +231,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -250,7 +245,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_twoPaymentsAreMarkedAsUsed() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -261,7 +256,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(30.0));
 
@@ -276,7 +271,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_onePaymentIsDeducted() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -287,7 +282,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(170.0));
 
         // WHEN
@@ -301,7 +296,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_twoPaymentsArePartiallyDeducted() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -312,7 +307,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(100.0));
 
@@ -327,7 +322,7 @@ class PaymentServiceTest {
     @Test
     public void produceInvoice_sameInvoiceTwiceLeadsToExcetionAlreadyPaid() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
         List<RoomNumber> roomNumbers = new ArrayList<>();
@@ -338,7 +333,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(70.0));
         service.payAmount(guestName1, new Amount(100.0));
         service.produceInvoice(guestName1, departureDate, roomNumbers);
@@ -358,7 +353,7 @@ class PaymentServiceTest {
     @Test
     public void markBookingsAsInvoiced_oneBooking() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -370,7 +365,7 @@ class PaymentServiceTest {
         hotelService.bookRoom(arrivalDate, departureDate, guestName1);
         hotelService.checkIn(guestName1, arrivalDate);
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN
@@ -387,7 +382,7 @@ class PaymentServiceTest {
     @Test
     public void markBookingsAsInvoiced_twoBookingsInPast() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -401,7 +396,7 @@ class PaymentServiceTest {
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(5));
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(200.0));
 
         // WHEN
@@ -419,7 +414,7 @@ class PaymentServiceTest {
     @Test
     public void markBookingsAsInvoiced_twoBookingsOneInPast() {
         // GIVEN
-        PaymentRepository paymentRepository = new PaymentRepository();
+        CheckingAccountRepository checkingAccounts = new CheckingAccountRepository();
         BookingsRepository bookings = new BookingsRepository();
         bookings.save(new BookingsForRoom(roomNumber1));
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
@@ -433,7 +428,7 @@ class PaymentServiceTest {
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.plusDays(5));
 
-        PaymentService service = setupPaymentService(paymentRepository, bookings);
+        PaymentService service = setupPaymentService(bookings, checkingAccounts);
         service.payAmount(guestName1, new Amount(100.0));
 
         // WHEN

@@ -18,4 +18,8 @@ public record Amount(double amount) {
     public boolean isMoreThanOrEqual(Amount amount) {
         return this.amount >= amount.amount;
     }
+
+    public Amount negate() {
+        return new Amount(-this.amount);
+    }
 }

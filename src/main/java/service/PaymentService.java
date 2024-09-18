@@ -6,40 +6,33 @@ import java.util.*;
 
 public class PaymentService {
 
-    private final PaymentRepository paymentRepository;
     private final BookingsRepository bookings;
     private final InvoiceRepository invoiceRepository;
+    private final CheckingAccountRepository checkingAccounts;
 
-    public PaymentService(PaymentRepository paymentRepository) {
-        this.paymentRepository = paymentRepository;
+    public PaymentService(CheckingAccountRepository checkingAccounts) {
         this.invoiceRepository = new InvoiceRepository();
         this.bookings = new BookingsRepository();
+        this.checkingAccounts = checkingAccounts;
     }
 
-    public PaymentService(PaymentRepository paymentRepository, BookingsRepository bookings, InvoiceRepository invoiceRepository) {
-        this.paymentRepository = paymentRepository;
+    public PaymentService(BookingsRepository bookings, InvoiceRepository invoiceRepository, CheckingAccountRepository checkingAccounts) {
         this.invoiceRepository = invoiceRepository;
         this.bookings = bookings;
+        this.checkingAccounts = checkingAccounts;
     }
 
     /*
     Postcondition: Guest has paid a certain amount to the hotel.
      */
     public void payAmount(GuestName guestName, Amount amount){
-        List<Payment> guestPayments = paymentRepository.load(guestName);
-        guestPayments.add(new Payment(guestName, amount));
-        paymentRepository.save(guestName, guestPayments);
+        CheckingAccount account = checkingAccounts.load(guestName);
+        account.addPayment(new Transaction(amount));
+        checkingAccounts.save(account);
     }
 
     public Amount remainingCredit(GuestName guestName){
-        List<Payment> payments = paymentRepository.load(guestName);
-        return remainingCredit(payments);
-    }
-
-    private static Amount remainingCredit(List<Payment> payments) {
-        return payments.stream()
-                .map(Payment::getRemainingCredit)
-                .reduce(Amount.ZERO, Amount::add);
+        return checkingAccounts.load(guestName).credit();
     }
 
     /*
@@ -69,29 +62,13 @@ public class PaymentService {
         Amount totalAmount =
                 nonInvoicedBookingsForRooms.values().stream()
                         .map(PriceCalculator::priceFor).reduce(Amount.ZERO, Amount::add);
-        List<Payment> payments = paymentRepository.load(guestName);
-        Amount credit = remainingCredit(payments);
+        CheckingAccount account = checkingAccounts.load(guestName);
+        Amount credit = account.credit();
         if(totalAmount.isMoreThan(credit)){
             return Either.ofError(new Error("Payment insufficient. Necessary payment: " + (totalAmount.subtract(credit))));
         }
-
-        payments.sort(Payment::compareByPaymentDate);
-        Amount remainingTotalAmount = totalAmount;
-        for (Payment payment: payments){
-            if(remainingTotalAmount.isMoreThan(Amount.ZERO)){
-                Amount remainingCreditForPayment = payment.getRemainingCredit();
-                if(remainingCreditForPayment.isMoreThanOrEqual(remainingTotalAmount)){
-                    payment.reduceCreditBy(remainingTotalAmount);
-                    break;
-                } else {
-                    payment.reduceCreditBy(remainingCreditForPayment);
-                    remainingTotalAmount = remainingTotalAmount.subtract(remainingCreditForPayment);
-                }
-            } else {
-                break;
-            }
-        }
-        paymentRepository.save(guestName, payments);
+        account.reduceCreditBy(totalAmount);
+        checkingAccounts.save(account);
 
         bookings.markBookingsAsInvoiced(nonInvoicedBookingsForRooms);
 
