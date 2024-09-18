@@ -186,9 +186,7 @@ public class HotelService {
             return Either.ofError(new Error("Guest cannot check in because they did not book a room on " + arrivalDate.toString()));
         }
         bookingsForRooms.forEach(bookingsForRoom -> bookingsForRoom.markBookingsAsCheckedIn(guestName, arrivalDate));
-        bookingsForRooms.forEach(bookingsForRoom -> {
-            bookings.save(bookingsForRoom);
-        });
+        bookingsForRooms.forEach(bookings::save);
         return Either.ofResult(bookingsForRooms.stream().map(BookingsForRoom::roomNumber).toList());
     }
 

@@ -50,8 +50,8 @@ public class PaymentService {
             nonInvoicedBookingsForRooms.put(bookings.roomNumber(), bookings.getNonInvoicedBookingsFor(guestName, departureDate));
         });
         List<RoomNumber> roomsWithoutBookings = new ArrayList<>();
-        nonInvoicedBookingsForRooms.forEach(((roomNumber, bookings1) -> {
-            if (bookings1.size() == 0){
+        nonInvoicedBookingsForRooms.forEach(((roomNumber, bookings) -> {
+            if (bookings.size() == 0){
                 roomsWithoutBookings.add(roomNumber);
             }
         }));
