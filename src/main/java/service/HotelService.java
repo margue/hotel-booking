@@ -148,7 +148,7 @@ public class HotelService {
     public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
         for (BookingsForRoom bookingsForRoom : bookings.getBookingsForRooms()) {
             if (bookingsForRoom.roomIsFree(arrivalDate, departureDate)) {
-                return Either.ofResult(new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
+                return Either.ofResult(PriceCalculator.priceFor(arrivalDate.daysUntil(departureDate.departureDate())));
             }
         }
         return Either.ofError(new Error("No available room found for the desired dates"));

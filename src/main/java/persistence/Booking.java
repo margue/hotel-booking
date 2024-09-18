@@ -29,7 +29,7 @@ public class Booking {
             return arrivalDate.isOnOrBefore(date) && departureDate.isAfter(date);
     }
 
-    public long numberOfDays(){
+    public long numberOfNights(){
         return arrivalDate.arrivalDate().datesUntil(departureDate.departureDate()).count();
     }
 

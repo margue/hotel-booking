@@ -10,18 +10,17 @@ import java.util.stream.Collectors;
 public class BookingsForRoom {
     private final RoomNumber roomNumber;
     private final List<Booking> bookings;
+
     public BookingsForRoom(RoomNumber roomNumber) {
         this.roomNumber = roomNumber;
         this.bookings = new ArrayList<>();
     }
 
     public void markBookingsAsCheckedIn(GuestName guestName, ArrivalDate arrivalDate) {
-        this.bookings.replaceAll(booking -> {
-            if(booking.getGuestName().equals(guestName) && booking.getArrivalDate().equals(arrivalDate)) {
-                return booking.checkIn();
-            }
-            return booking;
-        });
+        this.bookings.replaceAll(booking ->
+                booking.getGuestName().equals(guestName) && booking.getArrivalDate().equals(arrivalDate)
+                        ? booking.checkIn()
+                        : booking);
     }
 
     public BookingsForRoom add(List<Booking> bookings) {

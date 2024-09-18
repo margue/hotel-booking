@@ -68,10 +68,7 @@ public class PaymentService {
         }
         Amount totalAmount =
                 nonInvoicedBookingsForRooms.values().stream()
-                        .map(bookingList -> bookingList.stream()
-                                .map(booking -> new Amount(100.0 * booking.numberOfDays()))
-                                .reduce(Amount.ZERO, Amount::add)
-                        ).reduce(Amount.ZERO, Amount::add);
+                        .map(PriceCalculator::priceFor).reduce(Amount.ZERO, Amount::add);
         List<Payment> payments = paymentRepository.load(guestName);
         Amount credit = remainingCredit(payments);
         if(totalAmount.isMoreThan(credit)){
