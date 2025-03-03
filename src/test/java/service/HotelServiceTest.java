@@ -96,7 +96,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Throwable t = catchThrowable(() -> service.bookRoom(arrivalDate, departureDate, new GuestName(null)));
+        Throwable t = catchThrowable(() -> service.bookRoom(arrivalDate, departureDate, null));
 
         // THEN
         assertThat(t).isInstanceOf(IllegalArgumentException.class);

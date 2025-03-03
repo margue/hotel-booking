@@ -147,8 +147,8 @@ public class HotelService {
     }
 
     public void bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
-        if (guestName.guestName() == null) {
-            throw new IllegalArgumentException("Guest name must not be null");
+        if (guestName == null) {
+            throw new IllegalArgumentException("Guest name must be provided");
         }
         Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
