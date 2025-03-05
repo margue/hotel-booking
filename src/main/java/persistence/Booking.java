@@ -14,6 +14,9 @@ public class Booking {
     private boolean checkedOut = false;
 
     public Booking(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
+        if(arrivalDate == null) { throw new IllegalArgumentException("ArrivalDate must be provided"); }
+        if(departureDate == null) { throw new IllegalArgumentException("DepartureDate must be provided"); }
+        if(guestName == null) { throw new IllegalArgumentException("GuestName must be provided"); }
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;
         this.guestName = guestName;
