@@ -11,9 +11,11 @@ public class RoomRepository {
         rooms.put(room.getRoomNumber(), room);
     }
 
-    public Map<RoomNumber, Room> getRooms() {
+    public Map<RoomNumber, Room> getRoomsAsMap() {
         return rooms;
     }
+
+    public Rooms getRooms() { return new Rooms(rooms.values()); }
 
     public List<Room> findAllRoomsWithBookingsByGuestName(GuestName guestName) {
         Set<Room> rooms = new HashSet<>();

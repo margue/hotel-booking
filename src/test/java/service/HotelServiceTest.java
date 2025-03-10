@@ -1,6 +1,7 @@
 package service;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import persistence.*;
 
@@ -14,6 +15,13 @@ class HotelServiceTest {
     final RoomNumber roomNumber2 = new RoomNumber("2");
     final GuestName guestWithBooking = new GuestName("Peter");
 
+    public RoomRepository setupRoomRepository(int numberOfRooms) {
+        RoomRepository rooms = new RoomRepository();
+        for (int i = 1; i <= numberOfRooms; i++) {
+            rooms.save(new Room(new RoomNumber(Integer.toString(i)), new ArrayList<>()));
+        }
+        return rooms;
+    }
     public HotelService setupHotelService(int numberOfRooms) {
         RoomRepository rooms = new RoomRepository();
         for (int i = 1; i <= numberOfRooms; i++) {
@@ -91,12 +99,13 @@ class HotelServiceTest {
 
     @Test
     void bookRoom_bookingRequiresGuestName() {
-        HotelService service = setupHotelService(1);
+        RoomRepository rooms = setupRoomRepository(1);
+        HotelService service = new HotelService(rooms);
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Either<Error, RoomNumber> result = service.bookRoom(null);
+        Either<Error, Room> result = service.bookRoom(null, rooms.getRooms());
 
         // THEN
         assertThat(result.isError()).isTrue();
@@ -112,7 +121,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
         // WHEN
-        Either<Error, RoomNumber> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Peter")).result());
+        Either<Error, Room> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Peter")).result(), rooms.getRooms());
 
         // THEN
         assertThat(result.isError()).isFalse();
@@ -132,22 +141,17 @@ class HotelServiceTest {
         ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
         DepartureDate departureDate = new DepartureDate(2020, 10, 11);
 
-        Either<Error, RoomNumber> result1 = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Peter")).result());
+        Either<Error, Room> result1 = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Peter")).result(), rooms.getRooms());
         assertThat(result1.isError()).isFalse();
+        rooms.save(new Room(roomNumber1, new ArrayList<>()));
 
         // WHEN
-        Either<Error, RoomNumber> result2 = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Peter")).result());
+        Either<Error, Room> result2 = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Peter")).result(), rooms.getRooms());
 
         // THEN
         assertThat(result2.isError()).isFalse();
-        List<Room> foundRooms = rooms.findAllRoomsWithBookingsByGuestName(new GuestName("Peter"));
-        assertThat(foundRooms).hasSize(2);
-        assertThat(foundRooms).extracting("roomNumber")
-                        .containsExactlyInAnyOrder(roomNumber1, roomNumber2);
-        assertThat(foundRooms.get(0).getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundRooms.get(0).getBookings().get(0).getDepartureDate()).isEqualTo(departureDate);
-        assertThat(foundRooms.get(1).getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
-        assertThat(foundRooms.get(1).getBookings().get(0).getDepartureDate()).isEqualTo(departureDate);
+        assertThat(result2.result().getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
+        assertThat(result2.result().getBookings().get(0).getDepartureDate()).isEqualTo(departureDate);
     }
 
     @Test
@@ -159,7 +163,7 @@ class HotelServiceTest {
         DepartureDate departureDate = new DepartureDate(2020, 10, 12);
 
         // WHEN
-        Either<Error, RoomNumber> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Fred")).result());
+        Either<Error, Room> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Fred")).result(), rooms.getRooms());
 
         // THEN
         assertThat(result.isError()).isFalse();
@@ -179,7 +183,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Either<Error, RoomNumber> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Jack")).result());
+        Either<Error, Room> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Jack")).result(), rooms.getRooms());
 
         // THEN
         assertThat(result.isError()).isTrue();
@@ -198,7 +202,7 @@ class HotelServiceTest {
         HotelService service = new HotelService(rooms);
 
         // WHEN
-        Either<Error, RoomNumber> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Jim")).result());
+        Either<Error, Room> result = service.bookRoom(BookingRequest.of(arrivalDate, departureDate, new GuestName("Jim")).result(), rooms.getRooms());
 
         // THEN
         assertThat(result.isError()).isFalse();

@@ -146,7 +146,7 @@ public class HotelService {
      * @return price as Amount or null in case of no availability
      */
     public Either<Error, Amount> requestRoom(ArrivalDate arrivalDate, DepartureDate departureDate) {
-        for (Room room : rooms.getRooms().values()) {
+        for (Room room : rooms.getRoomsAsMap().values()) {
             if (room.roomIsFree(arrivalDate, departureDate)) {
                 return Either.ofResult(new Amount(100.0 * arrivalDate.daysUntil(departureDate.departureDate())));
             }
@@ -154,15 +154,14 @@ public class HotelService {
         return Either.ofError(new Error("No available room found for the desired dates"));
     }
 
-    public Either<Error, RoomNumber> bookRoom(BookingRequest bookingRequest) {
+    public Either<Error, Room> bookRoom(BookingRequest bookingRequest, Rooms allRooms) {
         if(bookingRequest == null){
             return Either.ofError(new Error("Booking request must be provided on booking!"));
         }
-        for (Room room : rooms.getRooms().values()) {
+        for (Room room : allRooms.rooms()) {
             if (room.roomIsFree(bookingRequest.arrivalDate(), bookingRequest.departureDate())) {
                 room.getBookings().add(new Booking(bookingRequest)); // no validation (race condition?)
-                rooms.save(room); // not needed here, but generally required for persistence
-                return Either.ofResult(room.getRoomNumber());
+                return Either.ofResult(room);
             }
         }
         return Either.ofError(new Error("No rooms available on the given date(s)"));
@@ -189,18 +188,18 @@ public class HotelService {
     }
 
     public Either<Error, Booking> checkOut(GuestName guestName, RoomNumber roomNumber, DepartureDate departureDate) {
-        Room room = rooms.getRooms().get(roomNumber);
+        Room room = rooms.getRoomsAsMap().get(roomNumber);
         List<Booking> bookingsToCheckOut = room.getBookings().stream()
                 .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
                 .filter(booking -> booking.getDepartureDate().equals(departureDate)).toList();
-        if(bookingsToCheckOut.size() == 0){
+        if (bookingsToCheckOut.size() == 0) {
             return Either.ofError(new Error("No booking to be checked out!"));
         }
-        if(bookingsToCheckOut.size() > 1){
+        if (bookingsToCheckOut.size() > 1) {
             return Either.ofError(new Error("More than one booking found!"));
         }
         Booking booking = bookingsToCheckOut.getFirst();
-        if(!booking.isInvoiced()){
+        if (!booking.isInvoiced()) {
             return Either.ofError(new Error("Checkout only possible for invoiced bookings."));
         }
         booking.setCheckedOut(true);
