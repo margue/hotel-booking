@@ -1,6 +1,7 @@
 package persistence;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Room {
@@ -37,5 +38,11 @@ public class Room {
             }
         }
         return true;
+    }
+
+    public Room add(Booking booking) {
+        List<Booking> newBookings = new ArrayList<>(bookings);
+        newBookings.add(booking);
+        return new Room(roomNumber, newBookings);
     }
 }

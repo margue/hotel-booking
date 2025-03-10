@@ -160,8 +160,7 @@ public class HotelService {
         }
         for (Room room : allRooms.rooms()) {
             if (room.roomIsFree(bookingRequest.arrivalDate(), bookingRequest.departureDate())) {
-                room.getBookings().add(new Booking(bookingRequest)); // no validation (race condition?)
-                return Either.ofResult(room);
+                return Either.ofResult(room.add(new Booking(bookingRequest)));
             }
         }
         return Either.ofError(new Error("No rooms available on the given date(s)"));

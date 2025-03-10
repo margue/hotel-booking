@@ -125,6 +125,7 @@ class HotelServiceTest {
 
         // THEN
         assertThat(result.isError()).isFalse();
+        rooms.save(result.result());
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Peter"));
         assertThat(foundBookings).hasSize(1);
         assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
@@ -150,6 +151,7 @@ class HotelServiceTest {
 
         // THEN
         assertThat(result2.isError()).isFalse();
+        rooms.save(result2.result());
         assertThat(result2.result().getBookings().get(0).getArrivalDate()).isEqualTo(arrivalDate);
         assertThat(result2.result().getBookings().get(0).getDepartureDate()).isEqualTo(departureDate);
     }
@@ -167,6 +169,7 @@ class HotelServiceTest {
 
         // THEN
         assertThat(result.isError()).isFalse();
+        rooms.save(result.result());
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Fred"));
         assertThat(foundBookings).hasSize(1);
         assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);
@@ -206,6 +209,7 @@ class HotelServiceTest {
 
         // THEN
         assertThat(result.isError()).isFalse();
+        rooms.save(result.result());
         List<Booking> foundBookings = rooms.findAllBookingsByGuestName(new GuestName("Jim"));
         assertThat(foundBookings).hasSize(1);
         assertThat(foundBookings.getFirst().getArrivalDate()).isEqualTo(arrivalDate);

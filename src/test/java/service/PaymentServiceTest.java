@@ -80,7 +80,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -105,7 +105,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -132,8 +132,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -164,8 +164,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber2);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate.minusDays(3), departureDate, guestName1).result(), roomRepository.getRooms());
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate.minusDays(3), departureDate, guestName1).result(), roomRepository.getRooms()).result());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate.minusDays(3));
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -195,8 +195,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate.minusDays(1), departureDate.minusDays(1), guestName1).result(), roomRepository.getRooms());
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate.minusDays(1), departureDate.minusDays(1), guestName1).result(), roomRepository.getRooms()).result());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate.minusDays(1));
         hotelService.checkIn(guestName1, arrivalDate);
 
@@ -226,7 +226,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -252,7 +252,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -279,7 +279,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -305,7 +305,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -332,7 +332,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -364,7 +364,7 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
 
         PaymentService service = setupPaymentService(paymentRepository, roomRepository);
@@ -391,8 +391,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
-        hotelService.bookRoom(BookingRequest.of(arrivalDate.minusDays(5), departureDate.minusDays(5), guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate.minusDays(5), departureDate.minusDays(5), guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.minusDays(5));
 
@@ -420,8 +420,8 @@ class PaymentServiceTest {
         roomNumbers.add(roomNumber1);
 
         HotelService hotelService = new HotelService(roomRepository);
-        hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms());
-        hotelService.bookRoom(BookingRequest.of(arrivalDate.plusDays(5), departureDate.plusDays(5), guestName1).result(), roomRepository.getRooms());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate, departureDate, guestName1).result(), roomRepository.getRooms()).result());
+        roomRepository.save(hotelService.bookRoom(BookingRequest.of(arrivalDate.plusDays(5), departureDate.plusDays(5), guestName1).result(), roomRepository.getRooms()).result());
         hotelService.checkIn(guestName1, arrivalDate);
         hotelService.checkIn(guestName1, arrivalDate.plusDays(5));
 
