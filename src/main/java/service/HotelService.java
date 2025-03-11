@@ -154,14 +154,13 @@ public class HotelService {
         return Either.ofError(new Error("No available room found for the desired dates"));
     }
 
-    public Either<Error, RoomNumber> bookRoom(ArrivalDate arrivalDate, DepartureDate departureDate, GuestName guestName) {
-        if (guestName == null) {
-            return Either.ofError(new Error("Guest name must be provided"));
+    public Either<Error, RoomNumber> bookRoom(BookingRequest bookingRequest) {
+        if(bookingRequest == null){
+            return Either.ofError(new Error("Booking request must be provided on booking!"));
         }
-        Booking booking = new Booking(arrivalDate, departureDate, guestName);
         for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(arrivalDate, departureDate)) {
-                room.getBookings().add(booking); // no validation (race condition?)
+            if (room.roomIsFree(bookingRequest.arrivalDate(), bookingRequest.departureDate())) {
+                room.getBookings().add(new Booking(bookingRequest)); // no validation (race condition?)
                 rooms.save(room); // not needed here, but generally required for persistence
                 return Either.ofResult(room.getRoomNumber());
             }

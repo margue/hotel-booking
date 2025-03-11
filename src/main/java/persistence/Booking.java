@@ -20,6 +20,10 @@ public class Booking {
         this.guestName = guestName;
     }
 
+    public Booking(BookingRequest request){
+        this(request.arrivalDate(), request.departureDate(), request.guestName());
+    }
+
     public boolean contains(LocalDate date) {
             return arrivalDate.isOnOrBefore(date) && departureDate.isAfter(date);
     }
