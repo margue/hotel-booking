@@ -154,10 +154,18 @@ public class HotelService {
         return Either.ofError(new Error("No available room found for the desired dates"));
     }
 
+    /*
+    Precondition: BookingRequest must not be null
+    Precondition: There must be a room available for the given dates
+
+    Postcondition: Guest has booked a room.
+     */
     public Either<Error, RoomNumber> bookRoom(BookingRequest bookingRequest) {
+
         if(bookingRequest == null){
             return Either.ofError(new Error("Booking request must be provided on booking!"));
         }
+
         for (Room room : rooms.getRooms().values()) {
             if (room.roomIsFree(bookingRequest.arrivalDate(), bookingRequest.departureDate())) {
                 room.getBookings().add(new Booking(bookingRequest)); // no validation (race condition?)

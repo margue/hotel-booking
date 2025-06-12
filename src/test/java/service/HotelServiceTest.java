@@ -104,6 +104,20 @@ class HotelServiceTest {
     }
 
     @Test
+    void bookRoom_bookingNotProvided() {
+        HotelService service = setupHotelService(1);
+        ArrivalDate arrivalDate = new ArrivalDate(2020, 10, 10);
+        DepartureDate departureDate = new DepartureDate(2020, 10, 11);
+
+        // WHEN
+        Either<Error, RoomNumber> result = service.bookRoom(null);
+
+        // THEN
+        assertThat(result.isError()).isTrue();
+        assertThat(result.error().errorMessage()).isEqualTo("Booking request must be provided on booking!");
+    }
+
+    @Test
     void bookRoom_roomAvailable() {
         // GIVEN
         RoomRepository rooms = setupRoomsWithOneRoomAndBookings();
