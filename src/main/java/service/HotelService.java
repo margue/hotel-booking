@@ -5,6 +5,7 @@ import persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class HotelService {
 
@@ -166,14 +167,16 @@ public class HotelService {
             return Either.ofError(new Error("Booking request must be provided on booking!"));
         }
 
-        for (Room room : rooms.getRooms().values()) {
-            if (room.roomIsFree(bookingRequest.arrivalDate(), bookingRequest.departureDate())) {
-                room.getBookings().add(new Booking(bookingRequest)); // no validation (race condition?)
-                rooms.save(room); // not needed here, but generally required for persistence
-                return Either.ofResult(room.getRoomNumber());
-            }
+        Optional<Room> freeRoom = rooms.getRooms().values().stream()
+                .filter(room -> room.roomIsFree(bookingRequest.arrivalDate(), bookingRequest.departureDate()))
+                .findFirst();
+        if (freeRoom.isEmpty()) {
+            return Either.ofError(new Error("No rooms available on the given date(s)"));
         }
-        return Either.ofError(new Error("No rooms available on the given date(s)"));
+
+        freeRoom.get().getBookings().add(new Booking(bookingRequest)); // no validation (race condition?)
+        rooms.save(freeRoom.get()); // not needed here, but generally required for persistence
+        return Either.ofResult(freeRoom.get().getRoomNumber());
     }
 
     public Either<Error, List<RoomNumber>> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
@@ -201,14 +204,14 @@ public class HotelService {
         List<Booking> bookingsToCheckOut = room.getBookings().stream()
                 .filter(booking -> Objects.equals(booking.getGuestName(), guestName))
                 .filter(booking -> booking.getDepartureDate().equals(departureDate)).toList();
-        if(bookingsToCheckOut.size() == 0){
+        if (bookingsToCheckOut.size() == 0) {
             return Either.ofError(new Error("No booking to be checked out!"));
         }
-        if(bookingsToCheckOut.size() > 1){
+        if (bookingsToCheckOut.size() > 1) {
             return Either.ofError(new Error("More than one booking found!"));
         }
         Booking booking = bookingsToCheckOut.getFirst();
-        if(!booking.isInvoiced()){
+        if (!booking.isInvoiced()) {
             return Either.ofError(new Error("Checkout only possible for invoiced bookings."));
         }
         booking.setCheckedOut(true);
