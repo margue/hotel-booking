@@ -66,4 +66,10 @@ public class Booking {
     public boolean isCheckedOut() {
         return this.checkedOut;
     }
+
+    public boolean matches(BookingRequest request){
+        return this.arrivalDate.equals(request.arrivalDate()) &&
+                this.departureDate.equals(request.departureDate()) &&
+                this.guestName.equals(request.guestName());
+    }
 }

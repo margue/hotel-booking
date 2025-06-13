@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HotelService {
 
@@ -156,17 +158,19 @@ public class HotelService {
     }
 
     /*
-    Precondition: BookingRequest must not be null
-    Precondition: There must be a room available for the given dates
+    Precondition 1: BookingRequest must not be null
+    Precondition 2: There must be a room available for the given dates
 
-    Postcondition: Guest has booked a room.
+    Postcondition 1: Guest has booked a room.
      */
     public Either<Error, RoomNumber> bookRoom(BookingRequest bookingRequest) {
 
+        // Precondition 1:
         if(bookingRequest == null){
             return Either.ofError(new Error("Booking request must be provided on booking!"));
         }
 
+        // Precondition 2:
         Optional<Room> freeRoom = rooms.getRooms().values().stream()
                 .filter(room -> room.roomIsFree(bookingRequest.arrivalDate(), bookingRequest.departureDate()))
                 .findFirst();
@@ -174,9 +178,19 @@ public class HotelService {
             return Either.ofError(new Error("No rooms available on the given date(s)"));
         }
 
-        freeRoom.get().getBookings().add(new Booking(bookingRequest)); // no validation (race condition?)
-        rooms.save(freeRoom.get()); // not needed here, but generally required for persistence
-        return Either.ofResult(freeRoom.get().getRoomNumber());
+        // Action
+        Room booked = freeRoom.get().add(new Booking(bookingRequest)); // no validation (race condition?)
+        rooms.save(booked);
+
+        // Postcondition 1:
+        if(rooms.getRooms().values().stream()
+                .noneMatch(room -> room.containsBookingThatMatches(bookingRequest))) {
+            String message = "Booking failed, Parameters: ...";
+            Logger.getAnonymousLogger().log(Level.SEVERE,  message);
+            throw new IllegalStateException(message);
+        };
+
+        return Either.ofResult(booked.getRoomNumber());
     }
 
     public Either<Error, List<RoomNumber>> checkIn(GuestName guestName, ArrivalDate arrivalDate) {
